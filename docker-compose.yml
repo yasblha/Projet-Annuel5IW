@@ -1,0 +1,172 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: main
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - shared_pgdata:/var/lib/postgresql/data
+
+  api-gateway:
+    build: ./services/api-gateway
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./services/api-gateway:/app/services/api-gateway
+      - ./application:/app/application
+      - ./domain:/app/domain
+      - ./infrastructure:/app/infrastructure
+      - ./Database:/app/Database
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=main
+      - DB_USER=postgres
+      - DB_PASS=postgres
+    depends_on:
+      - postgres
+
+  auth-service:
+    build: ./services/auth-service
+    container_name: auth-service
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./services/auth-service:/app/services/auth-service
+      - ./application:/app/application
+      - ./domain:/app/domain
+      - ./infrastructure:/app/infrastructure
+      - ./Database:/app/Database
+      - ./tsconfig.base.json:/app/tsconfig.base.json
+      - /app/node_modules
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=main
+      - DB_USER=postgres
+      - DB_PASS=postgres
+    depends_on:
+      - postgres
+
+  agency-service:
+    build: ./services/agency-service
+    container_name: agency-service
+    ports:
+      - "3002:3000"
+    volumes:
+      - ./services/agency-service:/app/services/agency-service
+      - ./application:/app/application
+      - ./domain:/app/domain
+      - ./infrastructure:/app/infrastructure
+      - ./Database:/app/Database
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=main
+      - DB_USER=postgres
+      - DB_PASS=postgres
+    depends_on:
+      - postgres
+
+  contrat-service:
+    build: ./services/contrat-service
+    container_name: contrat-service
+    ports:
+      - "3003:3000"
+    volumes:
+      - ./services/contrat-service:/app/services/contrat-service
+      - ./application:/app/application
+      - ./domain:/app/domain
+      - ./infrastructure:/app/infrastructure
+      - ./Database:/app/Database
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=main
+      - DB_USER=postgres
+      - DB_PASS=postgres
+    depends_on:
+      - postgres
+
+  affaire-service:
+    build: ./services/affaire-service
+    container_name: affaire-service
+    ports:
+      - "3004:3000"
+    volumes:
+      - ./services/affaire-service:/app/services/affaire-service
+      - ./application:/app/application
+      - ./domain:/app/domain
+      - ./infrastructure:/app/infrastructure
+      - ./Database:/app/Database
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=main
+      - DB_USER=postgres
+      - DB_PASS=postgres
+    depends_on:
+      - postgres
+
+  facture-service:
+    build: ./services/facture-service
+    container_name: facture-service
+    ports:
+      - "3005:3000"
+    volumes:
+      - ./services/facture-service:/app/services/facture-service
+      - ./application:/app/application
+      - ./domain:/app/domain
+      - ./infrastructure:/app/infrastructure
+      - ./Database:/app/Database
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=main
+      - DB_USER=postgres
+      - DB_PASS=postgres
+    depends_on:
+      - postgres
+
+  operation-service:
+    build: ./services/operation-service
+    container_name: operation-service
+    ports:
+      - "3006:3000"
+    volumes:
+      - ./services/operation-service:/app/services/operation-service
+      - ./application:/app/application
+      - ./domain:/app/domain
+      - ./infrastructure:/app/infrastructure
+      - ./Database:/app/Database
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=main
+      - DB_USER=postgres
+      - DB_PASS=postgres
+    depends_on:
+      - postgres
+
+  workflow-service:
+    build: ./services/workflow-service
+    container_name: workflow-service
+    ports:
+      - "3007:3000"
+    volumes:
+      - ./services/workflow-service:/app/services/workflow-service
+      - ./application:/app/application
+      - ./domain:/app/domain
+      - ./infrastructure:/app/infrastructure
+      - ./Database:/app/Database
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=main
+      - DB_USER=postgres
+      - DB_PASS=postgres
+    depends_on:
+      - postgres
+
+volumes:
+  shared_pgdata:
