@@ -5,23 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="36c7ccd2-a3be-45c0-a01d-ff76f66bc6c5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Database/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Database/models/adresse.model.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/agency-service/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/api-gateway/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/api-gateway/tsconfig.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/auth-service/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/contrat-service/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/contrat-service/tsconfig.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/facture-service/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/facture-service/tsconfig.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/operation-service/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/operation-service/tsconfig.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/workflow-service/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/workflow-service/tsconfig.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tsconfig.base.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Database/repositories/user.repository.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/application/services/password.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/application/services/validation.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/application/usecases/auth/register/register.admin.usecase.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/application/usecases/auth/register/register.interface.usecase.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/domain/entité/user.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/domain/errors/register.errors.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/auth-service/services/auth-service/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/services/auth-service/services/auth-service/src/app.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.base.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.base.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,6 +76,11 @@
       <recent name="$PROJECT_DIR$/services/contrat-service" />
       <recent name="$PROJECT_DIR$/services/api-gateway" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/application/usecases/auth/register" />
+      <recent name="$PROJECT_DIR$/application/usecases/auth/interface" />
+      <recent name="$PROJECT_DIR$/domain" />
+    </key>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -101,7 +100,7 @@
       <workItem from="1746569347959" duration="8816000" />
       <workItem from="1746627933634" duration="8943000" />
       <workItem from="1746804778571" duration="411000" />
-      <workItem from="1746805202073" duration="1362000" />
+      <workItem from="1746805202073" duration="17022000" />
     </task>
     <servers />
   </component>
