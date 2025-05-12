@@ -1,6 +1,5 @@
 import { UserRepository } from '@Database/repositories/user.repository';
-import bcrypt from 'bcrypt';
-import {User} from "@domain/entité/user";
+import bcrypt from 'bcryptjs';
 
 export class PasswordService {
     constructor(private readonly userRepository: UserRepository) {}
@@ -17,6 +16,11 @@ export class PasswordService {
     /** Met à jour le hash du mot de passe */
     async updatePassword(userId: string, newHash: string): Promise<void> {
         await this.userRepository.updatePassword({ userId, newHash });
+    }
+
+    /** find by personnal info */
+    async findByPersonnalInfo(name: string): Promise<any> {
+        return this.userRepository.findByPersonalInfo(name);
     }
 
     /** Vérifie si le mot de passe est suffisamment fort (CNIL) */
@@ -38,27 +42,8 @@ export class PasswordService {
     }
 
     /** Vérifie si l'utilisateur doit forcer le changement de mot de passe */
-    async shouldForcePasswordChange(userId: string): Promise<boolean> {
+    async shouldForcePasswordChange(userId: number): Promise<boolean> {
         const user = await this.userRepository.findById(userId);
         return this.isPasswordExpired(user.dateDerniereMAJMDP);
     }
-
-    /** Vérifie si le mot de passe est conforme aux exigences de sécurité */
-    validatePasswordCompliance(password: string): boolean {
-        const complianceRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-        return complianceRegex.test(password);
-    }
-
-    /** Vérifie si le mot de passe contient des informations personnelles */
-    async validatePasswordPersonalInfo(password: string, userId: number): Promise<boolean> {
-        const user = await this.userRepository.findById(userId);
-        const lowerPassword = password.toLowerCase();
-
-        const personalInfo = [user.nom, user.prenom, user.email, user.telephone]
-            .filter(Boolean)
-            .map(info => info.toLowerCase());
-        const containsPersonalInfo = personalInfo.some(info => lowerPassword.includes(info));
-        return !containsPersonalInfo;
-    }
-
 }

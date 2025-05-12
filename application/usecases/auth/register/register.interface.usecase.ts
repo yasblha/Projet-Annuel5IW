@@ -2,64 +2,57 @@ import { UserRepository } from '@Database/repositories/user.repository';
 import { User } from '@domain/entité/user';
 import { PasswordService } from '@application/services/password.service';
 import { RegisterErrors } from '@domain/errors/register.errors';
+import { PasswordValidator } from '@application/validators/password.validator';
 
 export class RegisterInterfaceUsecase {
     constructor(
-        private readonly userRepository: UserRepository,
-        private readonly passwordService: PasswordService
+      private readonly userRepository: UserRepository,
+      private readonly passwordService: PasswordService,
+      private readonly passwordValidator: typeof PasswordValidator
     ) {}
 
     public async execute(user: User): Promise<User> {
-        // Vérifie les champs obligatoires
-        const mandatoryFields = ['nom', 'prenom', 'email', 'hashMotDePasse', 'role', 'tenantId'];
-        const missingFields = mandatoryFields.filter((field) => !user[field as keyof User]);
+        const requiredFields = ['nom', 'prenom', 'email', 'hashMotDePasse', 'role', 'tenantId'];
+        const missingFields = this.passwordValidator.getMissingFields(user, requiredFields);
+
         if (missingFields.length > 0) {
             throw RegisterErrors.MissingMandatoryFields(missingFields);
         }
 
-        // Vérifie le format de l'email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(user.email)) {
+        if (!this.passwordValidator.validateEmailFormat(user.email)) {
             throw RegisterErrors.InvalidEmailFormat();
         }
 
-        // Vérifie si l'email est déjà utilisé
         const existingUser = await this.userRepository.findByEmail(user.email);
-        if (existingUser) throw RegisterErrors.EmailAlreadyUsed();
-
-        // Vérifie si le téléphone est déjà utilisé
-        if (user.telephone) {
-            const existingPhone = await this.userRepository.findByPhone(user.telephone);
-            if (existingPhone) throw RegisterErrors.PhoneAlreadyUsed();
+        if (existingUser) {
+            throw RegisterErrors.EmailAlreadyUsed();
         }
 
-        // Vérifie la solidité du mot de passe
+        if (user.telephone) {
+            const existingPhone = await this.userRepository.findByPhone(user.telephone);
+            if (existingPhone) {
+                throw RegisterErrors.PhoneAlreadyUsed();
+            }
+        }
+
         if (!this.passwordService.validatePasswordStrength(user.hashMotDePasse)) {
             throw RegisterErrors.WeakPassword();
         }
 
-        // Vérifie que le mot de passe ne contient pas d'infos personnelles
-        const containsPersonalInfo = await this.passwordService.validatePasswordPersonalInfo(
-            user.hashMotDePasse,
-            user.id
+        const hasPersonalInfo = this.passwordValidator.validatePasswordPersonalInfo(
+          user.hashMotDePasse,
+          [user.nom, user.prenom, user.email, user.telephone].filter(Boolean) as string[]
         );
-        if (containsPersonalInfo) {
+        if (hasPersonalInfo) {
             throw RegisterErrors.PasswordContainsPersonalInfo();
         }
 
-        // Hash du mot de passe
         const hashed = await this.passwordService.hashPassword(user.hashMotDePasse);
 
-        // Création du nouvel utilisateur
-        return await this.userRepository.create({
-            nom: user.nom,
-            prenom: user.prenom,
-            email: user.email,
-            role: user.role,
+        return this.userRepository.create({
+            ...user,
             telephone: user.telephone ?? null,
             hashMotDePasse: hashed,
-            tenantId: user.tenantId,
-            statut: user.statut,
         });
     }
 }

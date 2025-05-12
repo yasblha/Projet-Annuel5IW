@@ -1,10 +1,21 @@
+# Étape 1 : Base
 FROM node:20-alpine
 
-WORKDIR /app/services/auth-service
-
+# Étape 2 : Installer les dépendances du projet global
+WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
+# Étape 3 : Installer les dépendances spécifiques au auth-service
+WORKDIR /app/services/auth-service
+COPY ./services/auth-service/package*.json ./
+RUN npm install
+
+# Étape 4 : Copier tout le contenu du projet
 COPY . .
 
+# Expose le port utilisé par le service
+EXPOSE 3000
+
+# Étape 5 : Lancer le service auth uniquement
 CMD ["npm", "run", "start:dev"]

@@ -39,7 +39,7 @@ export class UserRepository {
     }
 
     /** Recherche un utilisateur par son ID */
-    async findById(id: string): Promise<UserInstance> {
+    async findById(id: number): Promise<UserInstance> {
         const user = await this.repo.findByPk(id);
         if (!user) throw new Error(`Utilisateur non trouvé (id=${id})`);
         return user;
@@ -52,6 +52,20 @@ export class UserRepository {
 
     async findByPhone(telephone: string | null): Promise<UserInstance | null> {
         return this.repo.findOne({ where: { telephone } });
+    }
+
+    /** Recherche un utilisateur par son personnel info */
+    async findByPersonalInfo(personalInfo: string): Promise<UserInstance | null> {
+        return this.repo.findOne({
+            where: {
+                [Op.or]: [
+                    { nom: { [Op.iLike]: personalInfo } },
+                    { prenom: { [Op.iLike]: personalInfo } },
+                    { email: { [Op.iLike]: personalInfo } },
+                    { telephone: { [Op.iLike]: personalInfo } },
+                ],
+            },
+        });
     }
 
 
@@ -72,7 +86,7 @@ export class UserRepository {
 
     /** Enregistre un échec de connexion et applique un lock si nécessaire */
     async registerFailedLogin(
-        userId: string,
+        userId: number,
         maxAttempts = 5,
         lockDurationMs = 30 * 60 * 1000
     ): Promise<void> {
@@ -95,7 +109,7 @@ export class UserRepository {
     }
 
     /** Réinitialise les compteurs d'échecs et déverrouille l'utilisateur */
-    async resetFailedLogins(userId: string): Promise<void> {
+    async resetFailedLogins(userId: number): Promise<void> {
         await this.repo.update(
             { tentativesEchecs: 0, dernierEchec: null, isLocked: false, lockedUntil: null },
             { where: { id: userId } }
@@ -103,7 +117,7 @@ export class UserRepository {
     }
 
     /** Vérifie si l'utilisateur est actuellement verrouillé */
-    async isLocked(userId: string): Promise<boolean> {
+    async isLocked(userId: number): Promise<boolean> {
         const user = await this.findById(userId);
         if (!user.isLocked) return false;
         if (user.lockedUntil && user.lockedUntil > new Date()) {
@@ -122,7 +136,7 @@ export class UserRepository {
     }
 
     /** Supprime (soft-delete) l'utilisateur */
-    async remove(userId: string): Promise<void> {
+    async remove(userId: number): Promise<void> {
         const user = await this.findById(userId);
         await user.destroy();
     }

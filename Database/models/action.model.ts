@@ -7,7 +7,11 @@ export default (sequelize: Sequelize): typeof Model => {
     }
     Action.init({
         id: { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
-        name: { type: DataTypes.ENUM('CREATE','READ','UPDATE','DELETE'), allowNull: false, unique: true }
+        name: {
+            type: DataTypes.ENUM('CREATE', 'READ', 'UPDATE', 'DELETE'),
+            allowNull: false,
+            unique: false
+        }
     }, {
         sequelize,
         modelName: 'Action',

@@ -2,58 +2,61 @@ import { UserRepository } from '@Database/repositories/user.repository';
 import { User } from '@domain/entité/user';
 import { PasswordService } from '@application/services/password.service';
 import { RegisterErrors } from '@domain/errors/register.errors';
-import { ValidationService } from '@application/services/validation.service';
+import { PasswordValidator } from '@application/validators/password.validator';
 
 export class AdminRegisterUseCase {
     constructor(
-        private readonly userRepository: UserRepository,
-        private readonly passwordService: PasswordService
+      private readonly userRepository: UserRepository,
+      private readonly passwordService: PasswordService,
+      private readonly passwordValidator: typeof PasswordValidator
     ) {}
 
-    public async execute(
-        admin: User,        // L'utilisateur qui effectue la création
-        newUser: User       // Le nouvel utilisateur à créer
-    ): Promise<User> {
+    public async execute(admin: User, newUser: User): Promise<User> {
         if (admin.role !== 'ADMIN') {
             throw RegisterErrors.UnauthorizedAction('Seul un administrateur peut créer de nouveaux utilisateurs.');
         }
 
-        const mandatoryFields = ['nom', 'prenom', 'email', 'hashMotDePasse', 'role', 'tenantId'];
-        const missingFields = ValidationService.getMissingFields(newUser, mandatoryFields);
+        const requiredFields = ['nom', 'prenom', 'email', 'hashMotDePasse', 'role', 'tenantId'];
+        const missingFields = this.passwordValidator.getMissingFields(newUser, requiredFields);
+
         if (missingFields.length > 0) {
             throw RegisterErrors.MissingMandatoryFields(missingFields);
         }
 
-        if (!ValidationService.validateEmailFormat(newUser.email)) {
+        if (!this.passwordValidator.validateEmailFormat(newUser.email)) {
             throw RegisterErrors.InvalidEmailFormat();
         }
 
         const existingUser = await this.userRepository.findByEmail(newUser.email);
-        if (existingUser) throw RegisterErrors.EmailAlreadyUsed();
+        if (existingUser) {
+            throw RegisterErrors.EmailAlreadyUsed();
+        }
 
         if (newUser.telephone) {
             const existingPhone = await this.userRepository.findByPhone(newUser.telephone);
-            if (existingPhone) throw RegisterErrors.PhoneAlreadyUsed();
+            if (existingPhone) {
+                throw RegisterErrors.PhoneAlreadyUsed();
+            }
         }
 
         if (!this.passwordService.validatePasswordStrength(newUser.hashMotDePasse)) {
             throw RegisterErrors.WeakPassword();
         }
 
-        const containsInfo = await this.passwordService.validatePasswordPersonalInfo(newUser.hashMotDePasse, newUser.id);
-        if (containsInfo) throw RegisterErrors.PasswordContainsPersonalInfo();
+        const hasPersonalInfo = this.passwordValidator.validatePasswordPersonalInfo(
+          newUser.hashMotDePasse,
+          [newUser.nom, newUser.prenom, newUser.email, newUser.telephone].filter(Boolean) as string[]
+        );
+        if (hasPersonalInfo) {
+            throw RegisterErrors.PasswordContainsPersonalInfo();
+        }
 
-        const hashed = await this.passwordService.hashPassword(newUser.hashMotDePasse);
+        const hashedPassword = await this.passwordService.hashPassword(newUser.hashMotDePasse);
 
-        return await this.userRepository.create({
-            nom: newUser.nom,
-            prenom: newUser.prenom,
-            email: newUser.email,
-            role: newUser.role,
+        return this.userRepository.create({
+            ...newUser,
             telephone: newUser.telephone ?? null,
-            hashMotDePasse: hashed,
-            tenantId: newUser.tenantId,
-            statut: newUser.statut,
+            hashMotDePasse: hashedPassword,
         });
     }
 }

@@ -48,7 +48,7 @@ export const initDatabase = async () => {
         await sequelize.authenticate();
         console.log('✅ Connexion à la base de données établie');
 
-        await sequelize.sync({ alter: true });
+        await sequelize.sync({ alter: true, force:true });
         console.log('✅ Synchronisation des modèles terminée');
     } catch (error) {
         console.error('❌ Erreur lors de l\'initialisation de la base de données:', error);

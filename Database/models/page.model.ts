@@ -7,7 +7,7 @@ export default (sequelize: Sequelize): typeof Model => {
     }
     Page.init({
         id: { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
-        key: { type: DataTypes.STRING, allowNull: false, unique: true, comment: 'Identifiant technique de la page' },
+        key: { type: DataTypes.STRING, allowNull: false, unique: false, comment: 'Identifiant technique de la page' },
         name: { type: DataTypes.STRING, allowNull: false, comment: 'Nom convivial de la page' },
         description: { type: DataTypes.TEXT, allowNull: true }
     }, {
