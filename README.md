@@ -98,7 +98,6 @@ text
 
 ## 🗂️ Structure du projet
 
-<img src="schema-exemple.png">
 ![screenshot](schema-exemple.png)
 
 > > **Note :** La structure peut évoluer selon les besoins du projet.
