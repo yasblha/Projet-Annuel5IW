@@ -3,9 +3,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 
 export class RegisterDto {
-    @ApiProperty({ example: 1 })
-    @IsString()
-    id: number;
 
     @ApiProperty()
     @IsNotEmpty()

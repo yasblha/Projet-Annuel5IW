@@ -4,6 +4,7 @@ import { UserRepository } from '@Database/repositories/user.repository';
 import { PasswordService } from '@application/services/password.service';
 import { RegisterInterfaceUsecase } from '@application/usecases/auth/register/register.interface.usecase';
 import { AdminRegisterUseCase } from '@application/usecases/auth/register/register.admin.usecase';
+import { PasswordValidator } from '@application/validators/password.validator';
 
 @Injectable()
 export class UsersService {
@@ -14,8 +15,8 @@ export class UsersService {
         private readonly userRepository: UserRepository,
         private readonly passwordService: PasswordService,
     ) {
-        this.registerInterfaceUsecase = new RegisterInterfaceUsecase(userRepository, passwordService);
-        this.adminRegisterUsecase = new AdminRegisterUseCase(userRepository, passwordService);
+        this.registerInterfaceUsecase = new RegisterInterfaceUsecase(userRepository, passwordService, PasswordValidator);
+        this.adminRegisterUsecase = new AdminRegisterUseCase(userRepository, passwordService, PasswordValidator);
     }
 
     async registerFromInterface(userData: User): Promise<User> {

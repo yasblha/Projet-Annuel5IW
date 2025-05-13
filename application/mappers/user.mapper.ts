@@ -3,7 +3,7 @@ import { User } from '@domain/entité/user';
 
 export function mapDtoToUser(dto: RegisterDto): User {
     return new User(
-        dto.id,
+        undefined,
         dto.nom,
         dto.prenom,
         dto.email,
@@ -26,7 +26,7 @@ export function mapDtoToUser(dto: RegisterDto): User {
 /** Convertit un utilisateur JWT (ex: admin) en entité User simplifiée */
 export function mapJwtToUser(jwt: any): User {
     return new User(
-        jwt.id,
+        undefined,
         jwt.nom,
         jwt.prenom,
         jwt.email,

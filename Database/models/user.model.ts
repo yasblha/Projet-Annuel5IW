@@ -55,7 +55,7 @@ export default (sequelize: Sequelize): typeof Model => {
             type: DataTypes.DATE,
             allowNull: true },
         tenantId: {
-            type: DataTypes.UUID,
+            type: DataTypes.STRING,
             allowNull: true },
 
         telephone: {
