@@ -24,7 +24,7 @@
 > - [Docker](https://www.docker.com/get-started)
 > - [Docker Compose](https://docs.docker.com/compose/)
 
-git clone https://github.com/votre-repo/facturation-eau.git
+git clone https://github.com/yasblha/aquerp.git
 cd facturation-eau
 docker compose up -d --build
 
@@ -168,8 +168,8 @@ Pour participer :
 ## ℹ️ Informations complémentaires
 
 - **Identifiants PostgreSQL par défaut :**
-    - Utilisateur : `postgres`
-    - Mot de passe : `postgres`
+  - Utilisateur : `postgres`
+  - Mot de passe : `postgres`
 - **Licence :** MIT
 - **Contact :** [contactprojectys@gmail.com]
 
