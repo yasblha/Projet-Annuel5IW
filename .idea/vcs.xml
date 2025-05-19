@@ -8,6 +8,7 @@
     <mapping directory="$PROJECT_DIR$/services/auth-service" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/services/contrat-service" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/services/facture-service" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/services/mailer-service" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/services/operation-service" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/services/workflow-service" vcs="Git" />
   </component>

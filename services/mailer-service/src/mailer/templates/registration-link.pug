@@ -1,0 +1,14 @@
+doctype html
+html
+    head
+        title Confirmation de votre compte
+    body
+        h2 Bonjour #{user.firstname},
+        p Merci de vous être inscrit.
+        p Pour confirmer votre adresse email et activer votre compte, cliquez sur le lien ci-dessous :
+        p
+            a(href=confirmationLink) Confirmer mon adresse
+        p Ce lien est valable pendant 24h.
+        br
+        p Si vous n’êtes pas à l’origine de cette demande, vous pouvez ignorer cet email.
+        p -- L’équipe Support

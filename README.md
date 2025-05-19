@@ -37,16 +37,18 @@ text
 
 ## 📦 Microservices
 
-| Microservice         | Port                          | Description                                    |
-|----------------------|-------------------------------|------------------------------------------------|
-| 🛡️ **Auth**          | [3000](http://localhost:3001) | Authentification, gestion des utilisateurs et rôles |
-| 🏢 **Agency**        | [3001](http://localhost:3002) | Gestion des agences et entités                  |
-| 📄 **Contrat**       | [3002](http://localhost:3003) | Création et suivi des contrats clients          |
-| 🔧 **Operation**     | [3003](http://localhost:3004) | Suivi des interventions et incidents            |
-| 💳 **Facture**       | [3004](http://localhost:3005) | Facturation, paiements, relances                |
-| 📁 **Affaire**       | [3005](http://localhost:3006) | Gestion des affaires métiers                    |
-| 🔄 **Workflow**      | [3006](http://localhost:3007) | Automatisation et suivi des workflows           |
-| 🌐 **API Gateway**   | [8080](http://localhost:3000) | Passerelle unifiée (optionnelle)                |
+| Microservice         | Port                          | Description                                         |
+|----------------------|-------------------------------|-----------------------------------------------------|
+| 🛡️ **Auth**         | [3000](http://localhost:3001) | Authentification, gestion des utilisateurs et rôles |
+| 🏢 **Agency**        | [3001](http://localhost:3002) | Gestion des agences et entités                      |
+| 📄 **Contrat**       | [3002](http://localhost:3003) | Création et suivi des contrats clients              |
+| 🔧 **Operation**     | [3003](http://localhost:3004) | Suivi des interventions et incidents                |
+| 💳 **Facture**       | [3004](http://localhost:3005) | Facturation, paiements, relances                    |
+| 📁 **Affaire**       | [3005](http://localhost:3006) | Gestion des affaires métiers                        |
+| 🔄 **Workflow**      | [3006](http://localhost:3007) | Automatisation et suivi des workflows               |
+| **Mailer service**   | [3006](http://localhost:3008) | Templates de mails                                  |
+| 🌐 **API Gateway**   | [8080](http://localhost:3000) | Passerelle unifiée (optionnelle)                    |
+
 
 ---
 
