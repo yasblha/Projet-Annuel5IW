@@ -24,11 +24,11 @@
 > - [Docker](https://www.docker.com/get-started)
 > - [Docker Compose](https://docs.docker.com/compose/)
 
+```bash
 git clone https://github.com/yasblha/aquerp.git
 cd facturation-eau
 docker compose up -d --build
-
-text
+```
 
 - Accédez à l’interface de chaque microservice via les ports indiqués ci-dessous.
 - **RabbitMQ UI** : [http://localhost:15672](http://localhost:15672) (login: `guest` / `guest`)
@@ -41,14 +41,13 @@ text
 |----------------------|-------------------------------|-----------------------------------------------------|
 | 🛡️ **Auth**         | [3000](http://localhost:3001) | Authentification, gestion des utilisateurs et rôles |
 | 🏢 **Agency**        | [3001](http://localhost:3002) | Gestion des agences et entités                      |
-| 📄 **Contrat**       | [3002](http://localhost:3003) | Création et suivi des contrats clients              |
-| 🔧 **Operation**     | [3003](http://localhost:3004) | Suivi des interventions et incidents                |
-| 💳 **Facture**       | [3004](http://localhost:3005) | Facturation, paiements, relances                    |
-| 📁 **Affaire**       | [3005](http://localhost:3006) | Gestion des affaires métiers                        |
-| 🔄 **Workflow**      | [3006](http://localhost:3007) | Automatisation et suivi des workflows               |
-| **Mailer service**   | [3006](http://localhost:3008) | Templates de mails                                  |
-| 🌐 **API Gateway**   | [8080](http://localhost:3000) | Passerelle unifiée (optionnelle)                    |
-
+| 📄 **Contrat**       | [3002](http://localhost:3003) | Création et gestion des contrats clients            |
+| 🔧 **Operation**     | [3003](http://localhost:3004) | Suivi des interventions et incidents terrain        |
+| 💳 **Facture**       | [3004](http://localhost:3005) | Facturation manuelle/automatique, paiements         |
+| 📁 **Affaire**       | [3005](http://localhost:3006) | Génération des affaires métiers liées aux workflows |
+| 🔄 **Workflow**      | [3006](http://localhost:3007) | Orchestration des plans d’action métiers            |
+| 📬 **Mailer**        | [3007](http://localhost:3008) | Notification mail (factures, relances, alertes)     |
+| 🌐 **API Gateway**   | [8080](http://localhost:3000) | Point d’entrée unifié (reverse proxy)               |
 
 ---
 
@@ -57,69 +56,69 @@ text
 <details>
 <summary><strong>🔐 Authentification & Sécurité</strong></summary>
 
-- Authentification JWT, MFA, gestion avancée des rôles (ADMIN, TECH, AGENT)
-- Conformité RGPD : consentements, anonymisation, droit à l’oubli
-- Journalisation des actions utilisateurs
+- Authentification via JWT, MFA
+- SSO possible pour intégration collectivité
+- Gestion dynamique des rôles
+- Journalisation RGPD
 </details>
 
 <details>
 <summary><strong>📑 Gestion des Contrats</strong></summary>
 
-- Contrats résidentiels, professionnels, collectifs
-- Cosignataires (colocation, copropriété)
-- Tarification dynamique et personnalisable
-- Cycle de vie complet : création, modification, suspension, résiliation
+- Contrats individuels, collectifs, agricoles, commerciaux
+- Gestion des co-signataires
+- Tarification dynamique (profil, saison, tranche)
+- Cycle de vie complet : demande, activation, modification, suspension, résiliation
 </details>
 
 <details>
 <summary><strong>💳 Facturation & Paiement</strong></summary>
 
-- Facturation périodique ou manuelle
-- Multi-services : eau potable, assainissement, etc.
-- Paiements SEPA, carte bancaire, mobile
-- Relances automatiques, échéanciers, gestion des impayés
+- Facturation manuelle ou automatique (par plan d’action)
+- Paiements : CB, SEPA, mobile
+- Suivi par client/compteur (pas de listing global)
+- Relances automatiques, échéanciers, avoirs, duplicatas
 </details>
 
 <details>
 <summary><strong>🔧 Interventions techniques</strong></summary>
 
-- Planification et suivi des interventions
-- Gestion des incidents, urgences, fuites
-- Intégration IoT (relevés automatiques, alertes)
+- Planification intelligente des interventions
+- Bons d’intervention PDF
+- Suivi des incidents, astreintes, urgences
+- Relevé IoT intégré
 </details>
 
 <details>
 <summary><strong>📁 Affaires & Workflows</strong></summary>
 
-- Création automatique d’affaires métier (relances, maintenance)
-- Visualisation de l’avancement par étapes
-- Blocage/déblocage d’étapes, gestion des dépendances
+- Plans d’action multi-étapes
+- Étapes dynamiques (formulaire, API, validation)
+- Assignation par rôle
+- Questionnaires dynamiques intégrés
+- Historisation des exécutions
 </details>
 
 ---
 
 ## 🗂️ Structure du projet
 
-![screenshot](schema-exemple.png)
-
-> > **Note :** La structure peut évoluer selon les besoins du projet.
-
-```
+```bash
 project-root/
-├── application/ # Cas d’utilisation, DTOs, validateurs
-├── domain/ # Entités métier et erreurs
-├── infrastructure/ # (à compléter si besoin)
-├── Database/ # Models Sequelize, repositories, migrations
-├── services/ # Microservices NestJS
-│ ├── auth-service/
-│ ├── agency-service/
-│ ├── contrat-service/
-│ ├── operation-service/
-│ ├── facture-service/
-│ ├── affaire-service/
-│ ├── workflow-service/
-│ └── api-gateway/
-├── tsconfig.base.json
+├── application/             # Usecases, services métier, DTOs
+├── domain/                  # Entités métier, erreurs
+├── infrastructure/          # Interfaces techniques
+├── Database/                # Sequelize models, migrations
+├── services/
+│   ├── auth-service/
+│   ├── agency-service/
+│   ├── contrat-service/
+│   ├── operation-service/
+│   ├── facture-service/     # Spring Boot
+│   ├── affaire-service/
+│   ├── workflow-service/
+│   ├── mailer-service/
+│   └── api-gateway/
 ├── docker-compose.yml
 └── README.md
 ```
@@ -128,57 +127,60 @@ project-root/
 
 ## 🖼️ Schéma d’architecture
 
+![Schéma d’architecture](schema-exemple.png)
+
+
 > Placez votre schéma d’architecture dans le dossier racine ou `/docs` pour qu’il s’affiche sur GitHub.
 
 ---
 
 ## 🧪 Tests & Qualité
 
-Chaque microservice possède ses propres tests unitaires et d’intégration.
-
+```bash
 cd services/auth-service
 npm run test
+```
 
-text
-
-- **Conseil :** Ajoutez des tests pour chaque nouvelle fonctionnalité ou correction de bug !
+- Tests unitaires et d’intégration dans chaque microservice
+- CI/CD à venir
+- Lint et coverage recommandés
 
 ---
 
 ## 📚 Ressources & Docs
 
-- [NestJS](https://docs.nestjs.com/) &middot; [Sequelize](https://sequelize.org/) &middot; [Docker](https://docs.docker.com/)
-- [PostgreSQL](https://www.postgresql.org/docs/) &middot; [RabbitMQ](https://www.rabbitmq.com/documentation.html)
+- [NestJS](https://docs.nestjs.com/)
+- [Spring Boot](https://spring.io/)
+- [Sequelize](https://sequelize.org/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [RabbitMQ](https://www.rabbitmq.com/)
+- [Docker](https://www.docker.com/)
 
 ---
 
 ## 🛠️ Contribution
 
-Les contributions sont **bienvenues** !  
-Pour participer :
+Les contributions sont **bienvenues** !
 
-1. **Forkez** ce dépôt
-2. **Créez** une branche : `feature/votre-fonctionnalité`
-3. **Développez** et **documentez** votre code
-4. **Vérifiez** que les tests passent
-5. **Soumettez** une Pull Request (PR)
+1. Forkez ce dépôt
+2. Créez une branche `feature/ma-feature`
+3. Codez et testez
+4. Proposez une PR
 
-> **Tips :** Pensez à bien commenter votre code et à mettre à jour la documentation si besoin !
+> Merci de documenter votre code et d’assurer la qualité des tests !
 
 ---
 
 ## ℹ️ Informations complémentaires
 
-- **Identifiants PostgreSQL par défaut :**
-  - Utilisateur : `postgres`
-  - Mot de passe : `postgres`
-- **Licence :** MIT
-- **Contact :** [contactprojectys@gmail.com]
+- PostgreSQL : `postgres` / `postgres`
+- RabbitMQ : `guest` / `guest`
+- Licence : MIT
+- Contact : contactprojectys@gmail.com
 
 ---
 
-> Ce projet est une base robuste pour déployer un système complet de gestion de facturation et de relation client pour les gestionnaires d’eau.  
-> **Adaptable** pour collectivités locales, régies ou entreprises privées.
+> Ce projet est une base robuste, pensée pour être **modulaire**, **scalable** et **orientée métier**, adaptée aux régies, collectivités ou entreprises privées du secteur de l’eau.
 
 ---
 
