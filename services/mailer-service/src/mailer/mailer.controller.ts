@@ -1,4 +1,5 @@
 import { Controller, Post, Body } from '@nestjs/common';
+import { EventPattern, Payload } from '@nestjs/microservices';
 import { MailerService } from './mailer.service';
 import { SendMailDto } from './dto/send-mail.dto';
 
@@ -22,5 +23,10 @@ export class MailerController {
   async sendRegistrationConfirm(@Body() body: { to: string; firstname: string; token: string }) {
     await this.mailerService.sendConfirmationSuccess(body);
     return { message: 'Mail de compte confirmé envoyé.' };
+  }
+
+  @EventPattern('user.registered')
+  async handleUserRegistered(@Payload() payload: { email: string; firstname: string }) {
+    await this.mailerService.sendWelcomeEmail({ to: payload.email, name: payload.firstname });
   }
 }

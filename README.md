@@ -46,8 +46,8 @@ text
 | 💳 **Facture**       | [3004](http://localhost:3005) | Facturation, paiements, relances                    |
 | 📁 **Affaire**       | [3005](http://localhost:3006) | Gestion des affaires métiers                        |
 | 🔄 **Workflow**      | [3006](http://localhost:3007) | Automatisation et suivi des workflows               |
-| **Mailer service**   | [3006](http://localhost:3008) | Templates de mails                                  |
-| 🌐 **API Gateway**   | [8080](http://localhost:3000) | Passerelle unifiée (optionnelle)                    |
+| **Mailer service**   | [3007](http://localhost:3008) | Templates de mails                                  |
+| 🌐 **API Gateway**   | [3000](http://localhost:8080) | Passerelle unifiée (optionnelle)                    |
 
 
 ---

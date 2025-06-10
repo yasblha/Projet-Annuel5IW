@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { User } from '@domain/entité/user';
 import { UserRepository } from '@Database/repositories/user.repository';
 import { PasswordService } from '@application/services/password.service';
@@ -14,16 +15,27 @@ export class UsersService {
     constructor(
         private readonly userRepository: UserRepository,
         private readonly passwordService: PasswordService,
+        @Inject('MAILER_SERVICE') private readonly mailerClient: ClientProxy,
     ) {
         this.registerInterfaceUsecase = new RegisterInterfaceUsecase(userRepository, passwordService, PasswordValidator);
         this.adminRegisterUsecase = new AdminRegisterUseCase(userRepository, passwordService, PasswordValidator);
     }
 
     async registerFromInterface(userData: User): Promise<User> {
-        return this.registerInterfaceUsecase.execute(userData);
+        const user = await this.registerInterfaceUsecase.execute(userData);
+        this.mailerClient.emit('user.registered', {
+            email: user.email,
+            firstname: user.prenom,
+        });
+        return user;
     }
 
     async registerFromAdmin(adminUser: User, newUser: User): Promise<User> {
-        return this.adminRegisterUsecase.execute(adminUser, newUser);
+        const user = await this.adminRegisterUsecase.execute(adminUser, newUser);
+        this.mailerClient.emit('user.registered', {
+            email: user.email,
+            firstname: user.prenom,
+        });
+        return user;
     }
 }

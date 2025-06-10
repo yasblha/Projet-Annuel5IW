@@ -14,11 +14,19 @@ services:
     volumes:
       - shared_pgdata:/var/lib/postgresql/data
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    restart: always
+
   api-gateway:
     build: ./services/api-gateway
     container_name: api-gateway
     ports:
-      - "3000:3000"
+      - "8080:3000"
     volumes:
       - ./services/api-gateway:/app/services/api-gateway
       - ./application:/app/application
@@ -30,8 +38,11 @@ services:
       - DB_NAME=main
       - DB_USER=postgres
       - DB_PASS=postgres
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - AUTH_SERVICE_URL=http://auth-service:3000
     depends_on:
       - postgres
+      - rabbitmq
 
   auth-service:
     build:
@@ -57,8 +68,10 @@ services:
       - DB_NAME=main
       - DB_USER=postgres
       - DB_PASS=postgres
+      - RABBITMQ_URL=amqp://rabbitmq:5672
     depends_on:
       - postgres
+      - rabbitmq
 
   agency-service:
     build: ./services/agency-service
@@ -173,6 +186,22 @@ services:
       - DB_PASS=postgres
     depends_on:
       - postgres
+
+  mailer-service:
+    build: ./services/mailer-service
+    container_name: mailer-service
+    ports:
+      - "3008:3000"
+    volumes:
+      - ./services/mailer-service:/app/services/mailer-service
+      - ./application:/app/application
+      - ./domain:/app/domain
+      - ./infrastructure:/app/infrastructure
+      - ./Database:/app/Database
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - rabbitmq
 
 volumes:
   shared_pgdata:
