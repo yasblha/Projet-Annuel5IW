@@ -23,31 +23,25 @@
 > **Prérequis :**
 > - [Docker](https://www.docker.com/get-started)
 > - [Docker Compose](https://docs.docker.com/compose/)
-
 git clone https://github.com/yasblha/aquerp.git
-cd facturation-eau
+cd aquerp
 docker compose up -d --build
-
-text
-
 - Accédez à l’interface de chaque microservice via les ports indiqués ci-dessous.
 - **RabbitMQ UI** : [http://localhost:15672](http://localhost:15672) (login: `guest` / `guest`)
-
 ---
-
 ## 📦 Microservices
 
 | Microservice         | Port                          | Description                                         |
 |----------------------|-------------------------------|-----------------------------------------------------|
-| 🛡️ **Auth**         | [3000](http://localhost:3001) | Authentification, gestion des utilisateurs et rôles |
-| 🏢 **Agency**        | [3001](http://localhost:3002) | Gestion des agences et entités                      |
-| 📄 **Contrat**       | [3002](http://localhost:3003) | Création et suivi des contrats clients              |
-| 🔧 **Operation**     | [3003](http://localhost:3004) | Suivi des interventions et incidents                |
-| 💳 **Facture**       | [3004](http://localhost:3005) | Facturation, paiements, relances                    |
-| 📁 **Affaire**       | [3005](http://localhost:3006) | Gestion des affaires métiers                        |
-| 🔄 **Workflow**      | [3006](http://localhost:3007) | Automatisation et suivi des workflows               |
-| **Mailer service**   | [3007](http://localhost:3008) | Templates de mails                                  |
-| 🌐 **API Gateway**   | [3000](http://localhost:8080) | Passerelle unifiée (optionnelle)                    |
+| 🛡️ **Auth**         | [3001](http://localhost:3001) | Authentification, gestion des utilisateurs et rôles |
+| 🏢 **Agency**        | [3002](http://localhost:3002) | Gestion des agences et entités                      |
+| 📄 **Contrat**       | [3003](http://localhost:3003) | Création et suivi des contrats clients              |
+| 🔧 **Operation**     | [3006](http://localhost:3006) | Suivi des interventions et incidents                |
+| 💳 **Facture**       | [3005](http://localhost:3005) | Facturation, paiements, relances                    |
+| 📁 **Affaire**       | [3004](http://localhost:3004) | Gestion des affaires métiers                        |
+| 🔄 **Workflow**      | [3007](http://localhost:3007) | Automatisation et suivi des workflows               |
+| **Mailer service**   | [3008](http://localhost:3008) | Templates de mails                                  |
+| 🌐 **API Gateway**   | [8080](http://localhost:8080) | Passerelle unifiée (optionnelle)                    |
 
 
 ---
@@ -131,20 +125,12 @@ project-root/
 > Placez votre schéma d’architecture dans le dossier racine ou `/docs` pour qu’il s’affiche sur GitHub.
 
 ---
-
 ## 🧪 Tests & Qualité
-
 Chaque microservice possède ses propres tests unitaires et d’intégration.
 
 cd services/auth-service
 npm run test
-
-text
-
 - **Conseil :** Ajoutez des tests pour chaque nouvelle fonctionnalité ou correction de bug !
-
----
-
 ## 📚 Ressources & Docs
 
 - [NestJS](https://docs.nestjs.com/) &middot; [Sequelize](https://sequelize.org/) &middot; [Docker](https://docs.docker.com/)
