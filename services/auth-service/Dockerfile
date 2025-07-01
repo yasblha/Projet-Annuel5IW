@@ -9,10 +9,13 @@ RUN npm install
 # Étape 3 : Installer les dépendances spécifiques au auth-service
 WORKDIR /app/services/auth-service
 COPY ./services/auth-service/package*.json ./
-RUN npm install
+RUN npm ci
 
 # Étape 4 : Copier tout le contenu du projet
-COPY . .
+COPY services/auth-service .
+
+ENV NODE_ENV=development \
+    TZ=UTC
 
 # Expose le port utilisé par le service
 EXPOSE 3000
