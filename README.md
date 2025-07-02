@@ -25,21 +25,21 @@
 > - [Docker Compose](https://docs.docker.com/compose/)
 
 ```bash
+
 git clone https://github.com/yasblha/aquerp.git
-cd facturation-eau
+cd aquerp
 docker compose up -d --build
 ```
 
+
 - Accédez à l’interface de chaque microservice via les ports indiqués ci-dessous.
 - **RabbitMQ UI** : [http://localhost:15672](http://localhost:15672) (login: `guest` / `guest`)
-
 ---
-
 ## 📦 Microservices
 
 | Microservice         | Port                          | Description                                         |
 |----------------------|-------------------------------|-----------------------------------------------------|
-| 🛡️ **Auth**         | [3000](http://localhost:3001) | Authentification, gestion des utilisateurs et rôles |
+| 🛡️ **Auth**          | [3000](http://localhost:3001) | Authentification, gestion des utilisateurs et rôles |
 | 🏢 **Agency**        | [3001](http://localhost:3002) | Gestion des agences et entités                      |
 | 📄 **Contrat**       | [3002](http://localhost:3003) | Création et gestion des contrats clients            |
 | 🔧 **Operation**     | [3003](http://localhost:3004) | Suivi des interventions et incidents terrain        |
@@ -48,6 +48,7 @@ docker compose up -d --build
 | 🔄 **Workflow**      | [3006](http://localhost:3007) | Orchestration des plans d’action métiers            |
 | 📬 **Mailer**        | [3007](http://localhost:3008) | Notification mail (factures, relances, alertes)     |
 | 🌐 **API Gateway**   | [8080](http://localhost:3000) | Point d’entrée unifié (reverse proxy)               |
+
 
 ---
 
@@ -133,7 +134,6 @@ project-root/
 > Placez votre schéma d’architecture dans le dossier racine ou `/docs` pour qu’il s’affiche sur GitHub.
 
 ---
-
 ## 🧪 Tests & Qualité
 
 ```bash
@@ -146,6 +146,7 @@ npm run test
 - Lint et coverage recommandés
 
 ---
+
 
 ## 📚 Ressources & Docs
 

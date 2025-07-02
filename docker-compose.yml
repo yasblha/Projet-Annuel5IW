@@ -27,13 +27,14 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
+
   api-gateway:
     build:
       context: .
       dockerfile: ./services/api-gateway/Dockerfile
     container_name: api-gateway
     ports:
-      - "3000:3000"
+      - "8080:3000"
     volumes:
       - ./services/api-gateway:/app
       - api-gateway_node_modules:/app/services/api-gateway/node_modules
@@ -49,6 +50,7 @@ services:
       - postgres
       - rabbitmq
       - auth-service
+
 
   auth-service:
     build:
@@ -118,6 +120,7 @@ services:
       - VITE_APP_TITLE=Billing System
     depends_on:
       - api-gateway
+
 
   agency-service:
     build: ./services/agency-service
@@ -232,6 +235,22 @@ services:
       - DB_PASS=postgres
     depends_on:
       - postgres
+
+  mailer-service:
+    build: ./services/mailer-service
+    container_name: mailer-service
+    ports:
+      - "3008:3000"
+    volumes:
+      - ./services/mailer-service:/app/services/mailer-service
+      - ./application:/app/application
+      - ./domain:/app/domain
+      - ./infrastructure:/app/infrastructure
+      - ./Database:/app/Database
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - rabbitmq
 
 volumes:
   shared_pgdata:
