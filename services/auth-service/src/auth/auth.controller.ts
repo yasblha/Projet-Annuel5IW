@@ -1,10 +1,13 @@
-import { Controller, Post, Body, Req } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from '@application/dtos/auth/register.dto';
 import { LoginDto } from '@application/dtos/auth/login.dto';
 import { mapDtoToUser, mapJwtToUser } from '@application/mappers/user.mapper';
 import { ApiTags, ApiBody, ApiBearerAuth, ApiOperation, ApiResponse, ApiProperty } from '@nestjs/swagger';
+import { Roles } from '@infrastructure/guards/roles.decorator';
+import { AuthGuard } from '@infrastructure/guards/auth.guard';
+import { RolesGuard } from '@infrastructure/guards/roles.guard';
 import { JwtService } from '@nestjs/jwt';
 
 // DTOs pour Swagger avec exemples
@@ -169,6 +172,28 @@ export class AuthController {
         }
     }
 
+    @MessagePattern('auth.invite')
+    async handleInvite(@Payload() data: { userId: string }) {
+        try {
+            const token = await this.UsersService.inviteUser(data.userId);
+            return { success: true, token };
+        } catch (error) {
+            return { success: false, error: error.message, status: 500 };
+        }
+    }
+
+    @MessagePattern('auth.confirm')
+    async handleConfirm(@Payload() data: { token: string; password: string }) {
+        try {
+            const user = await this.UsersService.confirmInvitation(data.token, data.password);
+            const payload = { sub: user.id, email: user.email, role: user.role };
+            const access_token = this.jwtService.sign(payload);
+            return { success: true, data: { access_token, user } };
+        } catch (error) {
+            return { success: false, error: error.message, status: 400 };
+        }
+    }
+
     // Handlers HTTP (accès direct)
     @Post('register')
     @ApiOperation({ 
@@ -252,9 +277,30 @@ export class AuthController {
         description: 'Utilisateur créé par admin',
         type: UserResponseSwagger
     })
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles('ADMIN')
     registerByAdmin(@Req() req, @Body() dto: RegisterDto) {
         const admin = mapJwtToUser(req.user);
         const newUser = mapDtoToUser(dto);
         return this.UsersService.registerFromAdmin(admin, newUser);
+    }
+
+    @Post('login')
+    @ApiOperation({ summary: 'Connexion' })
+    login(@Body() dto: LoginDto) {
+        return this.handleLogin(dto);
+    }
+
+    @Post('invite')
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles('ADMIN')
+    invite(@Body('userId') userId: string) {
+        return this.UsersService.inviteUser(userId);
+    }
+
+    @Post('confirm')
+    confirm(@Body() body: { token: string; password: string }) {
+        return this.UsersService.confirmInvitation(body.token, body.password);
     }
 }
