@@ -1,8 +1,11 @@
-import { Controller, Post, Body, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Inject, HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { firstValueFrom } from 'rxjs';
-import { RegisterDto, LoginDto, AuthResponseDto } from '@application/dtos/auth';
+import { RegisterDto, LoginDto, AuthResponseDto, ConfirmDto } from '@application/dtos/auth';
+import { Roles } from '@infrastructure/guards/roles.decorator';
+import { AuthGuard } from '@infrastructure/guards/auth.guard';
+import { RolesGuard } from '@infrastructure/guards/roles.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -74,8 +77,25 @@ export class AuthController {
     status: 403,
     description: 'Accès refusé - Réservé aux administrateurs'
   })
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
   async registerByAdmin(@Body() registerData: RegisterDto) {
     return this.handleRequest('auth.admin.register', registerData);
+  }
+
+  @Post('invite')
+  @ApiOperation({ summary: 'Envoi d\'une invitation', description: 'Génère un token et envoie un email' })
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async invite(@Body('userId') userId: string) {
+    return this.handleRequest('auth.invite', { userId });
+  }
+
+  @Post('confirm')
+  @ApiOperation({ summary: 'Confirmation d\'invitation' })
+  @ApiBody({ type: ConfirmDto })
+  async confirm(@Body() data: ConfirmDto) {
+    return this.handleRequest('auth.confirm', data);
   }
 
   private async handleRequest(pattern: string, data: any) {

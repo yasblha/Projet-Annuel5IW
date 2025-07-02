@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { randomBytes } from 'crypto';
 import { User } from '@domain/entité/user';
 import { UserRepository } from '@Database/repositories/user.repository';
 import { PasswordService } from '@application/services/password.service';
@@ -13,6 +14,7 @@ export class UsersService {
     private registerInterfaceUsecase: RegisterInterfaceUsecase;
     private adminRegisterUsecase: AdminRegisterUseCase;
     private loginUsecase: LoginUseCase;
+    private invitationTokens = new Map<string, string>();
 
     constructor(
         private readonly userRepository: UserRepository,
@@ -44,5 +46,33 @@ export class UsersService {
 
     async loginUser(email: string, password: string): Promise<User> {
         return this.loginUsecase.execute(email, password);
+    }
+
+    async inviteUser(userId: string): Promise<string> {
+        const user = await this.userRepository.findById(userId as any);
+        const token = randomBytes(20).toString('hex');
+        this.invitationTokens.set(token, user.id as any);
+        this.mailerClient.emit('user.invite', {
+            to: user.email,
+            firstname: user.prenom,
+            token,
+        });
+        return token;
+    }
+
+    async confirmInvitation(token: string, password: string): Promise<User> {
+        const userId = this.invitationTokens.get(token);
+        if (!userId) {
+            throw new Error('Token invalide');
+        }
+        this.invitationTokens.delete(token);
+        const hash = await this.passwordService.hashPassword(password);
+        await this.userRepository.activateUser(userId, hash);
+        const user = await this.userRepository.findById(userId as any);
+        this.mailerClient.emit('user.registered', {
+            email: user.email,
+            firstname: user.prenom,
+        });
+        return user;
     }
 }

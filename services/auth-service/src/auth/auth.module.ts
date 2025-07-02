@@ -1,15 +1,19 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
 import { UserRepository } from '@Database/repositories/user.repository';
 import { PasswordService } from '@application/services/password.service';
-import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
     UsersModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'secret-key',
+      signOptions: { expiresIn: '1h' },
+    }),
     ClientsModule.register([
       {
         name: 'MAILER_SERVICE',
@@ -25,6 +29,6 @@ import { JwtService } from '@nestjs/jwt';
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtService],
+  providers: [AuthService],
 })
 export class AuthModule {}

@@ -12,6 +12,11 @@ export class MailerService {
     await this.sendWelcomeEmail({ to: data.to, name: data.firstname });
   }
 
+  @EventPattern('user.invite')
+  async handleUserInvite(data: { to: string; firstname: string; token: string }) {
+    await this.sendConfirmationLink({ to: data.to, firstname: data.firstname, token: data.token });
+  }
+
   //Email de bienvenue
   async sendWelcomeEmail({ to, name }: SendMailDto): Promise<void> {
     await this.mailerService.sendMail({

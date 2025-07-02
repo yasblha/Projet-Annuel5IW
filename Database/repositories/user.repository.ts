@@ -84,6 +84,19 @@ export class UserRepository {
         if (count === 0) throw new Error(`Utilisateur non trouvé pour mise à jour du mot de passe (id=${userId})`);
     }
 
+    /** Active l'utilisateur et définit son mot de passe */
+    async activateUser(userId: string, newHash: string): Promise<void> {
+        const [count] = await this.repo.update(
+            {
+                hashMotDePasse: newHash,
+                statut: 'ACTIF',
+                dateDerniereMAJMDP: new Date(),
+            },
+            { where: { id: userId } }
+        );
+        if (count === 0) throw new Error(`Utilisateur non trouvé pour activation (id=${userId})`);
+    }
+
     /** Enregistre un échec de connexion et applique un lock si nécessaire */
     async registerFailedLogin(
         userId: number,
