@@ -1,10 +1,10 @@
 FROM node:20-alpine
 
 WORKDIR /app
-
-COPY package*.json ./
+COPY ./services/api-gateway/package*.json ./
 RUN npm install
+COPY ./services/api-gateway/. .
 
-COPY . .
-
+EXPOSE 3000
+RUN npm run build
 CMD ["npm", "run", "start:dev"]

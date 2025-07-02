@@ -1,13 +1,17 @@
-import { RegisterDto } from '@application/dtos/register.dto';
+import { RegisterDto } from '@application/dtos/auth/register.dto';
+import { LoginDto } from '@application/dtos/auth/login.dto';
 import { User } from '@domain/entité/user';
 
 export function mapDtoToUser(dto: RegisterDto): User {
+    // Utiliser motDePasse ou password selon ce qui est fourni
+    const password = dto.motDePasse || dto.password || '';
+    
     return new User(
         undefined,
         dto.nom,
         dto.prenom,
         dto.email,
-        dto.motDePasse,
+        password,
         new Date(),
         false,
         null,
