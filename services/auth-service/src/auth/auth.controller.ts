@@ -1,7 +1,8 @@
 import { Controller, Post, Body, Req } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UsersService } from '../users/users.service';
-import { RegisterDto } from '@application/dtos/register.dto';
+import { RegisterDto } from '@application/dtos/auth/register.dto';
+import { LoginDto } from '@application/dtos/auth/login.dto';
 import { mapDtoToUser, mapJwtToUser } from '@application/mappers/user.mapper';
 import { ApiTags, ApiBody, ApiBearerAuth, ApiOperation, ApiResponse, ApiProperty } from '@nestjs/swagger';
 import { JwtService } from '@nestjs/jwt';

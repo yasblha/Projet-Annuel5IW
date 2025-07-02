@@ -1,10 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { MailerService as NestMailerService } from '@nestjs-modules/mailer';
+import { EventPattern } from '@nestjs/microservices';
 import { SendMailDto } from './dto/send-mail.dto';
 
 @Injectable()
 export class MailerService {
   constructor(private readonly mailerService: NestMailerService) {}
+
+  @EventPattern('user.registered')
+  async handleUserRegistered(data: { to: string; firstname: string }) {
+    await this.sendWelcomeEmail({ to: data.to, name: data.firstname });
+  }
 
   //Email de bienvenue
   async sendWelcomeEmail({ to, name }: SendMailDto): Promise<void> {

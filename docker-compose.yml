@@ -14,24 +14,41 @@ services:
     volumes:
       - shared_pgdata:/var/lib/postgresql/data
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
   api-gateway:
-    build: ./services/api-gateway
+    build:
+      context: .
+      dockerfile: ./services/api-gateway/Dockerfile
     container_name: api-gateway
     ports:
       - "3000:3000"
     volumes:
-      - ./services/api-gateway:/app/services/api-gateway
-      - ./application:/app/application
-      - ./domain:/app/domain
-      - ./infrastructure:/app/infrastructure
-      - ./Database:/app/Database
+      - ./services/api-gateway:/app
+      - api-gateway_node_modules:/app/services/api-gateway/node_modules
     environment:
       - DB_HOST=postgres
       - DB_NAME=main
       - DB_USER=postgres
       - DB_PASS=postgres
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+      - AUTH_SERVICE_HOST=auth-service
+      - AUTH_SERVICE_PORT=3001
     depends_on:
       - postgres
+      - rabbitmq
+      - auth-service
 
   auth-service:
     build:
@@ -39,7 +56,7 @@ services:
       dockerfile: ./services/auth-service/Dockerfile
     container_name: auth-service
     ports:
-      - "3001:3000"
+      - "3001:3001"
     volumes:
       - ./services/auth-service:/app/services/auth-service
       - ./application:/app/application
@@ -49,7 +66,8 @@ services:
       - ./tsconfig.base.json:/app/tsconfig.base.json
       - ./tsconfig.json:/app/tsconfig.json
       - ./package.json:/app/package.json
-      #- ./node_modules:/app/node_modules
+      - auth_node_modules:/app/services/auth-service/node_modules
+      #- services/auth-service/node_modules:/app/services/auth-service/node_modules
       #- ./services/auth-service/node_modules:/app/services/auth-service/node_modules
       #- auth_node_modules:/app/services/auth-service/node_modules
     environment:
@@ -57,8 +75,49 @@ services:
       - DB_NAME=main
       - DB_USER=postgres
       - DB_PASS=postgres
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+      - AUTH_SERVICE_HOST=0.0.0.0
+      - AUTH_SERVICE_PORT=3001
+      - MAILER_SERVICE_HOST=mailer-service
+      - MAILER_SERVICE_PORT=3000
     depends_on:
       - postgres
+      - rabbitmq
+      - mailer-service
+
+  mailer-service:
+    build:
+      context: .
+      dockerfile: ./services/mailer-service/Dockerfile
+    container_name: mailer-service
+    ports:
+      - "3008:3000"
+    volumes:
+      - ./services/mailer-service:/app
+      - mailer_node_modules:/app/services/mailer-service/node_modules
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=main
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  frontend-vue:
+    build: ./frontend
+    container_name: frontend-vue
+    volumes:
+      - frontend-vue_node_modules:/app/node_modules
+    ports:
+      - "8080:8080"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+      - VITE_BASE_URL=/
+      - VITE_APP_TITLE=Billing System
+    depends_on:
+      - api-gateway
 
   agency-service:
     build: ./services/agency-service
@@ -176,3 +235,14 @@ services:
 
 volumes:
   shared_pgdata:
+  rabbitmq_data:
+  auth_node_modules:
+  api-gateway_node_modules:
+  agency-service_node_modules:
+  contrat-service_node_modules:
+  affaire-service_node_modules:
+  facture-service_node_modules:
+  operation-service_node_modules:
+  workflow-service_node_modules:
+  frontend-vue_node_modules:
+  mailer_node_modules:

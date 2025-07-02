@@ -5,6 +5,6 @@ export class LoginErrors extends Error {
   }
 
   static UsernameDoesNotExist(): LoginErrors {
-    return new LoginErrors('user already exists');
+    return new LoginErrors('❌ Email ou mot de passe incorrect.');
   }
 }
