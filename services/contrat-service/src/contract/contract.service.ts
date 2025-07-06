@@ -1,22 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { ContractRepository } from '@Database/repositories/contract.repository';
-import { CreateContractUseCase } from '@application/usecases/contract/create-contract.usecase';
-import { UpdateContractUseCase } from '@application/usecases/contract/update-contract.usecase';
-import { DeleteContractUseCase } from '@application/usecases/contract/delete-contract.usecase';
-import { GetContractByIdUseCase } from '@application/usecases/contract/get-by-id.usecase';
-import { GetAllContractsUseCase } from '@application/usecases/contract/get-all.usecase';
-import { Contract } from '@domain/entité/contract';
+import { ContractValidator } from './../../../../application/validators/contract.validator';
+import { UpdateContractUseCase } from './../../../../application/usecases/contract/update-contract.usecase';
+import { GetAllContractsUseCase } from './../../../../application/usecases/contract/get-all-contract.usecase';
+import { GetContractByIdUseCase } from './../../../../application/usecases/contract/get-contract-by-id.usecase';
+import { DeleteContractUseCase } from './../../../../application/usecases/contract/delete-contract.usecase';
+import { ContractRepository } from './../../../../Database/repositories/contract.repository';
+import { Contract } from './../../../../domain/entité/contract';
+import { CreateContractUseCase } from './../../../../application/usecases/contract/create-contract.usecase';
+import { ContratDto } from '../../../../application/dtos/contract.dto';
 
 @Injectable()
 export class ContractsService {
     constructor(private readonly contractRepository: ContractRepository) {}
 
-    async create(data: Contract): Promise<Contract> {
-        return new CreateContractUseCase(this.contractRepository).execute(data);
+    async create(data: ContratDto): Promise<Contract> {
+        return new CreateContractUseCase(this.contractRepository, new ContractValidator()).execute(data);
     }
 
     async update(id: string, data: Partial<Contract>): Promise<void> {
-        return new UpdateContractUseCase(this.contractRepository).execute(id, data);
+        return new UpdateContractUseCase(this.contractRepository, new ContractValidator()).execute(id, data);
     }
 
     async delete(id: string): Promise<void> {
