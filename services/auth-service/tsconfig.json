@@ -12,14 +12,18 @@
     "outDir": "./dist",
     "rootDir": "../..",
     "incremental": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@application/*": ["application/*"],
+      "@domain/*": ["domain/*"],
+      "@infrastructure/*": ["infrastructure/*"],
+      "@Database/*": ["../../../Database/*"]
+    }
   },
   "include": [
     "src",
-    "../../Database",
-    "../../application",
-    "../../domain",
-    "../../infrastructure"
+    "../../../Database"
   ],
   "exclude": [
     "node_modules",

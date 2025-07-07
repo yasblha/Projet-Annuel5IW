@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  AquaERP logo – vector version
+  Colors:
+    Primary blue:  #0E7AC7
+    Accent cyan :  #1CA8D8
+-->
+<svg width="300" height="100" viewBox="0 0 300 100"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+
+  <!-- Droplet with inner gear accent -->
+  <g id="symbol">
+    <!-- Outer droplet -->
+    <path d="M60 10
+             C40 40 40 70 60 90
+             C80 70 80 40 60 10 Z"
+          fill="#0E7AC7"
+          fill-rule="evenodd"/>
+
+    <!-- Gear circle -->
+    <circle cx="60" cy="50" r="15"
+            fill="none" stroke="#1CA8D8" stroke-width="4"/>
+
+    <!-- Stylised gear spokes -->
+    <polygon points="57,50 60,44 63,50 60,56"
+             fill="#1CA8D8"/>
+  </g>
+
+  <!-- Word‑mark -->
+  <text x="120" y="68"
+        font-family="Inter, Arial, Helvetica, sans-serif"
+        font-size="48"
+        font-weight="600"
+        fill="#0E7AC7"
+        letter-spacing="0.5">
+    AquaERP
+  </text>
+</svg>
