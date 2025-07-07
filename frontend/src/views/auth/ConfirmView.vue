@@ -6,25 +6,14 @@
           Confirmation d'invitation
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600">
-          Saisissez le token reçu par email et choisissez un mot de passe.
+          Choisissez un mot de passe pour activer votre compte.
+
         </p>
       </div>
       <Card class="p-8">
         <form @submit.prevent="handleConfirm" class="space-y-6">
           <div>
-            <label for="token" class="block text-sm font-medium text-gray-700">
-              Token d'invitation
-            </label>
-            <Input
-              id="token"
-              v-model="form.token"
-              type="text"
-              placeholder="Token reçu par email"
-              required
-              class="mt-1"
-            />
-          </div>
-          <div>
+
             <label for="password" class="block text-sm font-medium text-gray-700">
               Nouveau mot de passe
             </label>
@@ -40,6 +29,20 @@
               Minimum 12 caractères avec majuscule, minuscule, chiffre et symbole
             </p>
           </div>
+          <div>
+            <label for="confirmPassword" class="block text-sm font-medium text-gray-700">
+              Confirmer le mot de passe
+            </label>
+            <Input
+              id="confirmPassword"
+              v-model="form.confirmPassword"
+              type="password"
+              placeholder="Confirmez le mot de passe"
+              required
+              class="mt-1"
+            />
+          </div>
+
           <div v-if="authStore.error" class="text-red-600 text-sm text-center">
             {{ authStore.error }}
           </div>
@@ -55,23 +58,37 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+
 import Card from '@/components/ui/card/Card.vue'
 import Input from '@/components/ui/input/Input.vue'
 import Button from '@/components/ui/button/Button.vue'
 import { useAuthStore } from '@/stores/auth.store'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 const form = ref({
-  token: '',
-  password: ''
+  password: '',
+  confirmPassword: ''
 })
 
 const handleConfirm = async () => {
+  if (form.value.password !== form.value.confirmPassword) {
+    authStore.error = 'Les mots de passe ne correspondent pas'
+    return
+  }
+  if (form.value.password.length < 12) {
+    authStore.error = 'Le mot de passe doit contenir au moins 12 caractères'
+    return
+  }
   try {
-    await authStore.confirmInvitation(form.value)
+    await authStore.confirmInvitation({
+      token: route.params.token as string,
+      password: form.value.password
+    })
+
     router.push('/login')
   } catch (err) {
     // L'erreur est déjà gérée dans le store

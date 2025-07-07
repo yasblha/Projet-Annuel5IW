@@ -8,7 +8,7 @@ export interface UpdatePasswordInput {
 }
 
 export class UpdatePasswordUseCase {
-  constructor( @Inject('USER_REPOSITORY')  private readonly userRepository: UserRepository,) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   public async execute(userId: number, newHash: string): Promise<User> {
     console.log('Tentative de mise à jour mot de passe utilisateur', userId);

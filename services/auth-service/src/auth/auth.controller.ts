@@ -173,7 +173,7 @@ export class AuthController {
     }
 
     @MessagePattern('auth.invite')
-    async handleInvite(@Payload() data: { userId: string }) {
+    async handleInvite(@Payload() data: { userId: number }) {
         try {
             const token = await this.UsersService.inviteUser(data.userId);
             return { success: true, token };
@@ -307,7 +307,8 @@ export class AuthController {
     @ApiBearerAuth()
     @UseGuards(AuthGuard, RolesGuard)
     @Roles('ADMIN')
-    invite(@Body('userId') userId: string) {
+    invite(@Body('userId') userId: number) {
+
         return this.UsersService.inviteUser(userId);
     }
 

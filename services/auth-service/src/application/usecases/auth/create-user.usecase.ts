@@ -4,7 +4,7 @@ import { User } from '@domain/entité/user';
 
 export class CreateUserUseCase {
   constructor(
-    @Inject('USER_REPOSITORY')
+
     private readonly userRepository: UserRepository,
   ) {}
 

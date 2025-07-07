@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="36c7ccd2-a3be-45c0-a01d-ff76f66bc6c5" name="Changes" comment="">
+
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
@@ -18,8 +19,12 @@
     <option name="ROOT_SYNC" value="SYNC" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
+  &quot;history&quot;: [
+    {
+      &quot;assignee&quot;: &quot;yasblha&quot;
+    }
+  ],
   &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
     &quot;assignee&quot;: &quot;yasblha&quot;
   }
 }</component>
@@ -38,6 +43,7 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
@@ -55,14 +61,15 @@
     "ts.external.directory.path": "/Users/yassineboulahnine/Desktop/Projects/5IW/X7/services/auth-service/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/services/workflow-service" />
       <recent name="$PROJECT_DIR$/services/operation-service" />
@@ -70,10 +77,11 @@
       <recent name="$PROJECT_DIR$/services/contrat-service" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/application/validators" />
-      <recent name="$PROJECT_DIR$/application/usecases/auth/register" />
-      <recent name="$PROJECT_DIR$/application/usecases/auth/interface" />
-      <recent name="$PROJECT_DIR$/domain" />
+      <recent name="$PROJECT_DIR$/services/auth-service/src/application/dtos" />
+      <recent name="$PROJECT_DIR$/services/auth-service/src/application/usecases/auth" />
+      <recent name="$PROJECT_DIR$/services/auth-service/src" />
+      <recent name="$PROJECT_DIR$/application/usecases/auth" />
+      <recent name="$PROJECT_DIR$/application/dtos/auth" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -114,5 +122,15 @@
         <option value="$PROJECT_DIR$/Database/repositories/user.repository.js.map" />
       </list>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/services/mailer-service/src/main.ts</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

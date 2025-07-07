@@ -15,4 +15,20 @@ export class AppService {
     const { data } = await this.http.post(`${AUTH_URL}/auth/register`, body).toPromise();
     return data;
   }
+
+  async login(body: any) {
+    const { data } = await this.http.post(`${AUTH_URL}/auth/login`, body).toPromise();
+    return data;
+  }
+
+  async invite(body: any) {
+    const { data } = await this.http.post(`${AUTH_URL}/auth/invite`, body).toPromise();
+    return data;
+  }
+
+  async confirm(body: any) {
+    const { data } = await this.http.post(`${AUTH_URL}/auth/confirm`, body).toPromise();
+    return data;
+  }
+
 }
