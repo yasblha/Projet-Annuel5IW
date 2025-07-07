@@ -32,6 +32,23 @@ export interface RegisterRequest {
   tenantId?: string
 }
 
+export interface ConfirmInvitationRequest {
+  token: string;
+  password: string;
+}
+
+export interface ActivateEmailRequest {
+  token: string;
+  password: string;
+}
+
+export interface InviteUserRequest {
+  email: string;
+  prenom: string;
+  nom: string;
+  role: string;
+}
+
 // Types pour les réponses d'authentification
 export interface AuthResponse {
   success: boolean

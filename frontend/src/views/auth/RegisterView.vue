@@ -151,7 +151,9 @@ const handleRegister = async () => {
   try {
     await authStore.register(form.value)
     // Redirection vers la page de connexion après inscription réussie
-    router.push('/login')
+    if (!authStore.error) {
+      router.push('/login')
+    }
   } catch (err) {
     // L'erreur est déjà gérée dans le store
     console.error('Erreur d\'inscription:', err)

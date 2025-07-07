@@ -81,7 +81,19 @@ export default (sequelize: Sequelize): typeof Model => {
         updatedAt: {
             type: DataTypes.DATE,
             allowNull: false,
-            defaultValue: DataTypes.NOW }
+            defaultValue: DataTypes.NOW },
+        resetToken: {
+            type: DataTypes.STRING,
+            allowNull: true },
+        resetTokenExpiration: {
+            type: DataTypes.DATE,
+            allowNull: true },
+        activationToken: {
+            type: DataTypes.STRING,
+            allowNull: true },
+        activationTokenExpiration: {
+            type: DataTypes.DATE,
+            allowNull: true }
     }, {
         sequelize,
         modelName: 'Utilisateur',

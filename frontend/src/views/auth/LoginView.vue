@@ -55,6 +55,11 @@
             <span v-if="authStore.isLoading">Connexion en cours...</span>
             <span v-else>Se connecter</span>
           </Button>
+          <p class="mt-2 text-center text-sm text-gray-600">
+            <router-link to="/forgot-password" class="font-medium text-blue-600 hover:text-blue-500">
+              Mot de passe oublié ?
+            </router-link>
+          </p>
         </form>
       </Card>
     </div>
@@ -83,8 +88,8 @@ const handleLogin = async () => {
     await authStore.login(form.value)
     router.push('/dashboard')
   } catch (err) {
-    // L'erreur est déjà gérée dans le store
-    console.error('Erreur de connexion:', err)
+    console.error('Erreur de connexion:', err);
+    return err;
   }
 }
 </script> 

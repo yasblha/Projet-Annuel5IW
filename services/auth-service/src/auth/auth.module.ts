@@ -6,9 +6,12 @@ import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
 import { UserRepository } from '@Database/repositories/user.repository';
 import { PasswordService } from '@application/services/password.service';
+import { AuthGuard } from '@infrastructure/guards/auth.guard';
+import { GuardsModule } from '@infrastructure/guards/guards.module';
 
 @Module({
   imports: [
+    GuardsModule,
     UsersModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'secret-key',
@@ -29,6 +32,6 @@ import { PasswordService } from '@application/services/password.service';
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, AuthGuard, PasswordService, UserRepository],
 })
 export class AuthModule {}

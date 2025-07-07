@@ -9,3 +9,14 @@ yarn-error.log*
 .pnp.js
 
 .vscode/*
+
+./frontend/node_modules
+./services/auth-service/node_modules
+./services/agency-service/node_modules
+./services/contrat-service/node_modules
+./services/affaire-service/node_modules
+./services/facture-service/node_modules
+./services/operation-service/node_modules
+./services/mailer-service/node_modules
+
+./node_modules

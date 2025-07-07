@@ -194,6 +194,18 @@ export class AuthController {
         }
     }
 
+    @MessagePattern('auth.activate')
+    async handleActivate(@Payload() data: { token: string; password: string }) {
+        try {
+            const user = await this.UsersService.activateEmail(data.token, data.password);
+            const payload = { sub: user.id, email: user.email, role: user.role };
+            const access_token = this.jwtService.sign(payload);
+            return { success: true, data: { access_token, user } };
+        } catch (error) {
+            return { success: false, error: error.message, status: 400 };
+        }
+    }
+
     // Handlers HTTP (accès direct)
     @Post('register')
     @ApiOperation({ 
@@ -302,5 +314,15 @@ export class AuthController {
     @Post('confirm')
     confirm(@Body() body: { token: string; password: string }) {
         return this.UsersService.confirmInvitation(body.token, body.password);
+    }
+
+    @Post('activate')
+    activate(@Body() body: { token: string; password: string }) {
+        return this.UsersService.activateEmail(body.token, body.password);
+    }
+
+    @Post('debug-status')
+    debugStatus(@Body() body: { email: string }) {
+        return this.UsersService.debugUserStatus(body.email);
     }
 }

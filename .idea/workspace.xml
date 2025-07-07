@@ -5,20 +5,38 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="36c7ccd2-a3be-45c0-a01d-ff76f66bc6c5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/application/dtos/auth/create-agent.dto.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/application/dtos/auth/login.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/views/auth/ForgotPasswordView.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/views/auth/ResetPasswordView.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/infrastructure/guards/guards.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/be0dd432-4519-4b07-8abb-8cac5e51d932.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/be0dd432-4519-4b07-8abb-8cac5e51d932.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/be0dd432-4519-4b07-8abb-8cac5e51d932/storage_v2/_src_/database/main.uQUzAA/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/be0dd432-4519-4b07-8abb-8cac5e51d932/storage_v2/_src_/database/main.uQUzAA/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/dtos/login.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/application/dtos/auth/auth-response.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/dtos/register.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/application/dtos/auth/register.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/mappers/user.mapper.ts" beforeDir="false" afterPath="$PROJECT_DIR$/application/mappers/user.mapper.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/usecases/auth/login/login.usecase.ts" beforeDir="false" afterPath="$PROJECT_DIR$/application/usecases/auth/login/login.usecase.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/models/user.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/user.model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/repositories/user.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/repositories/user.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/dtos/auth/auth-response.dto.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/dtos/auth/confirm.dto.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/dtos/auth/create-agent.dto.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/dtos/auth/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/dtos/auth/login.dto.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/dtos/auth/register.dto.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/mappers/user.mapper.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/services/password.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/usecases/auth/login/login.usecase.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/usecases/auth/register/register.admin.usecase.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/usecases/auth/register/register.interface.usecase.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/validators/password.validator.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/CDC.docx" beforeDir="false" afterPath="$PROJECT_DIR$/docs/CDC.docx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/domain/errors/login.errors.ts" beforeDir="false" afterPath="$PROJECT_DIR$/domain/errors/login.errors.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/domain/entité/user.ts" beforeDir="false" afterPath="$PROJECT_DIR$/domain/entité/user.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/router/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/router/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/stores/auth.store.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/stores/auth.store.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/types/auth.types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/types/auth.types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/DashboardView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/DashboardView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/HomeView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/HomeView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/auth/LoginView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/auth/LoginView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/auth/RegisterView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/auth/RegisterView.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,8 +48,12 @@
     <option name="ROOT_SYNC" value="SYNC" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
+  &quot;history&quot;: [
+    {
+      &quot;assignee&quot;: &quot;yasblha&quot;
+    }
+  ],
   &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
     &quot;assignee&quot;: &quot;yasblha&quot;
   }
 }</component>
@@ -57,13 +79,13 @@
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
     "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/Users/yassineboulahnine/Desktop/Projects/5IW/X7/frontend",
+    "last_opened_file_path": "/Users/yassineboulahnine/Desktop/Projects/5IW/X7/services/auth-service/src",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
     "ts.external.directory.path": "/Users/yassineboulahnine/Desktop/Projects/5IW/X7/services/facture-service/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   },
@@ -75,18 +97,18 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/services/auth-service/src" />
       <recent name="$PROJECT_DIR$/frontend" />
       <recent name="$PROJECT_DIR$/services/workflow-service" />
       <recent name="$PROJECT_DIR$/services/operation-service" />
       <recent name="$PROJECT_DIR$/services/facture-service" />
-      <recent name="$PROJECT_DIR$/services/contrat-service" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/services/auth-service/src/application/usecases/auth" />
+      <recent name="$PROJECT_DIR$/services/auth-service/src" />
+      <recent name="$PROJECT_DIR$/application/usecases/auth" />
       <recent name="$PROJECT_DIR$/application/dtos/auth" />
       <recent name="$PROJECT_DIR$/application/validators" />
-      <recent name="$PROJECT_DIR$/application/usecases/auth/register" />
-      <recent name="$PROJECT_DIR$/application/usecases/auth/interface" />
-      <recent name="$PROJECT_DIR$/domain" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -111,7 +133,9 @@
       <workItem from="1747341260074" duration="22663000" />
       <workItem from="1747771258628" duration="17188000" />
       <workItem from="1748349712093" duration="4807000" />
-      <workItem from="1751033426850" duration="40358000" />
+      <workItem from="1751033426850" duration="42856000" />
+      <workItem from="1751471587142" duration="76000" />
+      <workItem from="1751471737581" duration="63932000" />
     </task>
     <servers />
   </component>
@@ -122,6 +146,9 @@
         <option value="$PROJECT_DIR$/Database/sequelize.js.map" />
         <option value="$PROJECT_DIR$/Database/sequelize.js" />
         <option value="$PROJECT_DIR$/Database/sequelize.d.ts" />
+        <option value="$PROJECT_DIR$/Database/repositories/user.repository.js" />
+        <option value="$PROJECT_DIR$/Database/repositories/user.repository.d.ts" />
+        <option value="$PROJECT_DIR$/Database/repositories/user.repository.js.map" />
       </list>
     </option>
   </component>
@@ -130,7 +157,6 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/services/mailer-service/src/main.ts</url>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>

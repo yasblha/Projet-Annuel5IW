@@ -4,9 +4,12 @@ import LoginView from '@/views/auth/LoginView.vue'
 import RegisterView from '@/views/auth/RegisterView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import { useAuthStore } from '@/stores/auth.store.ts';
+import ForgotPasswordView from '@/views/auth/ForgotPasswordView.vue';
+import ResetPasswordView from '@/views/auth/ResetPasswordView.vue';
+import ActivateView from '@/views/auth/ActivateView.vue';
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.VITE_API_URL),
+  history: createWebHistory('/'),
   routes: [
     {
       path: '/',
@@ -28,6 +31,21 @@ const router = createRouter({
       name: 'dashboard',
       component: DashboardView,
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: ForgotPasswordView,
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: ResetPasswordView,
+    },
+    {
+      path: '/confirm/:token',
+      name: 'activate',
+      component: ActivateView,
     }
   ]
 })

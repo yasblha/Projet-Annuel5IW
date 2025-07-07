@@ -1,6 +1,5 @@
-// Database/repositories/user.repository.ts
 import { Op } from 'sequelize';
-import { models } from '@Database/sequelize';
+import { models } from '../sequelize';
 
 type UserInstance = typeof models.Utilisateur;
 
@@ -9,13 +8,44 @@ export interface CreateUserParams {
     prenom: string;
     email: string;
     hashMotDePasse: string;
-    telephone?: string;
-    tenantId?: string;
+    telephone: string;
+    tenantId: string;
+    role: 'ADMIN' | 'CLIENT' | 'TECHNICIEN' | 'COMMERCIAL' | 'SUPPORT' | 'COMPTABLE' | 'MANAGER';
+    statut: 'EN_ATTENTE_VALIDATION' | 'ACTIF' | 'SUSPENDU' | 'BLACKLISTE' | 'ARCHIVE' | 'SUPPRIME';
+    activationToken?: string;
+    activationTokenExpiration?: Date;
 }
 
 export interface UpdatePasswordParams {
-    userId: string;
+    userId: number;
     newHash: string;
+}
+
+export interface UpdateProfileParams {
+    userId: number;
+    updates: Partial<{
+        nom: string;
+        prenom: string;
+        email: string;
+        telephone: string | null;
+        role: 'ADMIN' | 'CLIENT' | 'TECHNICIEN' | 'COMMERCIAL' | 'SUPPORT' | 'COMPTABLE' | 'MANAGER';
+        tenantId: string;
+        statut: 'EN_ATTENTE_VALIDATION' | 'ACTIF' | 'SUSPENDU' | 'BLACKLISTE' | 'ARCHIVE' | 'SUPPRIME';
+        isLocked: boolean;
+        isDeleted: boolean;
+        isActive: boolean;
+        isArchived: boolean;
+        isSuspended: boolean;
+        isBlacklisted: boolean;
+        resetToken: string | null;
+        resetTokenExpiration: Date | null;
+
+    }>;
+}
+
+export interface UpdateStatusParams {
+    userId: number;
+    statut: 'EN_ATTENTE_VALIDATION' | 'ACTIF' | 'SUSPENDU' | 'BLACKLISTE' | 'ARCHIVE' | 'SUPPRIME';
 }
 
 /**
@@ -33,7 +63,9 @@ export class UserRepository {
         telephone: string | null;
         hashMotDePasse: string;
         tenantId: string;
-        statut: "EN_ATTENTE_VALIDATION" | "ACTIF" | "SUSPENDU" | "BLACKLISTE" | "ARCHIVE" | "SUPPRIME"
+        statut: "EN_ATTENTE_VALIDATION" | "ACTIF" | "SUSPENDU" | "BLACKLISTE" | "ARCHIVE" | "SUPPRIME";
+        activationToken?: string;
+        activationTokenExpiration?: Date;
     }): Promise<UserInstance> {
         return this.repo.create(data);
     }
@@ -69,6 +101,7 @@ export class UserRepository {
     }
 
 
+
     /** Met à jour le mot de passe et réinitialise les échecs de connexion */
     async updatePassword({ userId, newHash }: UpdatePasswordParams): Promise<void> {
         const [count] = await this.repo.update(
@@ -85,7 +118,7 @@ export class UserRepository {
     }
 
     /** Active l'utilisateur et définit son mot de passe */
-    async activateUser(userId: string, newHash: string): Promise<void> {
+    async activateUser(userId: number, newHash: string): Promise<void> {
         const [count] = await this.repo.update(
             {
                 hashMotDePasse: newHash,
@@ -141,16 +174,110 @@ export class UserRepository {
     }
 
     /** Met à jour la date de dernière connexion */
-    async touchLastLogin(userId: string): Promise<void> {
+    async touchLastLogin(userId: number): Promise<void> {
         await this.repo.update(
             { dateDerniereConnexion: new Date() },
             { where: { id: userId } }
         );
     }
 
+    /** Met à jour les informations du profil */
+    async updateProfile({ userId, updates }: UpdateProfileParams): Promise<void> {
+        const [count] = await this.repo.update(updates, { where: { id: userId } });
+        if (count === 0) throw new Error(`Utilisateur non trouvé pour mise à jour (id=${userId})`);
+    }
+
+    /** Met à jour le statut de l'utilisateur */
+    async updateStatus({ userId, statut }: UpdateStatusParams): Promise<void> {
+        const [count] = await this.repo.update({ statut }, { where: { id: userId } });
+        if (count === 0) throw new Error(`Utilisateur non trouvé pour changement de statut (id=${userId})`);
+    }
+
+
     /** Supprime (soft-delete) l'utilisateur */
     async remove(userId: number): Promise<void> {
         const user = await this.findById(userId);
         await user.destroy();
     }
+
+    async saveResetToken(userId: string, resetToken: string, resetTokenExpiry: Date): Promise<void> {
+        const [count] = await this.repo.update(
+          { resetToken, resetTokenExpiry },
+          { where: { id: userId } }
+        );
+        if (count === 0) {
+            throw new Error(`Utilisateur non trouvé pour mise à jour du token de réinitialisation (id=${userId})`);
+        }
+    }
+
+
+    async findByResetToken(resetToken: string): Promise<UserInstance | null> {
+        return this.repo.findOne({ where: { resetToken } });
+    }
+
+    async clearResetToken(userId: string): Promise<void> {
+        const [count] = await this.repo.update(
+          { resetToken: null, resetTokenExpiry: null },
+          { where: { id: userId } }
+        );
+        if (count === 0) {
+            throw new Error(`Utilisateur non trouvé pour mise à jour du token de réinitialisation (id=${userId})`);
+        }
+    }
+
+    /** Recherche un utilisateur par token d'activation */
+    async findByActivationToken(activationToken: string): Promise<UserInstance | null> {
+        console.log(`🔍 Recherche utilisateur par token d'activation: ${activationToken}`);
+        
+        const user = await this.repo.findOne({ 
+            where: { 
+                activationToken,
+                activationTokenExpiration: { [Op.gt]: new Date() } // Token non expiré
+            } 
+        });
+        
+        console.log(`🔍 Résultat recherche:`, user ? `Trouvé (ID: ${user.id}, Email: ${user.email})` : 'Non trouvé');
+        
+        if (!user) {
+            // Vérifier si le token existe mais est expiré
+            const expiredUser = await this.repo.findOne({ 
+                where: { activationToken } 
+            });
+            if (expiredUser) {
+                console.log(`⚠️ Token trouvé mais expiré pour l'utilisateur ${expiredUser.email}`);
+            } else {
+                console.log(`❌ Aucun utilisateur avec ce token d'activation`);
+            }
+        }
+        
+        return user;
+    }
+
+    /** Efface le token d'activation */
+    async clearActivationToken(userId: string): Promise<void> {
+        await this.repo.update(
+            { activationToken: null, activationTokenExpiration: null },
+            { where: { id: userId } }
+        );
+    }
+
+    /** Méthode de débogage pour vérifier le statut d'un utilisateur */
+    async debugUserStatus(email: string): Promise<any> {
+        const user = await this.findByEmail(email);
+        if (!user) {
+            return { error: 'Utilisateur non trouvé' };
+        }
+        
+        return {
+            id: user.id,
+            email: user.email,
+            statut: user.statut,
+            statutType: typeof user.statut,
+            statutLength: user.statut?.length,
+            statutCharCodes: user.statut?.split('').map((c: string) => c.charCodeAt(0)),
+            isActif: user.statut === 'ACTIF',
+            isActifStrict: user.statut !== 'ACTIF'
+        };
+    }
+
 }

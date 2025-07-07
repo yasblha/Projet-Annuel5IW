@@ -170,6 +170,86 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // Action pour la confirmation d'invitation
+  const confirmInvitation = async (data: { token: string; password: string }): Promise<void> => {
+    try {
+      isLoading.value = true
+      error.value = null
+      await apiClient.post('/auth/confirm', data)
+    } catch (err: any) {
+      error.value = err.response?.data?.error || err.message || 'Erreur lors de la confirmation'
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Action pour l'invitation d'utilisateur (admin)
+  const inviteUser = async (userData: { email: string; prenom: string; nom: string; role: string }): Promise<void> => {
+    try {
+      isLoading.value = true
+      error.value = null
+      await apiClient.post('/auth/invite', userData)
+    } catch (err: any) {
+      error.value = err.response?.data?.error || err.message || 'Erreur lors de l\'invitation'
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // changement de mot de passe oublié
+  const forgotPassword = async (email: string): Promise<void> => {
+    try {
+      isLoading.value = true
+      error.value = null
+      await apiClient.post('/auth/forgot-password', { email })
+    } catch (err: any) {
+      error.value = err.response?.data?.error || err.message || 'Erreur lors de la demande'
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // update reset du password
+  const resetPassword = async (data: { token: string; newPassword: string }): Promise<void> => {
+    try {
+      isLoading.value = true
+      error.value = null
+      await apiClient.post('/auth/reset-password', data)
+    } catch (err: any) {
+      error.value = err.response?.data?.error || err.message || 'Erreur lors de la réinitialisation'
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Action pour l'activation d'email
+  const activateEmail = async (activationToken: string, password: string): Promise<void> => {
+    try {
+      isLoading.value = true
+      error.value = null
+      const response = await apiClient.post('/auth/activate', { token: activationToken, password })
+      
+      // Si l'activation réussit, on peut connecter automatiquement l'utilisateur
+      if (response.data.success) {
+        const { data } = response.data
+        token.value = data.access_token
+        user.value = data.user
+        
+        localStorage.setItem('auth_token', data.access_token)
+        localStorage.setItem('user', JSON.stringify(data.user))
+      }
+    } catch (err: any) {
+      error.value = err.response?.data?.error || err.message || 'Erreur lors de l\'activation'
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   // Initialisation au démarrage
   checkAuth()
 
@@ -197,6 +277,11 @@ export const useAuthStore = defineStore('auth', () => {
     // Fonctions d'API supplémentaires
     refreshToken,
     updateProfile,
-    changePassword
+    changePassword,
+    confirmInvitation,
+    inviteUser,
+    forgotPassword,
+    resetPassword,
+    activateEmail
   }
 }) 
