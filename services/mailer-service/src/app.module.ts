@@ -7,19 +7,24 @@ import { MailerModule } from './mailer/mailer.module';
   imports: [
     NestMailerModule.forRoot({
       transport: {
-        host: 'smtp.domain.com',
-        port: 465,
-        secure: true,
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
         auth: {
           user: 'contactprojectys@gmail.com',
           pass: 'mvuogahxlrxrlpwi',
         },
+        tls: {
+          rejectUnauthorized: false,
+        },
       },
       defaults: {
-        from: '"Water App" <no-reply@aquaerp.com>',
+        from: '"Water App" <contactprojectys@gmail.com>',
       },
       template: {
-        dir: __dirname + '/mailer/templates',
+        dir: process.env.NODE_ENV === 'production'
+          ? __dirname + '/mailer/templates'
+          : __dirname + '/../src/mailer/templates',
         adapter: new PugAdapter(),
         options: {
           strict: true,

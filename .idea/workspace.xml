@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="36c7ccd2-a3be-45c0-a01d-ff76f66bc6c5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/docs/CDC.docx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,7 +25,7 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/yasblha/aquerp.git&quot;,
+    &quot;url&quot;: &quot;https://github.com/yasblha/Projet-Annuel5IW.git&quot;,
     &quot;accountId&quot;: &quot;bcf4e39e-fee5-4088-985e-1b72a3ef23f2&quot;
   }
 }</component>
@@ -44,7 +43,8 @@
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "feature/update",
+    "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "/Users/yassineboulahnine/Desktop/Projects/5IW/X7 version annuelle projet",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -63,11 +63,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/services/workflow-service" />
       <recent name="$PROJECT_DIR$/services/operation-service" />
       <recent name="$PROJECT_DIR$/services/facture-service" />
       <recent name="$PROJECT_DIR$/services/contrat-service" />
-      <recent name="$PROJECT_DIR$/services/api-gateway" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/application/validators" />
@@ -97,7 +97,8 @@
       <workItem from="1746805202073" duration="46287000" />
       <workItem from="1747341260074" duration="22663000" />
       <workItem from="1747771258628" duration="15546000" />
-      <workItem from="1748337799896" duration="676000" />
+      <workItem from="1748337799896" duration="2095000" />
+      <workItem from="1751847687701" duration="1486000" />
     </task>
     <servers />
   </component>
@@ -108,6 +109,9 @@
         <option value="$PROJECT_DIR$/Database/sequelize.js.map" />
         <option value="$PROJECT_DIR$/Database/sequelize.js" />
         <option value="$PROJECT_DIR$/Database/sequelize.d.ts" />
+        <option value="$PROJECT_DIR$/Database/repositories/user.repository.js" />
+        <option value="$PROJECT_DIR$/Database/repositories/user.repository.d.ts" />
+        <option value="$PROJECT_DIR$/Database/repositories/user.repository.js.map" />
       </list>
     </option>
   </component>
