@@ -280,4 +280,52 @@ export class UserRepository {
         };
     }
 
+    /** Liste paginée et filtrée des utilisateurs */
+    async listUsers(params: {
+        page?: number;
+        limit?: number;
+        search?: string;
+        role?: string;
+        statut?: string;
+    }): Promise<any> {
+
+        const page = params.page ?? 1;
+        const limit = params.limit ?? 10;
+        const offset = (page - 1) * limit;
+        const where: any = {};
+        if (params.role) where.role = params.role;
+        if (params.statut) where.statut = params.statut;
+        if (params.search) {
+            where[Op.or] = [
+                { nom: { [Op.iLike]: `%${params.search}%` } },
+                { prenom: { [Op.iLike]: `%${params.search}%` } },
+                { email: { [Op.iLike]: `%${params.search}%` } },
+            ];
+        }
+        const { rows, count } = await this.repo.findAndCountAll({
+            where,
+            offset,
+            limit,
+            order: [['createdAt', 'DESC']],
+        });
+        return {
+            users: rows,
+            total: count,
+            page,
+            limit,
+        };
+    }
+
+    /** Mise à jour générique d'un utilisateur */
+    async update(id: number, data: Partial<any>) {
+        const [count] = await this.repo.update(data, { where: { id } });
+        if (count === 0) throw new Error(`Utilisateur non trouvé pour update (id=${id})`);
+        return this.findById(id);
+    }
+
+    /** Suppression (soft-delete) d'un utilisateur */
+    async delete(id: number) {
+        return this.remove(id);
+    }
+
 }

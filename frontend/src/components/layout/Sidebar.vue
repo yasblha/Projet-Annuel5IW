@@ -1,53 +1,54 @@
 <template>
-  <div class="sidebar bg-white shadow-lg h-full">
+  <div class="sidebar bg-white shadow-lg h-full flex flex-col">
     <!-- Logo et titre -->
-    <div class="p-6 border-b border-gray-200">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-          <i class="fas fa-tint text-white text-xl"></i>
-        </div>
-        <div>
-          <h1 class="text-lg font-bold text-gray-900">WaterApp</h1>
-          <p class="text-xs text-gray-500">Gestion de l'eau</p>
-        </div>
+    <div class="p-6 border-b border-gray-200 flex items-center space-x-3">
+      <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+        <i class="fas fa-tint text-white text-xl"></i>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-gray-900">WaterApp</h1>
+        <p class="text-xs text-gray-500">Gestion de l'eau</p>
       </div>
     </div>
 
     <!-- Navigation principale -->
-    <nav class="p-4 space-y-2">
-      <!-- Dashboard -->
-      <router-link 
-        to="/dashboard" 
-        class="nav-item"
-        :class="{ 'active': $route.path === '/dashboard' }"
-      >
-        <i class="fas fa-chart-line icon"></i>
-        <span>Tableau de bord</span>
-      </router-link>
-
-      <!-- Gestion des contrats -->
-      <div class="nav-section">
-        <h3 class="nav-section-title">Contrats & Abonnements</h3>
+    <nav class="flex-1 p-4 space-y-6 overflow-y-auto">
+      <!-- Section Dashboard -->
+      <div>
+        <h3 class="nav-section-title">Tableau de bord</h3>
         <router-link 
-          to="/contracts" 
+          to="/dashboard" 
           class="nav-item"
-          :class="{ 'active': $route.path.startsWith('/contracts') }"
+          :class="{ 'active': $route.path === '/dashboard' }"
+        >
+          <i class="fas fa-chart-line icon"></i>
+          <span>Accueil</span>
+        </router-link>
+      </div>
+
+      <!-- Section Clients & Contrats -->
+      <div>
+        <h3 class="nav-section-title">Clients & Contrats</h3>
+        <router-link 
+          to="/dashboard/clients" 
+          class="nav-item"
+          :class="{ 'active': $route.path.startsWith('/dashboard/clients') }"
+        >
+          <i class="fas fa-users icon"></i>
+          <span>Clients</span>
+        </router-link>
+        <router-link 
+          to="/dashboard/contrats" 
+          class="nav-item"
+          :class="{ 'active': $route.path.startsWith('/dashboard/contrats') }"
         >
           <i class="fas fa-file-contract icon"></i>
           <span>Contrats</span>
         </router-link>
-        <router-link 
-          to="/subscriptions" 
-          class="nav-item"
-          :class="{ 'active': $route.path.startsWith('/subscriptions') }"
-        >
-          <i class="fas fa-link icon"></i>
-          <span>Abonnements</span>
-        </router-link>
       </div>
 
-      <!-- Facturation -->
-      <div class="nav-section">
+      <!-- Section Facturation -->
+      <div>
         <h3 class="nav-section-title">Facturation</h3>
         <router-link 
           to="/invoices" 
@@ -67,8 +68,8 @@
         </router-link>
       </div>
 
-      <!-- Interventions -->
-      <div class="nav-section">
+      <!-- Section Interventions -->
+      <div>
         <h3 class="nav-section-title">Interventions</h3>
         <router-link 
           to="/interventions" 
@@ -88,15 +89,15 @@
         </router-link>
       </div>
 
-      <!-- Administration (Admin seulement) -->
-      <div v-if="authStore.isAdmin" class="nav-section">
+      <!-- Section Administration (si admin) -->
+      <div v-if="authStore.isAdmin">
         <h3 class="nav-section-title">Administration</h3>
         <router-link 
           to="/users" 
           class="nav-item"
           :class="{ 'active': $route.path.startsWith('/users') }"
         >
-          <i class="fas fa-users icon"></i>
+          <i class="fas fa-user-shield icon"></i>
           <span>Utilisateurs</span>
         </router-link>
         <router-link 
@@ -117,8 +118,8 @@
         </router-link>
       </div>
 
-      <!-- Paramètres -->
-      <div class="nav-section">
+      <!-- Section Paramètres -->
+      <div>
         <h3 class="nav-section-title">Paramètres</h3>
         <router-link 
           to="/profile" 
@@ -139,20 +140,28 @@
       </div>
     </nav>
 
-    <!-- Footer sidebar -->
-    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
-      <div class="flex items-center justify-between">
-        <div class="text-xs text-gray-500">
-          {{ authStore.user?.role }}
+    <!-- Footer sidebar : utilisateur connecté -->
+    <div class="p-4 border-t border-gray-200 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+          <span class="text-white text-lg font-bold">
+            {{ (authStore.user?.prenom?.charAt(0) || '') + (authStore.user?.nom?.charAt(0) || '') || '?' }}
+          </span>
         </div>
-        <button 
-          @click="handleLogout" 
-          class="text-red-600 hover:text-red-800 text-sm flex items-center space-x-1"
-        >
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Déconnexion</span>
-        </button>
+        <div>
+          <div class="text-sm font-medium text-gray-900">
+            {{ (authStore.user?.prenom || '') + ' ' + (authStore.user?.nom || '') || 'Utilisateur' }}
+          </div>
+          <div class="text-xs text-gray-500">{{ authStore.user?.role || '' }}</div>
+        </div>
       </div>
+      <button 
+        @click="handleLogout" 
+        class="text-red-600 hover:text-red-800 text-sm flex items-center space-x-1"
+      >
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Déconnexion</span>
+      </button>
     </div>
   </div>
 </template>
@@ -173,16 +182,15 @@ const handleLogout = () => {
 <style scoped>
 .sidebar {
   width: 280px;
-  position: fixed;
+  /* position: fixed; */
+  position: relative;
   left: 0;
   top: 0;
   bottom: 0;
   z-index: 40;
   overflow-y: auto;
-}
-
-.nav-section {
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .nav-section-title {
@@ -192,6 +200,7 @@ const handleLogout = () => {
   color: #6b7280;
   margin-bottom: 0.5rem;
   padding-left: 0.5rem;
+  letter-spacing: 0.05em;
 }
 
 .nav-item {
@@ -203,16 +212,7 @@ const handleLogout = () => {
   text-decoration: none;
   transition: all 0.2s;
   margin-bottom: 0.25rem;
-}
-
-.nav-item:hover {
-  background-color: #f3f4f6;
-  color: #1f2937;
-}
-
-.nav-item.active {
-  background-color: #dbeafe;
-  color: #1d4ed8;
+  font-size: 1rem;
   font-weight: 500;
 }
 
@@ -223,13 +223,24 @@ const handleLogout = () => {
   text-align: center;
 }
 
+.nav-item.active {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 600;
+  border-left: 4px solid #2563eb;
+}
+
+.nav-item:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
   }
-  
   .sidebar.open {
     transform: translateX(0);
   }

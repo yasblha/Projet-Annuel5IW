@@ -59,5 +59,12 @@ export declare class UserRepository {
     updateProfile({ userId, updates }: UpdateProfileParams): Promise<void>;
     updateStatus({ userId, statut }: UpdateStatusParams): Promise<void>;
     remove(userId: number): Promise<void>;
+    listUsers(params: {
+        page?: number;
+        limit?: number;
+        search?: string;
+        role?: string;
+        statut?: string;
+    }): Promise<any>;
 }
 export {};

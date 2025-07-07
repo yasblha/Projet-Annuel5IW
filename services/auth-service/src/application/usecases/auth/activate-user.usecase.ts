@@ -3,7 +3,7 @@ import { UserRepository } from '@Database/repositories/user.repository';
 import { User } from '@domain/entité/user';
 
 export class ActivateUserUseCase {
-  constructor(@Inject('USER_REPOSITORY') private readonly repo: UserRepository) {}
+  constructor(private readonly repo: UserRepository) {}
 
   async execute(userId: number, newHash: string): Promise<User> {
     const user = await this.repo.findById(userId);

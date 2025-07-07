@@ -1,25 +1,12 @@
 <template>
   <div class="layout">
-    <!-- Sidebar -->
-    <Sidebar :class="{ 'open': sidebarOpen }" />
-    
-    <!-- Main content area -->
-    <div class="main-content" :class="{ 'sidebar-open': sidebarOpen }">
-      <!-- Navbar -->
-      <Navbar />
-      
-      <!-- Page content -->
+    <Sidebar class="sidebar-fixed" />
+    <div class="main-content">
+      <Navbar class="navbar-sticky" />
       <main class="page-content">
         <slot />
       </main>
     </div>
-
-    <!-- Mobile overlay -->
-    <div 
-      v-if="sidebarOpen" 
-      @click="closeSidebar"
-      class="mobile-overlay md:hidden"
-    ></div>
   </div>
 </template>
 
@@ -58,35 +45,52 @@ onUnmounted(() => {
   display: flex;
 }
 
+.sidebar-fixed {
+  width: 280px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  height: 100vh;
+  z-index: 40;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
 .main-content {
   flex: 1;
   margin-left: 280px;
-  transition: margin-left 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.navbar-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 30;
 }
 
 .page-content {
+  flex: 1;
+  overflow-y: auto;
   padding: 1.5rem;
   background-color: #f9fafb;
   min-height: calc(100vh - 64px); /* 64px = navbar height */
 }
 
-.mobile-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 35;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
-  .main-content {
-    margin-left: 0;
+  .sidebar-fixed {
+    position: fixed;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
   }
-  
-  .main-content.sidebar-open {
+  .sidebar-fixed.open {
+    transform: translateX(0);
+  }
+  .main-content {
     margin-left: 0;
   }
 }
