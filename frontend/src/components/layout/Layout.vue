@@ -3,10 +3,12 @@
     <Sidebar class="sidebar-fixed" />
     <div class="main-content">
       <Navbar class="navbar-sticky" />
+
       <main class="page-content">
         <slot />
       </main>
     </div>
+
   </div>
 </template>
 
@@ -75,6 +77,7 @@ onUnmounted(() => {
 .page-content {
   flex: 1;
   overflow-y: auto;
+
   padding: 1.5rem;
   background-color: #f9fafb;
   min-height: calc(100vh - 64px); /* 64px = navbar height */
@@ -93,5 +96,6 @@ onUnmounted(() => {
   .main-content {
     margin-left: 0;
   }
+
 }
 </style> 

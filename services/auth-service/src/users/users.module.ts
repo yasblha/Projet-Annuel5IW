@@ -13,6 +13,7 @@ import { ResendInvitationUseCase } from '@application/usecases/users/resend-invi
 import { JwtModule } from '@nestjs/jwt';
 
 
+
 @Module({
   imports: [
     ClientsModule.register([
@@ -44,5 +45,6 @@ import { JwtModule } from '@nestjs/jwt';
   ],
   exports: [UsersService, UserRepository, PasswordService],
   controllers: [UsersController],
+
 })
 export class UsersModule {}

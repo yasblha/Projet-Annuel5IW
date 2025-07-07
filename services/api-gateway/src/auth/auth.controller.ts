@@ -8,6 +8,7 @@ import { ChangePasswordDto } from '../application/dtos/auth/change-password.dto'
 import { ForgotPasswordDto } from '../application/dtos/auth/forgot-password.dto';
 import { ResetPasswordDto } from '../application/dtos/auth/reset-password.dto';
 
+
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -16,26 +17,31 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() data: RegisterDto) {
+
     return this.handleRequest('auth.register', data);
   }
 
   @Post('login')
   async login(@Body() data: LoginDto) {
+
     return this.handleRequest('auth.login', data);
   }
 
   @Post('admin/register')
   async registerByAdmin(@Body() data: RegisterDto) {
+
     return this.handleRequest('auth.admin.register', data);
   }
 
   @Post('invite')
   async invite(@Body() data: RegisterDto) {
+
     return this.handleRequest('auth.invite', data);
   }
 
   @Post('confirm')
   async confirm(@Body() data: ConfirmDto) {
+
     return this.handleRequest('auth.confirm', data);
   }
 
@@ -54,6 +60,7 @@ export class AuthController {
     return this.handleRequest('auth.reset-password', data);
   }
 
+
   private async handleRequest(pattern: string, data: any) {
     try {
       return await firstValueFrom(
@@ -68,6 +75,7 @@ export class AuthController {
       throw new HttpException(
         err.message || 'Erreur serveur',
         status
+
       );
     }
   }

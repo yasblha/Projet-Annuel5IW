@@ -12,11 +12,13 @@ import RolesView from '@/views/admin/RolesView.vue'
 import PagesHabilitationView from '@/views/admin/PagesHabilitationView.vue'
 import TarifsAutoUpdateView from '@/views/admin/TarifsAutoUpdateView.vue'
 import CaissesView from '@/views/admin/CaissesView.vue'
+
 import { useAuthStore } from '@/stores/auth.store.ts';
 import ForgotPasswordView from '@/views/auth/ForgotPasswordView.vue';
 import ResetPasswordView from '@/views/auth/ResetPasswordView.vue';
 import ActivateView from '@/views/auth/ActivateView.vue';
 import UsersView from '@/views/UsersView.vue';
+
 
 const router = createRouter({
   history: createWebHistory('/'),
@@ -64,6 +66,7 @@ const router = createRouter({
       ]
     },
     {
+
       path: '/forgot-password',
       name: 'forgot-password',
       component: ForgotPasswordView,
@@ -83,6 +86,7 @@ const router = createRouter({
       name: 'users',
       component: UsersView,
       meta: { requiresAuth: true, requiresAdmin: true }
+
     }
   ]
 })

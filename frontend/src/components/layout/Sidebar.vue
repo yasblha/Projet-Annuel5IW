@@ -8,6 +8,7 @@
       <div>
         <h1 class="text-lg font-bold text-gray-900">WaterApp</h1>
         <p class="text-xs text-gray-500">Gestion de l'eau</p>
+
       </div>
     </div>
 
@@ -49,6 +50,7 @@
 
       <!-- Section Facturation -->
       <div>
+
         <h3 class="nav-section-title">Facturation</h3>
         <router-link 
           to="/invoices" 
@@ -70,6 +72,7 @@
 
       <!-- Section Interventions -->
       <div>
+
         <h3 class="nav-section-title">Interventions</h3>
         <router-link 
           to="/interventions" 
@@ -91,6 +94,7 @@
 
       <!-- Section Administration (si admin) -->
       <div v-if="authStore.isAdmin">
+
         <h3 class="nav-section-title">Administration</h3>
         <router-link 
           to="/users" 
@@ -98,6 +102,7 @@
           :class="{ 'active': $route.path.startsWith('/users') }"
         >
           <i class="fas fa-user-shield icon"></i>
+
           <span>Utilisateurs</span>
         </router-link>
         <router-link 
@@ -120,6 +125,7 @@
 
       <!-- Section Paramètres -->
       <div>
+
         <h3 class="nav-section-title">Paramètres</h3>
         <router-link 
           to="/profile" 
@@ -162,6 +168,7 @@
         <i class="fas fa-sign-out-alt"></i>
         <span>Déconnexion</span>
       </button>
+
     </div>
   </div>
 </template>
@@ -184,6 +191,7 @@ const handleLogout = () => {
   width: 280px;
   /* position: fixed; */
   position: relative;
+
   left: 0;
   top: 0;
   bottom: 0;
@@ -191,6 +199,7 @@ const handleLogout = () => {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+
 }
 
 .nav-section-title {
@@ -201,6 +210,7 @@ const handleLogout = () => {
   margin-bottom: 0.5rem;
   padding-left: 0.5rem;
   letter-spacing: 0.05em;
+
 }
 
 .nav-item {
@@ -212,7 +222,7 @@ const handleLogout = () => {
   text-decoration: none;
   transition: all 0.2s;
   margin-bottom: 0.25rem;
-  font-size: 1rem;
+-  font-size: 1rem;
   font-weight: 500;
 }
 
@@ -221,6 +231,7 @@ const handleLogout = () => {
   font-size: 1.125rem;
   width: 1.5rem;
   text-align: center;
+
 }
 
 .nav-item.active {
@@ -233,6 +244,7 @@ const handleLogout = () => {
 .nav-item:hover {
   background-color: #f3f4f6;
   color: #1f2937;
+
 }
 
 /* Responsive */
@@ -241,6 +253,7 @@ const handleLogout = () => {
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
   }
+
   .sidebar.open {
     transform: translateX(0);
   }

@@ -23,6 +23,7 @@ export class AuthGuard implements CanActivate {
     }
     // Si c'est un appel microservice (RabbitMQ, TCP, etc.), on laisse passer
     return true;
+
   }
 }
 
