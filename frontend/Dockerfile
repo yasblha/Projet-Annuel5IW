@@ -5,10 +5,10 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies including dev dependencies
+RUN npm install --include=dev
 
-# Copy source code
+# Copy source code (excluding node_modules)
 COPY . .
 
 # Expose port
