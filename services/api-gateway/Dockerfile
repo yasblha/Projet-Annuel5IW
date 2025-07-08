@@ -7,4 +7,4 @@ COPY ./services/api-gateway/. .
 
 EXPOSE 3000
 RUN npm run build
-CMD ["npm", "run", "start:dev"]
+CMD ["npx", "nest", "start", "--watch"]
