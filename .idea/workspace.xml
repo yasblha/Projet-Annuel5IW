@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="36c7ccd2-a3be-45c0-a01d-ff76f66bc6c5" name="Changes" comment="">
+
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.package-lock.json" afterDir="false" />
@@ -18,6 +20,7 @@
       <change beforePath="$PROJECT_DIR$/frontend/src/views/HomeView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/HomeView.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/views/auth/LoginView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/auth/LoginView.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/views/auth/ProfileView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/auth/ProfileView.vue" afterDir="false" />
+
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,7 +43,7 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/yasblha/aquerp.git&quot;,
+    &quot;url&quot;: &quot;https://github.com/yasblha/Projet-Annuel5IW.git&quot;,
     &quot;accountId&quot;: &quot;bcf4e39e-fee5-4088-985e-1b72a3ef23f2&quot;
   }
 }</component>
@@ -53,6 +56,7 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
@@ -78,11 +82,12 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/services/api-gateway/src/application/dtos" />
-      <recent name="$PROJECT_DIR$/services/api-gateway/src/application" />
-      <recent name="$PROJECT_DIR$/services/auth-service/src/application/usecases/users" />
-      <recent name="$PROJECT_DIR$/services/auth-service/src" />
-      <recent name="$PROJECT_DIR$/frontend" />
+
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/services/workflow-service" />
+      <recent name="$PROJECT_DIR$/services/operation-service" />
+      <recent name="$PROJECT_DIR$/services/facture-service" />
+      <recent name="$PROJECT_DIR$/services/contrat-service" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/services/auth-service/test" />
@@ -118,6 +123,7 @@
       <workItem from="1751471587142" duration="76000" />
       <workItem from="1751471737581" duration="74184000" />
       <workItem from="1751897216889" duration="13976000" />
+
     </task>
     <servers />
   </component>

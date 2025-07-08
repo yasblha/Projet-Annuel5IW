@@ -8,6 +8,7 @@
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <StatCard
+
         title="Contrats actifs"
         value="12"
         description="Contrats en cours"
@@ -16,6 +17,7 @@
         :trend="5"
       />
       <StatCard
+
         title="Factures payées"
         value="8"
         description="Ce mois"
@@ -24,6 +26,7 @@
         :trend="12"
       />
       <StatCard
+
         title="Interventions"
         value="3"
         description="En cours"
@@ -32,6 +35,7 @@
         :trend="-2"
       />
       <StatCard
+
         title="Agences"
         value="5"
         description="Actives"
@@ -106,6 +110,7 @@
       </div>
     </div>
   </DashboardSection>
+
 </template>
 
 <script setup lang="ts">
@@ -114,11 +119,13 @@ import StatCard from '@/components/dashboard/StatCard.vue'
 import UserSummary from '@/components/dashboard/UserSummary.vue'
 import DashboardSection from '@/components/dashboard/DashboardSection.vue'
 import Button from '@/components/ui/button/Button.vue'
+
 import RecentActivity from '@/components/dashboard/RecentActivity.vue'
 import { useAuthStore } from '@/stores/auth.store'
 
 const router = useRouter()
 const authStore = useAuthStore()
+
 
 const navigateToProfile = () => {
   router.push('/profile')

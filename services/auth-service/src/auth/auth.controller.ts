@@ -359,6 +359,7 @@ export class AuthController {
     @UseGuards(AuthGuard, RolesGuard)
     @Roles('ADMIN')
     invite(@Body('userId') userId: number) {
+
         return this.UsersService.inviteUser(userId);
     }
 
