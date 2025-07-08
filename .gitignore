@@ -9,3 +9,21 @@ yarn-error.log*
 .pnp.js
 
 .vscode/*
+
+./frontend/node_modules
+./services/auth-service/node_modules
+./services/agency-service/node_modules
+./services/contrat-service/node_modules
+./services/affaire-service/node_modules
+./services/facture-service/node_modules
+./services/operation-service/node_modules
+./services/mailer-service/node_modules
+./services/workflow-service/node_modules
+./services/api-gateway/node_modules
+/docs
+
+package-lock.json
+
+
+./node_modules
+
