@@ -222,7 +222,7 @@ const handleLogout = () => {
   text-decoration: none;
   transition: all 0.2s;
   margin-bottom: 0.25rem;
--  font-size: 1rem;
+  font-size: 1rem;
   font-weight: 500;
 }
 
