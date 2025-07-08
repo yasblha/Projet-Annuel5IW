@@ -11,6 +11,7 @@ import type {
   AuthActions,
   AuthGetters
 } from '@/types/auth.types'
+import { useNotificationStore } from '@/stores/notification.store'
 
 export const useAuthStore = defineStore('auth', () => {
   // État réactif
@@ -18,6 +19,8 @@ export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
+
+  const notificationStore = useNotificationStore()
 
   // Getters
   const isAuthenticated = computed(() => !!token.value && !!user.value)
@@ -129,6 +132,8 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (err: any) {
       // Si le refresh échoue, on déconnecte l'utilisateur
       logout()
+      notificationStore.error('Session expirée', 'Veuillez vous reconnecter pour des raisons de sécurité.')
+      window.location.href = '/login'
       throw err
     }
   }

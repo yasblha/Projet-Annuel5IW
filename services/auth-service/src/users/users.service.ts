@@ -16,6 +16,7 @@ import { UpdateProfileUseCase } from '@application/usecases/auth/update-profile.
 import { InviteUserUsecase } from '@application/usecases/auth/invite-user.usecase';
 import { ConfirmInvitationUseCase } from '@application/usecases/auth/confirm-invitation.usecase';
 import { ActivateEmailUseCase } from '@application/usecases/auth/activate-email.usecase';
+import { ResetPasswordUseCase } from '@application/usecases/auth/reset-password.usecase';
 
 
 @Injectable()
@@ -31,6 +32,7 @@ export class UsersService {
     private inviteUserUsecase: InviteUserUsecase;
     private confirmInvitationUsecase: ConfirmInvitationUseCase;
     private activateEmailUsecase: ActivateEmailUseCase;
+    private resetPasswordUsecase: ResetPasswordUseCase;
 
     constructor(
         private readonly userRepository: UserRepository,
@@ -47,6 +49,7 @@ export class UsersService {
         this.inviteUserUsecase = new InviteUserUsecase(userRepository, mailerClient);
         this.confirmInvitationUsecase = new ConfirmInvitationUseCase(userRepository, passwordService, mailerClient);
         this.activateEmailUsecase = new ActivateEmailUseCase(userRepository, passwordService, mailerClient);
+        this.resetPasswordUsecase = new ResetPasswordUseCase(userRepository, passwordService);
     }
 
     async registerFromInterface(userData: User): Promise<User> {
@@ -88,9 +91,9 @@ export class UsersService {
         return this.forgotPasswordUsecase.execute(email);
     }
 
-    /*async resetPassword(token: string, newPassword: string) {
+    async resetPassword(token: string, newPassword: string) {
         return this.resetPasswordUsecase.execute(token, newPassword);
-    }*/
+    }
 
     async changePassword(userId: number, currentPassword: string, newPassword: string) {
         return this.changePasswordUsecase.execute(userId, currentPassword, newPassword);
@@ -102,5 +105,9 @@ export class UsersService {
 
     async debugUserStatus(email: string) {
         return this.userRepository.debugUserStatus(email);
+    }
+
+    async getUserById(userId: number) {
+        return this.userRepository.findById(userId);
     }
 }

@@ -17,6 +17,8 @@ import ForgotPasswordView from '@/views/auth/ForgotPasswordView.vue';
 import ResetPasswordView from '@/views/auth/ResetPasswordView.vue';
 import ActivateView from '@/views/auth/ActivateView.vue';
 import UsersView from '@/views/UsersView.vue';
+import ProfileView from '@/views/auth/ProfileView.vue';
+import HomeHubView from '@/views/HomeHubView.vue';
 
 const router = createRouter({
   history: createWebHistory('/'),
@@ -52,6 +54,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/hub',
+      name: 'hub',
+      component: HomeHubView,
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/admin',
       component: AdminLayout,
       meta: { requiresAdmin: true },
@@ -83,6 +91,12 @@ const router = createRouter({
       name: 'users',
       component: UsersView,
       meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfileView,
+      meta: { requiresAuth: true }
     }
   ]
 })
