@@ -25,6 +25,7 @@
               type="email"
               placeholder="votre@email.com"
               required
+              autocomplete="off"
               class="mt-1"
             />
           </div>
@@ -39,6 +40,7 @@
               type="password"
               placeholder="Votre mot de passe"
               required
+              autocomplete="off"
               class="mt-1"
             />
           </div>
@@ -86,7 +88,7 @@ const form = ref<LoginRequest>({
 const handleLogin = async () => {
   try {
     await authStore.login(form.value)
-    router.push('/dashboard')
+    router.push('/hub')
   } catch (err) {
     console.error('Erreur de connexion:', err);
     return err;

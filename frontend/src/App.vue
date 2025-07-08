@@ -1,7 +1,8 @@
 <template>
   <router-view />
+  <NotificationContainer />
 </template>
  
 <script setup lang="ts">
-// No additional logic needed
+import NotificationContainer from '@/components/ui/NotificationContainer.vue'
 </script> 

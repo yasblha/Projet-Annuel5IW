@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, Patch, Request } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from '@application/dtos/auth/register.dto';
@@ -9,6 +9,8 @@ import { Roles } from '@infrastructure/guards/roles.decorator';
 import { AuthGuard } from '@infrastructure/guards/auth.guard';
 import { RolesGuard } from '@infrastructure/guards/roles.guard';
 import { JwtService } from '@nestjs/jwt';
+import { UpdateProfileDto } from '@application/dtos/auth/update-profile.dto';
+import { addTokenToBlacklist } from '@infrastructure/guards/auth.guard';
 
 // DTOs pour Swagger avec exemples
 export class RegisterDtoSwagger {
@@ -206,6 +208,55 @@ export class AuthController {
         }
     }
 
+    @MessagePattern('auth.reset-password')
+    async handleResetPassword(@Payload() data: { token: string; newPassword: string }) {
+        try {
+            const result = await this.UsersService.resetPassword(data.token, data.newPassword);
+            return { success: true, message: result.message };
+        } catch (error) {
+            return { success: false, error: error.message, status: 400 };
+        }
+    }
+
+    @MessagePattern('auth.refresh')
+    async handleRefresh(@Payload() data: { userId: number }) {
+        try {
+            const user = await this.UsersService.getUserById(data.userId);
+            const payload = { sub: user.id, email: user.email, role: user.role };
+            const access_token = this.jwtService.sign(payload);
+            return { success: true, data: { access_token, user } };
+        } catch (error) {
+            return { success: false, error: error.message, status: 401 };
+        }
+    }
+
+    @MessagePattern('auth.me')
+    async handleMe(@Payload() data: { userId: number }) {
+        try {
+            const user = await this.UsersService.getUserById(data.userId);
+            return { success: true, data: user };
+        } catch (error) {
+            return { success: false, error: error.message, status: 401 };
+        }
+    }
+
+    @MessagePattern('auth.logout')
+    async handleLogout(@Payload() data: { userId: number }, @Req() req) {
+        try {
+            // Récupérer le token courant
+            const authHeader = req?.headers?.authorization;
+            if (authHeader) {
+                const [type, token] = authHeader.split(' ');
+                if (type === 'Bearer' && token) {
+                    addTokenToBlacklist(token);
+                }
+            }
+            return { success: true, message: 'Déconnexion réussie' };
+        } catch (error) {
+            return { success: false, error: error.message, status: 500 };
+        }
+    }
+
     // Handlers HTTP (accès direct)
     @Post('register')
     @ApiOperation({ 
@@ -325,5 +376,19 @@ export class AuthController {
     @Post('debug-status')
     debugStatus(@Body() body: { email: string }) {
         return this.UsersService.debugUserStatus(body.email);
+    }
+
+    @Patch('profile')
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard)
+    @ApiOperation({ summary: 'Mise à jour du profil utilisateur connecté' })
+    @ApiBody({ type: UpdateProfileDto })
+    @ApiResponse({ status: 200, description: 'Profil mis à jour', type: UserResponseSwagger })
+    async updateProfile(@Request() req, @Body() dto: UpdateProfileDto) {
+        // L'ID utilisateur est dans le JWT (req.user.sub)
+        const userId = req.user?.sub;
+        if (!userId) throw new Error('Utilisateur non authentifié');
+        const user = await this.UsersService.updateProfile(Number(userId), dto);
+        return { success: true, data: user };
     }
 }

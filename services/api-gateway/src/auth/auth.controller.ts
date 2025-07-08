@@ -60,6 +60,20 @@ export class AuthController {
     return this.handleRequest('auth.reset-password', data);
   }
 
+  @Post('refresh')
+  async refresh(@Body() data: { userId: number }) {
+    return this.handleRequest('auth.refresh', data);
+  }
+
+  @Post('me')
+  async me(@Body() data: { userId: number }) {
+    return this.handleRequest('auth.me', data);
+  }
+
+  @Post('logout')
+  async logout(@Body() data: { userId: number }) {
+    return this.handleRequest('auth.logout', data);
+  }
 
   private async handleRequest(pattern: string, data: any) {
     try {

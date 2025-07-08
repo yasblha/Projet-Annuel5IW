@@ -8,6 +8,19 @@
 
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/_metadata.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/_metadata.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/router/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/router/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/api.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/api.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/stores/auth.store.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/stores/auth.store.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/HomeView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/HomeView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/auth/LoginView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/auth/LoginView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/auth/ProfileView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/auth/ProfileView.vue" afterDir="false" />
+
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,24 +62,24 @@
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "feature/update",
+    "git-widget-placeholder": "feature/dynamic-form-config",
     "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/Users/yassineboulahnine/Desktop/Projects/5IW/X7 version annuelle projet",
+    "last_opened_file_path": "/Users/yassineboulahnine/Desktop/Projects/5IW/X7/services/api-gateway/src/application/dtos",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "/Users/yassineboulahnine/Desktop/Projects/5IW/X7/services/auth-service/node_modules/typescript/lib",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
+    "ts.external.directory.path": "/Users/yassineboulahnine/Desktop/Projects/5IW/X7/services/facture-service/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
 
@@ -77,11 +90,11 @@
       <recent name="$PROJECT_DIR$/services/contrat-service" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/services/auth-service/test" />
       <recent name="$PROJECT_DIR$/services/auth-service/src/application/dtos" />
       <recent name="$PROJECT_DIR$/services/auth-service/src/application/usecases/auth" />
       <recent name="$PROJECT_DIR$/services/auth-service/src" />
       <recent name="$PROJECT_DIR$/application/usecases/auth" />
-      <recent name="$PROJECT_DIR$/application/dtos/auth" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -104,9 +117,13 @@
       <workItem from="1746804778571" duration="411000" />
       <workItem from="1746805202073" duration="46287000" />
       <workItem from="1747341260074" duration="22663000" />
-      <workItem from="1747771258628" duration="15546000" />
-      <workItem from="1748337799896" duration="2095000" />
-      <workItem from="1751847687701" duration="1486000" />
+      <workItem from="1747771258628" duration="17188000" />
+      <workItem from="1748349712093" duration="4807000" />
+      <workItem from="1751033426850" duration="42856000" />
+      <workItem from="1751471587142" duration="76000" />
+      <workItem from="1751471737581" duration="74184000" />
+      <workItem from="1751897216889" duration="13976000" />
+
     </task>
     <servers />
   </component>
@@ -114,12 +131,10 @@
     <option name="version" value="3" />
     <option name="exactExcludedFiles">
       <list>
-        <option value="$PROJECT_DIR$/Database/sequelize.js.map" />
-        <option value="$PROJECT_DIR$/Database/sequelize.js" />
         <option value="$PROJECT_DIR$/Database/sequelize.d.ts" />
-        <option value="$PROJECT_DIR$/Database/repositories/user.repository.js" />
+        <option value="$PROJECT_DIR$/Database/sequelize.js" />
         <option value="$PROJECT_DIR$/Database/repositories/user.repository.d.ts" />
-        <option value="$PROJECT_DIR$/Database/repositories/user.repository.js.map" />
+        <option value="$PROJECT_DIR$/Database/sequelize.js.map" />
       </list>
     </option>
   </component>
