@@ -66,9 +66,9 @@ services:
       - ./tsconfig.json:/app/tsconfig.json
       - ./package.json:/app/package.json
       - auth_node_modules:/app/services/auth-service/node_modules
-      #- services/auth-service/node_modules:/app/services/auth-service/node_modules
-      #- ./services/auth-service/node_modules:/app/services/auth-service/node_modules
-      #- auth_node_modules:/app/services/auth-service/node_modules
+    #- services/auth-service/node_modules:/app/services/auth-service/node_modules
+    #- ./services/auth-service/node_modules:/app/services/auth-service/node_modules
+    #- auth_node_modules:/app/services/auth-service/node_modules
     environment:
       - DB_HOST=postgres
       - DB_NAME=main
@@ -213,8 +213,8 @@ services:
     environment:
       - DB_HOST=postgres
       - DB_NAME=main
-      - DB_USER=postgres
-      - DB_PASS=postgres
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
     depends_on:
       - postgres
 

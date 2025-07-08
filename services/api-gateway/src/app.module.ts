@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
 import { UsersController } from './users/users.controller';
+import { IncidentsProxyController, InterventionsProxyController, IoTProxyController } from './operation.controller';
 
 import { HttpModule, HttpService } from '@nestjs/axios';
 
@@ -57,7 +58,14 @@ import { HttpModule, HttpService } from '@nestjs/axios';
       },
     ]),
   ],
-  controllers: [AppController, AuthController, UsersController],
+  controllers: [
+    AppController,
+    AuthController,
+    UsersController,
+    IncidentsProxyController,
+    InterventionsProxyController,
+    IoTProxyController,
+  ],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
