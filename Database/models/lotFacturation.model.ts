@@ -14,7 +14,14 @@ export default (sequelize: Sequelize): typeof Model => {
         dateGeneration: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
         dateEnvoi: { type: DataTypes.DATE, allowNull: true },
         statut: { type: DataTypes.ENUM('EN_PREPARATION','VALIDE','ENVOYE','ARCHIVE'), allowNull: false, defaultValue: 'EN_PREPARATION' },
-        utilisateurId: { type: DataTypes.UUID, allowNull: false }
+        utilisateurId: { type: DataTypes.UUID, allowNull: false },
+        description: { type: DataTypes.TEXT, allowNull: true },
+        dateCloture: { type: DataTypes.DATE, allowNull: true },
+        dateCreation: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        dateMaj: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        createdBy: { type: DataTypes.UUID, allowNull: true },
+        updatedBy: { type: DataTypes.UUID, allowNull: true },
+        tenantId: { type: DataTypes.STRING, allowNull: true }
     }, {
         sequelize,
         modelName: 'LotFacturation',

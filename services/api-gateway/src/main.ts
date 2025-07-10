@@ -10,7 +10,7 @@ async function bootstrap() {
 
   // Active CORS pour le frontend
   app.enableCors({
-    origin: 'http://localhost:8080',
+    origin: ['http://localhost:8080', 'http://localhost:5173', 'http://localhost:3000'],
     credentials: true,
   });
 
@@ -21,6 +21,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('auth', 'Authentification et autorisation')
     .addTag('users', 'Gestion des utilisateurs')
+    .addTag('clients', 'Gestion des clients')
     .addTag('agencies', 'Gestion des agences')
     .addTag('contracts', 'Gestion des contrats')
     .addTag('invoices', 'Gestion des factures')

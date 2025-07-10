@@ -5,8 +5,9 @@ import RegisterView from '@/views/auth/RegisterView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import AdminLayout from '@/views/admin/AdminLayout.vue'
 import DashboardLayout from '@/views/dashboard/DashboardLayout.vue'
-import ClientsView from '@/views/dashboard/ClientsView.vue'
+import ListClientsView from '@/views/clients/ListClientsView.vue'
 import ContratsView from '@/views/dashboard/ContratsView.vue'
+import CreateContractWizard from '@/views/contracts/CreateContractWizard.vue'
 import UsersAdminView from '@/views/admin/UsersAdminView.vue'
 import RolesView from '@/views/admin/RolesView.vue'
 import PagesHabilitationView from '@/views/admin/PagesHabilitationView.vue'
@@ -19,6 +20,7 @@ import ActivateView from '@/views/auth/ActivateView.vue';
 import UsersView from '@/views/UsersView.vue';
 import ProfileView from '@/views/auth/ProfileView.vue';
 import HomeHubView from '@/views/HomeHubView.vue';
+import ClientDetailView from '@/views/clients/ClientDetailView.vue';
 
 const router = createRouter({
   history: createWebHistory('/'),
@@ -43,14 +45,21 @@ const router = createRouter({
       component: DashboardLayout,
       children: [
         { path: '', component: DashboardView },
-        { path: 'clients', component: ClientsView },
+        { path: 'clients', component: ListClientsView },
         { path: 'contrats', component: ContratsView },
+        { path: 'contrats/new', component: CreateContractWizard },
       ]
     },
     {
-      path: '/dashboard/clients',
-      name: 'Clients',
-      component: () => import('@/views/dashboard/ClientsView.vue'),
+      path: '/clients',
+      name: 'clients',
+      component: ListClientsView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/clients/:id',
+      name: 'client-detail',
+      component: ClientDetailView,
       meta: { requiresAuth: true }
     },
     {

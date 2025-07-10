@@ -11,7 +11,14 @@ export default (sequelize: Sequelize): typeof Model => {
             type: DataTypes.ENUM('CREATE', 'READ', 'UPDATE', 'DELETE'),
             allowNull: false,
             unique: false
-        }
+        },
+        description: { type: DataTypes.TEXT, allowNull: true },
+        categorie: { type: DataTypes.STRING(50), allowNull: true },
+        dateCreation: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        dateMaj: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        createdBy: { type: DataTypes.UUID, allowNull: true },
+        updatedBy: { type: DataTypes.UUID, allowNull: true },
+        tenantId: { type: DataTypes.STRING, allowNull: true }
     }, {
         sequelize,
         modelName: 'Action',

@@ -57,6 +57,11 @@ export default (sequelize: Sequelize): typeof Model => {
         tenantId: {
             type: DataTypes.STRING,
             allowNull: true },
+        proprietaireEntrepriseId: {
+            type: DataTypes.UUID,
+            allowNull: true,
+            references: { model: 'entreprises', key: 'id' }
+        },
 
         telephone: {
             type: DataTypes.STRING,

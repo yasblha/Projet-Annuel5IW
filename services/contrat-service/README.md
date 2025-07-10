@@ -1,99 +1,174 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 📄 Contrat Service – Documentation Métier & Workflow
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Rôle
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Gestion du cycle de vie des contrats d’eau/assainissement : création, signature, suspension, résiliation, renouvellement, gestion des cosignataires, association/dissociation de compteurs, interventions métier, liens avec clients/abonnements, audit.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Entités principales
 
-## Project setup
+- **Contrat** : Représente l’accord entre le fournisseur et le client (ou entreprise)
+- **Cosignataire** : Personne ou entité devant signer le contrat
+- **Compteur** : Appareil de mesure associé au contrat (un seul par contrat à un instant T)
+- **Abonnement** : Offre ou plan tarifaire lié au contrat
+- **Intervention** : Action métier (pose, dépose, relève, remplacement de compteur, etc.)
+- **Client** : Titulaire du contrat
+- **Historique** : Trace tous les changements majeurs (statut, compteur, signature, etc.)
 
-```bash
-$ npm install
+---
+
+## Cycle de vie d’un contrat
+
+```mermaid
+flowchart TD
+    C1[Création du contrat] -->|Génère intervention de pose compteur| I1[Intervention: Pose compteur]
+    I1 -->|Compteur associé| C2[Contrat ACTIF]
+    C2 -->|Signature(s) requise(s)| S1[Signature(s) (client/cosignataires)]
+    S1 -->|Toutes signatures OK| C3[Contrat signé]
+    C3 -->|Suspension demandée| SUS[Contrat SUSPENDU]
+    C3 -->|Résiliation demandée| RES[Contrat RESILIÉ]
+    C3 -->|Renouvellement| REN[Renouvellement: nouveau contrat]
+    C3 -->|Remplacement compteur| I2[Intervention: Remplacement compteur]
+    I2 -->|Nouveau compteur associé| C3
+    C3 -->|Dépose compteur| I3[Intervention: Dépose compteur]
+    I3 -->|Compteur dissocié| C4[Contrat sans compteur]
 ```
 
-## Compile and run the project
+---
+flowchart LR
+    D[Demande client] --> E[Vérif éligibilité]
+    E --> F[Visite terrain + scan N° série]
+    F --> G[Offre & devis]
+    G --> H[Invitations cosignataires]
+    H --> I{Signatures complètes ?}
+    I -- Non --> H
+    I -- Oui --> J[Activation contrat]
+    J --> K[Publication event contract.created]
+    J --> L[Audit & Compteur-Historique]
+---
 
-```bash
-# development
-$ npm run start
+## Logique métier détaillée
 
-# watch mode
-$ npm run start:dev
+### 1. Création d’un contrat
+- Création du contrat (statut EN_ATTENTE)
+- Génération d’une intervention de pose de compteur si compteur à associer
+- Ajout des cosignataires si besoin
+- Lien avec le client, l’abonnement, le compteur
 
-# production mode
-$ npm run start:prod
+### 2. Signature
+- Chaque signataire (client, cosignataire) doit signer
+- Passage du statutSignature à SIGNE quand tous ont signé
+- Date de signature enregistrée
+
+### 3. Suspension
+- Changement de statut à SUSPENDU
+- Motif et date enregistrés
+
+### 4. Résiliation
+- Changement de statut à RESILIE
+- Motif et date enregistrés
+- Génération d’une intervention de dépose de compteur
+
+### 5. Renouvellement
+- Création d’un nouveau contrat (nouvelle période)
+- Possibilité de réutiliser le même compteur ou d’en associer un nouveau
+
+### 6. Association/dissociation de compteur
+- **Association** :
+  - Ajout du compteur au contrat
+  - Génération d’une intervention de pose
+- **Dissociation** :
+  - Suppression du lien compteur-contrat (date de fin)
+  - Génération d’une intervention de dépose
+  - Historisation de l’ancien compteur
+
+### 7. Interventions métier
+- Pose, dépose, relève, remplacement, maintenance, etc.
+- Toujours historisées et liées au contrat et au compteur
+
+### 8. Audit & Historique
+- Toutes les actions majeures sont historisées (statut, signature, compteur, interventions)
+- Possibilité de consulter l’historique d’un contrat
+
+---
+
+## Exemples de flux métier (Mermaid)
+
+### Création et activation d’un contrat
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant F as Frontend
+    participant AG as API Gateway
+    participant CS as Contrat Service
+    participant OS as Operation Service
+    participant MS as Mailer Service
+
+    C->>F: Remplit formulaire de contrat
+    F->>AG: POST /contrats
+    AG->>CS: POST /contrats
+    CS->>OS: Crée intervention de pose compteur
+    OS-->>CS: Intervention créée
+    CS->>MS: Notifie client/cosignataires pour signature
+    MS-->>C: Email de demande de signature
+    C->>F: Signe le contrat
+    F->>AG: POST /contrats/:id/signature
+    AG->>CS: POST /contrats/:id/signature
+    CS->>CS: Vérifie toutes signatures
+    CS->>CS: Passe le contrat à ACTIF/SIGNE
+    CS->>MS: Notifie activation
+    MS-->>C: Email de confirmation
 ```
 
-## Run tests
+### Remplacement de compteur
+```mermaid
+sequenceDiagram
+    participant CS as Contrat Service
+    participant OS as Operation Service
+    participant T as Technicien
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+    CS->>OS: Crée intervention de remplacement compteur
+    OS->>T: Affecte intervention
+    T->>OS: Réalise intervention
+    OS->>CS: Intervention terminée
+    CS->>CS: Met à jour le compteur associé au contrat
+    CS->>CS: Historise l’ancien compteur
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Règles métier clés
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- Un contrat ne peut avoir qu’un seul compteur principal à un instant T
+- Toute opération physique (pose, dépose, remplacement) doit générer une intervention
+- La dissociation d’un compteur ne supprime pas l’historique
+- Une entreprise peut avoir plusieurs contrats/compteurs (un par site ou usage)
+- La cartographie (adresse, GPS) est gérée côté compteur
+- L’audit et l’historique sont essentiels pour la traçabilité
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+---
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Endpoints principaux
 
-## Resources
+- `POST /contrats` : Créer un contrat
+- `POST /contrats/:id/signature` : Signer le contrat principal
+- `POST /contrats/:id/resiliation` : Résilier le contrat
+- `POST /contrats/:id/suspension` : Suspendre le contrat
+- `POST /contrats/:id/renouvellement` : Renouveler le contrat
+- `POST /contrats/:id/compteurs` : Associer un compteur (génère une intervention de pose)
+- `DELETE /contrats/:id/compteurs` : Dissocier le compteur (génère une intervention de dépose)
+- `GET /contrats/:id/compteurs/historique` : Historique des compteurs associés
+- `POST /contrats/:id/cosignataires` : Ajouter un cosignataire
+- `POST /interventions` : Créer une intervention métier
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Pour aller plus loin
 
-## Support
+- Orchestration avec le workflow-service pour les étapes complexes
+- Synchronisation avec operation-service pour la gestion des interventions
+- Notifications via mailer-service
+- Intégration cartographique (compteur/adresse)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
