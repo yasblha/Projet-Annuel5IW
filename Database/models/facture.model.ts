@@ -20,7 +20,16 @@ export default (sequelize: Sequelize): typeof Model => {
         remise: { type: DataTypes.DECIMAL, allowNull: true, defaultValue: 0 },
         mentionsLegales: { type: DataTypes.TEXT, allowNull: false },
         conditionsPaiement: { type: DataTypes.TEXT, allowNull: true },
-        clientId: { type: DataTypes.UUID, allowNull: false }
+        clientId: { type: DataTypes.UUID, allowNull: false },
+        statut: { type: DataTypes.STRING(30), allowNull: false, defaultValue: 'BROUILLON' },
+        datePaiement: { type: DataTypes.DATE, allowNull: true },
+        modePaiement: { type: DataTypes.STRING(30), allowNull: true },
+        commentaire: { type: DataTypes.TEXT, allowNull: true },
+        dateCreation: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        dateMaj: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        createdBy: { type: DataTypes.UUID, allowNull: true },
+        updatedBy: { type: DataTypes.UUID, allowNull: true },
+        tenantId: { type: DataTypes.STRING, allowNull: true }
     }, {
         sequelize,
         modelName: 'Facture',

@@ -17,7 +17,18 @@ export default (sequelize: Sequelize): typeof Model => {
         dateFin: { type: DataTypes.DATE, allowNull: true },
         statut: { type: DataTypes.ENUM('EN_ATTENTE','ACTIF','SUSPENDU','ANNULE','TERMINE'), allowNull: false, defaultValue: 'EN_ATTENTE' },
         dateCreation: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-        dateMaj: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
+        dateMaj: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        objet: { type: DataTypes.TEXT, allowNull: true },
+        montantTotal: { type: DataTypes.DECIMAL, allowNull: true },
+        dateSignature: { type: DataTypes.DATE, allowNull: true },
+        dateResiliation: { type: DataTypes.DATE, allowNull: true },
+        motifResiliation: { type: DataTypes.TEXT, allowNull: true },
+        statutSignature: { type: DataTypes.STRING(30), allowNull: false, defaultValue: 'EN_ATTENTE' },
+        zone: { type: DataTypes.STRING(10), allowNull: false },
+        typeContrat: { type: DataTypes.ENUM('I','P','C','A'), allowNull: false },
+        tenantId: { type: DataTypes.STRING, allowNull: true },
+        createdBy: { type: DataTypes.UUID, allowNull: true },
+        updatedBy: { type: DataTypes.UUID, allowNull: true }
     },{
         sequelize,
         modelName: 'Contrat',

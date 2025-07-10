@@ -10,7 +10,12 @@ export default (sequelize: Sequelize): typeof Model => {
         id: { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
         roleId: { type: DataTypes.UUID, allowNull: false },
         pageActionId: { type: DataTypes.UUID, allowNull: false },
-        allowed: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false }
+        allowed: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+        dateCreation: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        dateMaj: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        createdBy: { type: DataTypes.UUID, allowNull: true },
+        updatedBy: { type: DataTypes.UUID, allowNull: true },
+        tenantId: { type: DataTypes.STRING, allowNull: true }
     }, {
         sequelize,
         modelName: 'RolePagePermission',

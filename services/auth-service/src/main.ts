@@ -9,7 +9,8 @@ async function bootstrap() {
   await initDatabase();
   
   // Création de l'application HTTP
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
+  app.enableCors({ origin: true, credentials: true });
 
   // Configuration Swagger
   const config = new DocumentBuilder()

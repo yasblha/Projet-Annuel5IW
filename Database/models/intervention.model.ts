@@ -18,7 +18,15 @@ export default (sequelize: Sequelize): typeof Model => {
         dateRealisee: { type: DataTypes.DATE, allowNull: true },
         technicienId: { type: DataTypes.UUID, allowNull: true },
         statut: { type: DataTypes.ENUM('PROGRAMMEE','EN_COURS','TERMINEE'), allowNull: false, defaultValue: 'PROGRAMMEE' },
-        priorite: { type: DataTypes.ENUM('HAUTE','MOYENNE','BASSE'), allowNull: false, defaultValue: 'MOYENNE' }
+        priorite: { type: DataTypes.ENUM('HAUTE','MOYENNE','BASSE'), allowNull: false, defaultValue: 'MOYENNE' },
+        description: { type: DataTypes.TEXT, allowNull: true },
+        resultat: { type: DataTypes.TEXT, allowNull: true },
+        cout: { type: DataTypes.DECIMAL, allowNull: true },
+        dateCreation: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        dateMaj: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        createdBy: { type: DataTypes.UUID, allowNull: true },
+        updatedBy: { type: DataTypes.UUID, allowNull: true },
+        tenantId: { type: DataTypes.STRING, allowNull: true }
     }, {
         sequelize,
         modelName: 'Intervention',

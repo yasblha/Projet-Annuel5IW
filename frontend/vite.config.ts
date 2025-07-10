@@ -13,6 +13,28 @@ export default defineConfig({
   server: {
     port: 8080,
     host: true,
+    proxy: {
+      '/clients': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/auth': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/users': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/contrats': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   build: {
     target: 'esnext',

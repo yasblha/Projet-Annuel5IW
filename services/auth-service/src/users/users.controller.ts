@@ -11,8 +11,6 @@ import { Roles } from '@infrastructure/guards/roles.decorator';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller('users')
-@UseGuards(AuthGuard, RolesGuard)
-@Roles('ADMIN')
 export class UsersController {
   constructor(
     private readonly listUsers: ListUsersUseCase,
@@ -23,37 +21,50 @@ export class UsersController {
     private readonly resendInvitation: ResendInvitationUseCase,
   ) {}
 
+  // ENDPOINTS HTTP (avec guards)
   @Get()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
   async list(@Query() query: any) {
     return this.listUsers.execute(query);
   }
 
   @Post()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
   async create(@Body() body: any) {
     return this.createUser.execute(body);
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
   async update(@Param('id') id: string, @Body() body: any) {
     return this.updateUser.execute({ id: Number(id), ...body });
   }
 
   @Patch(':id/status')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
   async updateStatus(@Param('id') id: string, @Body('statut') statut: any) {
     return this.updateUserStatus.execute(Number(id), statut);
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
   async delete(@Param('id') id: string) {
     return this.deleteUser.execute(Number(id));
   }
 
   @Post(':id/resend-invitation')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
   async resend(@Param('id') id: string) {
     return this.resendInvitation.execute(Number(id));
   }
 
-  // HANDLERS MICROSERVICES POUR API GATEWAY
+  // HANDLERS MICROSERVICES POUR API GATEWAY (SANS GUARDS)
   @MessagePattern('users.list')
   async listMicro(@Payload() query: any) {
     return this.listUsers.execute(query);

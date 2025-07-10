@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Patch, Delete, Param, Body, Query, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Delete, Param, Body, Query, Inject, HttpException, HttpStatus, Headers } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { CreateUserDto } from '../application/dtos/users/create-user.dto';
@@ -13,33 +13,33 @@ export class UsersController {
   ) {}
 
   @Get()
-  async list(@Query() query: ListUsersDto) {
-    return this.handleRequest('users.list', query);
+  async list(@Query() query: ListUsersDto, @Headers('authorization') authorization?: string) {
+    return this.handleRequest('users.list', { ...query, authorization });
   }
 
   @Post()
-  async create(@Body() body: CreateUserDto) {
-    return this.handleRequest('users.create', body);
+  async create(@Body() body: CreateUserDto, @Headers('authorization') authorization?: string) {
+    return this.handleRequest('users.create', { ...body, authorization });
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() body: UpdateUserDto) {
-    return this.handleRequest('users.update', { id: Number(id), ...body });
+  async update(@Param('id') id: string, @Body() body: UpdateUserDto, @Headers('authorization') authorization?: string) {
+    return this.handleRequest('users.update', { id: Number(id), ...body, authorization });
   }
 
   @Patch(':id/status')
-  async updateStatus(@Param('id') id: string, @Body() body: UpdateUserStatusDto) {
-    return this.handleRequest('users.updateStatus', { id: Number(id), statut: body.statut });
+  async updateStatus(@Param('id') id: string, @Body() body: UpdateUserStatusDto, @Headers('authorization') authorization?: string) {
+    return this.handleRequest('users.updateStatus', { id: Number(id), statut: body.statut, authorization });
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string) {
-    return this.handleRequest('users.delete', { id: Number(id) });
+  async delete(@Param('id') id: string, @Headers('authorization') authorization?: string) {
+    return this.handleRequest('users.delete', { id: Number(id), authorization });
   }
 
   @Post(':id/resend-invitation')
-  async resendInvitation(@Param('id') id: string) {
-    return this.handleRequest('users.resendInvitation', { id: Number(id) });
+  async resendInvitation(@Param('id') id: string, @Headers('authorization') authorization?: string) {
+    return this.handleRequest('users.resendInvitation', { id: Number(id), authorization });
   }
 
   private async handleRequest(pattern: string, data: any) {
@@ -49,10 +49,30 @@ export class UsersController {
       );
     } catch (error) {
       const err = error as any;
+      console.error(`❌ [UsersController] Erreur ${pattern}:`, err.message);
+      
+      // Gestion spécifique des erreurs de validation
+      if (err.message && err.message.includes('existe déjà')) {
+        throw new HttpException(
+          err.message,
+          HttpStatus.CONFLICT // 409 Conflict
+        );
+      }
+      
+      // Gestion des erreurs de validation Sequelize
+      if (err.name === 'SequelizeUniqueConstraintError') {
+        const field = err.errors?.[0]?.path || 'champ';
+        throw new HttpException(
+          `Le ${field} existe déjà.`,
+          HttpStatus.CONFLICT
+        );
+      }
+      
       let status = Number(err.status);
       if (isNaN(status) || status < 100 || status > 599) {
         status = HttpStatus.INTERNAL_SERVER_ERROR;
       }
+      
       throw new HttpException(
         err.message || 'Erreur serveur',
         status

@@ -19,7 +19,14 @@ export default (sequelize: Sequelize): typeof Model => {
         dateInvitation: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
         dateReponse: { type: DataTypes.DATE, allowNull: true },
         signatureElectronique: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
-        signatureDate: { type: DataTypes.DATE, allowNull: true }
+        signatureDate: { type: DataTypes.DATE, allowNull: true },
+        emailCosignataire: { type: DataTypes.STRING(255), allowNull: true },
+        telephoneCosignataire: { type: DataTypes.STRING(30), allowNull: true },
+        dateCreation: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        dateMaj: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        createdBy: { type: DataTypes.UUID, allowNull: true },
+        updatedBy: { type: DataTypes.UUID, allowNull: true },
+        tenantId: { type: DataTypes.STRING, allowNull: true }
     },{
         sequelize,
         modelName: 'ContractCosigner',

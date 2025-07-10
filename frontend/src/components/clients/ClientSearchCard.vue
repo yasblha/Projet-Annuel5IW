@@ -110,9 +110,44 @@
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Tous les statuts</option>
+                <option value="PROSPECT">Prospect</option>
                 <option value="ACTIF">Actif</option>
-                <option value="EN_ATTENTE_VALIDATION">En attente de validation</option>
                 <option value="SUSPENDU">Suspendu</option>
+                <option value="INACTIF">Inactif</option>
+                <option value="RESILIE">Résilié</option>
+                <option value="ARCHIVE">Archivé</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Statut contractuel</label>
+              <select 
+                v-model="form.statutContractuel" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Tous les statuts</option>
+                <option value="SANS_CONTRAT">Sans contrat</option>
+                <option value="EN_NEGOCIATION">En négociation</option>
+                <option value="EN_ATTENTE_SIGNATURE">En attente signature</option>
+                <option value="CONTRAT_ACTIF">Contrat actif</option>
+                <option value="CONTRAT_SUSPENDU">Contrat suspendu</option>
+                <option value="CONTRAT_RESILIE">Contrat résilié</option>
+                <option value="CONTRAT_EXPIRE">Contrat expiré</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Statut de paiement</label>
+              <select 
+                v-model="form.statutPaiement" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Tous les statuts</option>
+                <option value="A_JOUR">À jour</option>
+                <option value="RETARD_LEGER">Retard léger</option>
+                <option value="RETARD_MODERE">Retard modéré</option>
+                <option value="RETARD_IMPORTANT">Retard important</option>
+                <option value="IMPAYE">Impayé</option>
+                <option value="EN_PROCEDURE">En procédure</option>
+                <option value="LITIGE">Litige</option>
               </select>
             </div>
           </div>

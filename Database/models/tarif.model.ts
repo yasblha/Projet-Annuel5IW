@@ -12,7 +12,15 @@ export default (sequelize: Sequelize): typeof Model => {
         nom: { type: DataTypes.STRING, allowNull: false },
         prixUnitaireM3: { type: DataTypes.DECIMAL, allowNull: false },
         fraisFixes: { type: DataTypes.DECIMAL, allowNull: true },
-        zone: { type: DataTypes.STRING, allowNull: true }
+        zone: { type: DataTypes.STRING, allowNull: true },
+        dateDebutValidite: { type: DataTypes.DATE, allowNull: true },
+        dateFinValidite: { type: DataTypes.DATE, allowNull: true },
+        statut: { type: DataTypes.STRING(30), allowNull: false, defaultValue: 'ACTIF' },
+        dateCreation: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        dateMaj: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        createdBy: { type: DataTypes.UUID, allowNull: true },
+        updatedBy: { type: DataTypes.UUID, allowNull: true },
+        tenantId: { type: DataTypes.STRING, allowNull: true }
     }, {
         sequelize,
         modelName: 'Tarif',

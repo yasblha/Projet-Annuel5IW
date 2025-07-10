@@ -9,7 +9,12 @@ export default (sequelize: Sequelize): typeof Model => {
         id: { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
         key: { type: DataTypes.STRING, allowNull: false, unique: false, comment: 'Identifiant technique de la page' },
         name: { type: DataTypes.STRING, allowNull: false, comment: 'Nom convivial de la page' },
-        description: { type: DataTypes.TEXT, allowNull: true }
+        description: { type: DataTypes.TEXT, allowNull: true },
+        dateCreation: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        dateMaj: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        createdBy: { type: DataTypes.UUID, allowNull: true },
+        updatedBy: { type: DataTypes.UUID, allowNull: true },
+        tenantId: { type: DataTypes.STRING, allowNull: true }
     }, {
         sequelize,
         modelName: 'Page',

@@ -10,7 +10,12 @@ export default (sequelize: Sequelize): typeof Model => {
     PageAction.init({
         id: { type: DataTypes.UUID, primaryKey: true, defaultValue: DataTypes.UUIDV4 },
         pageId: { type: DataTypes.UUID, allowNull: false },
-        actionId: { type: DataTypes.UUID, allowNull: false }
+        actionId: { type: DataTypes.UUID, allowNull: false },
+        dateCreation: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        dateMaj: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        createdBy: { type: DataTypes.UUID, allowNull: true },
+        updatedBy: { type: DataTypes.UUID, allowNull: true },
+        tenantId: { type: DataTypes.STRING, allowNull: true }
     }, {
         sequelize,
         modelName: 'PageAction',
