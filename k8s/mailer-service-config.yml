@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailer-service
+  namespace: billing-app
+  labels:
+    app: mailer-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mailer-service
+  template:
+    metadata:
+      labels:
+        app: mailer-service
+    spec:
+      containers:
+      - name: mailer-service
+        image: mailer-service:latest
+        ports:
+          - containerPort: 3000
+        envFrom:
+          - configMapRef:
+              name: mailer-service-config
+          - secretRef:
+              name: db-secret
+          - secretRef:
+              name: rabbitmq-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailer-service
+  namespace: billing-app
+spec:
+  selector:
+    app: mailer-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP
