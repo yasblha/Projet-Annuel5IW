@@ -67,5 +67,6 @@ export declare class UserRepository {
         role?: string;
         statut?: string;
     }): Promise<any>;
+
 }
 export {};

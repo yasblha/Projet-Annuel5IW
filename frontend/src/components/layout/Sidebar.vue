@@ -7,6 +7,7 @@
       <div>
         <h1 class="text-lg font-bold text-gray-900">WaterApp</h1>
         <p class="text-xs text-gray-500">Gestion de l'eau</p>
+
       </div>
     </div>
     <nav class="flex-1 p-4 space-y-6 overflow-y-auto">
@@ -75,6 +76,7 @@
           <i class="fas fa-tachometer-alt"></i>
           <span>Compteurs</span>
         </router-link>
+
         <router-link 
           v-if="hasPermission('billing', 'view')"
           to="/dashboard/factures" 
@@ -102,6 +104,7 @@
           class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
           :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/admin/utilisateurs') }">
           <i class="fas fa-users-cog"></i>
+
           <span>Utilisateurs</span>
         </router-link>
         <router-link 
@@ -123,6 +126,7 @@
       </div>
       <div>
         <h3 class="text-xs font-semibold uppercase text-gray-500 mb-2 pl-2 tracking-wider">Support</h3>
+
         <router-link 
           to="/aide" 
           class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
@@ -150,6 +154,7 @@
         <i class="fas fa-sign-out-alt"></i>
         <span>Déconnexion</span>
       </button>
+
     </div>
   </aside>
 </template>
@@ -174,3 +179,4 @@ const handleLogout = () => {
   router.push('/login')
 }
 </script>
+
