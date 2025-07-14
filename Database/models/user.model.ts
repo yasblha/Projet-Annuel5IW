@@ -1,4 +1,5 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
+import { UserRole } from './enums/userRole.enum';
 
 export default (sequelize: Sequelize): typeof Model => {
     class Utilisateur extends Model {
@@ -68,9 +69,23 @@ export default (sequelize: Sequelize): typeof Model => {
             allowNull: true,
             unique: true },
         role: {
-            type: DataTypes.ENUM('ADMIN','CLIENT','TECHNICIEN','COMMERCIAL','SUPPORT','COMPTABLE','MANAGER'),
+            type: DataTypes.ENUM(
+                UserRole.SUPER_ADMIN,
+                UserRole.ADMIN,
+                UserRole.DIRECTEUR,
+                UserRole.COMMERCIAL,
+                UserRole.COMPTABLE,
+                UserRole.TECHNICIEN,
+                UserRole.INTERVENANT_EXTERNE,
+                UserRole.SUPPORT_CLIENT,
+                UserRole.MANAGER,
+                UserRole.AUDITEUR,
+                UserRole.CONSULTANT,
+                UserRole.CLIENT,
+                UserRole.SUPPORT
+            ),
             allowNull: false,
-            defaultValue: 'CLIENT' },
+            defaultValue: UserRole.SUPPORT_CLIENT },
         statut: {
             type: DataTypes.ENUM('EN_ATTENTE_VALIDATION','ACTIF','SUSPENDU','BLACKLISTE','ARCHIVE','SUPPRIME'),
             allowNull: false,

@@ -30,8 +30,10 @@ export class ContratMapper {
       tenantId: model.tenantId,
       createdBy: model.createdBy,
       updatedBy: model.updatedBy,
-      dateCreation: model.dateCreation,
-      dateMaj: model.dateMaj,
+      dateCreation: model.dateCreation || model.createdAt,
+      dateMaj: model.dateMaj || model.updatedAt,
+      typeContrat: model.typeContrat || null,
+      adresse: model.adresse || null,
       // Calculs dérivés
       dureeEnJours: this.calculateDureeEnJours(model.dateDebut, model.dateFin),
       isActif: model.statut === 'ACTIF',

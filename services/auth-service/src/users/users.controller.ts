@@ -7,8 +7,9 @@ import { DeleteUserUseCase } from '@application/usecases/users/delete-user.useca
 import { ResendInvitationUseCase } from '@application/usecases/users/resend-invitation.usecase';
 import { AuthGuard } from '@infrastructure/guards/auth.guard';
 import { RolesGuard } from '@infrastructure/guards/roles.guard';
-import { Roles } from '@infrastructure/guards/roles.decorator';
+import { Roles } from '@infrastructure/decorators/roles.decorator';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { UserRole } from '@Database/models/enums/userRole.enum';
 
 @Controller('users')
 export class UsersController {
@@ -24,42 +25,42 @@ export class UsersController {
   // ENDPOINTS HTTP (avec guards)
   @Get()
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DIRECTEUR)
   async list(@Query() query: any) {
     return this.listUsers.execute(query);
   }
 
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DIRECTEUR)
   async create(@Body() body: any) {
     return this.createUser.execute(body);
   }
 
   @Put(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DIRECTEUR)
   async update(@Param('id') id: string, @Body() body: any) {
     return this.updateUser.execute({ id: Number(id), ...body });
   }
 
   @Patch(':id/status')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DIRECTEUR)
   async updateStatus(@Param('id') id: string, @Body('statut') statut: any) {
     return this.updateUserStatus.execute(Number(id), statut);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   async delete(@Param('id') id: string) {
     return this.deleteUser.execute(Number(id));
   }
 
   @Post(':id/resend-invitation')
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DIRECTEUR)
   async resend(@Param('id') id: string) {
     return this.resendInvitation.execute(Number(id));
   }
@@ -94,4 +95,4 @@ export class UsersController {
   async resendMicro(@Payload() data: any) {
     return this.resendInvitation.execute(data.id);
   }
-} 
+}

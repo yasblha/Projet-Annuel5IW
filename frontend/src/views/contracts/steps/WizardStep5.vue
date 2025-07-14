@@ -287,7 +287,12 @@ const CosignerSchema = z.object({
 
 // Computed
 const isValid = computed(() => {
-  return cosigners.value.length > 0 && totalParts.value === 100
+  // Si aucun cosignataire, on considère que c'est valide
+  if (cosigners.value.length === 0) {
+    return true
+  }
+  // Sinon, on vérifie que la somme des parts est égale à 100%
+  return totalParts.value === 100
 })
 
 const canAddCosigner = computed(() => {

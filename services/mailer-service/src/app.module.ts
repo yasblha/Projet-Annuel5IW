@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MailerModule as NestMailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 import { MailerModule } from './mailer/mailer.module';
+import { FactureEvents } from './events/facture.events';
 
 @Module({
   imports: [
@@ -32,6 +33,9 @@ import { MailerModule } from './mailer/mailer.module';
       },
     }),
     MailerModule,
+  ],
+  providers: [
+    FactureEvents
   ],
 })
 export class AppModule {}

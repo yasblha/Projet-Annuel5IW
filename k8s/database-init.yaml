@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: database-init
+  labels:
+    app: database-init
+spec:
+  template:
+    metadata:
+      labels:
+        app: database-init
+    spec:
+      containers:
+        - name: database-init
+          image: registry.digitalocean.com/factu-reg/auth-service:latest
+          command: ["npm", "run", "db:migrate"]
+          envFrom:
+            - secretRef:
+                name: auth-service-secrets
+            - configMapRef:
+                name: auth-service-config
+          env:
+            - name: NODE_ENV
+              value: "production"
+      restartPolicy: Never
+  backoffLimit: 3 

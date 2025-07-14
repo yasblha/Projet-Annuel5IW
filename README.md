@@ -244,6 +244,9 @@ X7/
 ```
 
 ---
+---
+
+---
 
 ## 🖼️ Schémas d'architecture
 
@@ -420,3 +423,43 @@ npm run build
 **🚀 Prêt à contribuer ou à déployer ? Lancez-vous !**
 
 *Contact : contactprojectys@gmail.com*
+
+## Déploiement Cloud (DigitalOcean Kubernetes)
+
+### Prérequis
+- Accès à un cluster DOKS (DigitalOcean Kubernetes)
+- Registre DOCR créé (ex: registry.digitalocean.com/factu-reg)
+- Secrets GitHub configurés : DOCKER_USERNAME, DOCKER_PASSWORD, DIGITALOCEAN_ACCESS_TOKEN
+
+### Build & Push manuels (optionnel)
+```sh
+docker build -t registry.digitalocean.com/factu-reg/auth-service:latest -f services/auth-service/Dockerfile .
+docker push registry.digitalocean.com/factu-reg/auth-service:latest
+# ... répéter pour chaque service et le frontend
+```
+
+### Déploiement Kubernetes
+```sh
+kubectl apply -f k8s/
+```
+
+### CI/CD automatique
+- Un push sur la branche `main` déclenche le workflow GitHub Actions :
+  - Build & push des images Docker
+  - Déploiement automatique sur le cluster
+
+### Variables d'environnement attendues (exemple auth-service)
+- DATABASE_URL
+- JWT_SECRET
+- SENTRY_DSN
+- ...
+
+Voir `k8s/secrets-example.yaml` et `k8s/configmap-example.yaml` pour la structure.
+
+### Ingress & domaine
+- Le frontend est exposé sur https://aquaerp.cloud
+- L'API Gateway est accessible via https://aquaerp.cloud/api/
+
+---
+
+Pour toute modification, adapter les manifests dans `k8s/` et relancer le pipeline.

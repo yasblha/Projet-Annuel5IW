@@ -5,7 +5,7 @@
       <div 
         v-for="(step, index) in steps" 
         :key="index"
-        :class="['step', { active: currentStep === index, completed: currentStep > index }]"
+        :class="['step', { active: currentStep.value === index, completed: currentStep.value > index }]"
         @click="goToStep(index)"
       >
         <span class="step-number">{{ index + 1 }}</span>
@@ -17,13 +17,17 @@
     <div class="step-content">
       <Suspense>
         <template #default>
-          <component 
-            :is="currentStepComponent" 
-            v-model:form-data="formData"
-            @next="nextStep"
-            @previous="previousStep"
-            @save-draft="saveDraft"
-          />
+          <div>
+            <component 
+              :is="currentStepComponent" 
+              :form-data="formData"
+              @update:formData="handleUpdateFormData"
+              @next="nextStep"
+              @previous="previousStep"
+              @save-draft="saveDraft"
+              @contract-finalized="handleContractFinalized"
+            />
+          </div>
         </template>
         <template #fallback>
           <div class="loading-step">
@@ -37,14 +41,14 @@
     <!-- Navigation -->
     <div class="wizard-navigation">
       <button 
-        v-if="currentStep > 0" 
+        v-if="currentStep.value > 0" 
         @click="previousStep"
         class="btn btn-secondary"
       >
         Précédent
       </button>
       <button 
-        v-if="currentStep < steps.length - 1" 
+        v-if="currentStep.value < steps.length - 1" 
         @click="nextStep"
         :disabled="!canProceed"
         class="btn btn-primary"
@@ -52,7 +56,7 @@
         Suivant
       </button>
       <button 
-        v-if="currentStep === steps.length - 1" 
+        v-if="currentStep.value === steps.length - 1" 
         @click="finalizeContract"
         :disabled="!canFinalize"
         class="btn btn-success"
@@ -70,70 +74,111 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent } from 'vue'
+import { ref, computed, shallowRef, watch, defineExpose, defineEmits, defineProps, withDefaults, onMounted } from 'vue'
+import { useContractDraftStore } from '@/stores/contract-draft.store'
+import { useInterventionStore } from '@/stores/intervention.store'
+import WizardStep1 from './steps/WizardStep1.vue'
+import WizardStep2 from './steps/WizardStep2.vue'
+import WizardStepMeter from './steps/WizardStepMeter.vue'
+import WizardStepPayment from './steps/WizardStepPayment.vue'
+import WizardStep4 from './steps/WizardStep4.vue'
+import WizardStep5 from './steps/WizardStep5.vue'
+import WizardStep6 from './steps/WizardStep6.vue'
 
-// Props & Emits
-const props = defineProps<{
-  formData: any
-}>()
+// Props (optionnel) – le parent peut ne pas fournir, par défaut {}
+const props = withDefaults(defineProps<{
+  formData?: any
+}>(), {
+  formData: () => ({})
+})
 
+// Events émis vers le parent (formData update facultatif)
 const emit = defineEmits<{
-  'update:formData': [data: any]
-  'next': []
-  'previous': []
+  'update:formData'?: [data: any]
+  'next'?: []
+  'previous'?: []
   'completed': [contrat: any]
-  'cancelled': []
+  'cancelled'?: []
 }>()
+
+// Store brouillon de contrat (workflow backend)
+const draftStore = useContractDraftStore()
+
+// ID du brouillon courant (réactif)
+const currentContractId = computed(() => draftStore.currentContract?.id || null)
+
+// Objet partagé entre wizard et steps (déréférence le ref du store)
+const formData = draftStore.formData as any // reactive object
+
+const isLoading = computed(() => draftStore.isLoading)
+
+// Intervention store
+const interventionStore = useInterventionStore()
+
+// Charger un éventuel formData du localStorage (remplissage brouillon hors-ligne)
+onMounted(() => {
+  draftStore.loadFromStorage()
+})
 
 // Reactive state
 const currentStep = ref(0)
-const formData = ref({})
-const isLoading = ref(false)
-
-// Steps configuration with lazy loading
+const finalizedContractId = ref('')
 const steps = [
   { 
     title: 'Identité client',
-    component: () => import('./steps/WizardStep1.vue'),
+    component: WizardStep1,
     validation: 'clientIdentity'
   },
   { 
     title: 'Éligibilité & adresse',
-    component: () => import('./steps/WizardStep2.vue'),
+    component: WizardStep2,
     validation: 'eligibility'
   },
   { 
-    title: 'Visite terrain',
-    component: () => import('./steps/WizardStep3.vue'),
-    validation: 'meterScan'
+    title: 'Compteur',
+    component: WizardStepMeter,
+    validation: 'meter'
+  },
+  { 
+    title: 'Paiement',
+    component: WizardStepPayment,
+    validation: 'payment'
   },
   { 
     title: 'Offre & devis',
-    component: () => import('./steps/WizardStep4.vue'),
+    component: WizardStep4,
     validation: 'quote'
   },
   { 
     title: 'Cosignataires',
-    component: () => import('./steps/WizardStep5.vue'),
+    component: WizardStep5,
     validation: 'cosigners'
   },
   { 
     title: 'Suivi signatures',
-    component: () => import('./steps/WizardStep6.vue'),
+    component: WizardStep6,
     validation: 'signatures'
   }
 ]
 
 // Computed
 const currentStepComponent = computed(() =>
-  defineAsyncComponent(steps[currentStep.value].component)
+  steps[currentStep.value].component
 )
-const canProceed = computed(() => true) // Simplifié pour l'instant
-const canFinalize = computed(() => currentStep.value === steps.length - 1)
+
+// Validation flags
+const canProceed = computed(() => draftStore.canProceedToNextStep(currentStep.value))
+const canFinalize = computed(() => draftStore.canFinalizeContract)
 
 // Methods
-const nextStep = () => {
-  if (currentStep.value < steps.length - 1) {
+const nextStep = async () => {
+  // Toujours exécuter la logique métier de l'étape courante en premier
+  await handleStepBusinessLogic(currentStep.value)
+
+  // Recalculer la possibilité d'avancer après la persistance des données
+  const canGoNext = draftStore.canProceedToNextStep(currentStep.value)
+
+  if (currentStep.value < steps.length - 1 && canGoNext) {
     currentStep.value++
   }
 }
@@ -144,14 +189,17 @@ const previousStep = () => {
   }
 }
 
+// Permet au parent (ContratsView) de naviguer librement (reprise de brouillon)
 const goToStep = (stepIndex: number) => {
-  if (stepIndex <= currentStep.value) {
-    currentStep.value = stepIndex
-  }
+  currentStep.value = Math.min(Math.max(stepIndex, 0), steps.length - 1)
 }
+
+// Expose la méthode au parent via ref
+defineExpose({ goToStep })
 
 const saveDraft = async () => {
   try {
+    await draftStore.saveDraft()
     console.log('Brouillon sauvegardé')
   } catch (error) {
     console.error('Erreur sauvegarde brouillon:', error)
@@ -159,26 +207,76 @@ const saveDraft = async () => {
 }
 
 const finalizeContract = async () => {
-  isLoading.value = true
   try {
-    // Simulation finalisation
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    const contrat = {
-      id: 'contrat-' + Date.now(),
-      numero: 'C-P-TLS-25-001',
-      statut: 'ACTIF',
-      dateCreation: new Date().toISOString()
-    }
-    emit('completed', contrat)
+    await handleStepBusinessLogic(currentStep.value)
+    const finalized = await draftStore.finalizeContract()
+    emit('completed', finalized)
   } catch (error) {
     console.error('Erreur finalisation:', error)
-  } finally {
-    isLoading.value = false
   }
 }
 
 const cancelWizard = () => {
   emit('cancelled')
+}
+
+// Centralise la logique backend liée à une étape
+const handleStepBusinessLogic = async (stepIdx: number) => {
+  switch (stepIdx) {
+    case 1: // Eligibility – créer brouillon si pas encore
+      if (!currentContractId.value) {
+        await draftStore.createDraft()
+      } else {
+        await draftStore.saveDraft()
+      }
+      break
+    case 2: // Meter step
+      const meter = formData.meter as any
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+      if (meter?.hasMeter && uuidRegex.test(meter.compteurId || '')) {
+        await draftStore.linkMeter({ compteurId: meter.compteurId })
+      } 
+      // Note: Nous avons supprimé la création d'intervention ici
+      // Elle sera gérée uniquement côté backend lors de la finalisation
+      break
+    case 3: // Payment – nop, just save form
+      await draftStore.saveDraft()
+      break
+    case 4: // Quote – sauvegarder brouillon
+      await draftStore.saveDraft()
+      break
+    case 5: // Cosigners – ajouter cosignataires
+      const cosigners: any[] = formData.cosigners as any[]
+      if (cosigners?.length) {
+        for (const cos of cosigners) {
+          await draftStore.addCosigner({
+            ...cos,
+            typeCosignataire: 'ENTREPRISE', // TODO: mapper en fonction du choix réel
+            roleType: 'SECONDARY'
+          })
+        }
+      }
+      break
+    case 6: // Signature step – nothing special yet
+      break
+    default:
+      // Pour les autres étapes, juste sauvegarder
+      if (currentContractId.value) {
+        await draftStore.saveDraft()
+      }
+  }
+}
+
+// Gère la mise à jour émise par les composants d'étape
+const handleUpdateFormData = (data: any) => {
+  draftStore.mergeFormData(data)
+}
+
+const handleContractFinalized = (contractId: string) => {
+  // Enregistrer l'ID du contrat finalisé
+  finalizedContractId.value = contractId
+  // On pourrait aussi ajouter des actions supplémentaires ici, comme envoyer une notification
+  console.log(`Contrat finalisé avec succès: ${contractId}`)
 }
 </script>
 
@@ -308,4 +406,4 @@ const cancelWizard = () => {
   opacity: 0.6;
   cursor: not-allowed;
 }
-</style> 
+</style>

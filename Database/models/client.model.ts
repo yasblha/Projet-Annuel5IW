@@ -39,6 +39,16 @@ export default (sequelize: Sequelize): typeof Model => {
             allowNull: true,
             unique: true
         },
+        // Coordonnées bancaires
+        rib: {
+            type: DataTypes.STRING, // IBAN complet ou RIB formaté
+            allowNull: true,
+        },
+        modePaiement: {
+            type: DataTypes.ENUM('PRELEVEMENT', 'VIREMENT', 'CHEQUE', 'CARTE', 'ESPECES', 'AUTRE'),
+            allowNull: true,
+            defaultValue: 'PRELEVEMENT',
+        },
         type: {
             type: DataTypes.ENUM('PARTICULIER', 'ENTREPRISE'),
             allowNull: false,

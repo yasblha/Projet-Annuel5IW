@@ -1,4 +1,4 @@
-import { IsString, IsUUID, IsNotEmpty, IsOptional, IsDateString, IsNumber } from 'class-validator';
+import { IsString, IsUUID, IsNotEmpty, IsOptional, IsDateString, IsNumber, IsBoolean } from 'class-validator';
 import { UpdateCosignataireDto } from './cosignataire.dto';
 
 export class UpdateContratDto {

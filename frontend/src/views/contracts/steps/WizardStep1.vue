@@ -31,6 +31,8 @@
             placeholder="Nom, email ou téléphone..."
             class="search-input"
           />
+          <!-- Loader -->
+          <div v-if="isLoading" class="loader small"></div>
           <div v-if="searchResults.length > 0" class="search-results">
             <div
               v-for="client in searchResults"
@@ -44,6 +46,9 @@
                 <span v-if="client.telephone">{{ client.telephone }}</span>
               </div>
             </div>
+          </div>
+          <div v-else-if="!isLoading && searchQuery.length > 2" class="no-results">
+            Aucun client trouvé
           </div>
         </div>
       </div>
@@ -132,7 +137,7 @@
 import { ref, computed, watch } from 'vue'
 import { z } from 'zod'
 import { debounce } from '@/utils/debounce'
-import { useUserStore } from '@/stores/user.store'
+import { useClientStore } from '@/stores/client.store'
 
 // Props & Emits
 const props = defineProps<{
@@ -145,8 +150,8 @@ const emit = defineEmits<{
   'previous': []
 }>()
 
-// Store users
-const userStore = useUserStore()
+// Store clients
+const clientStore = useClientStore()
 
 // Reactive state
 const form = ref({
@@ -184,7 +189,7 @@ const isValid = computed(() => {
   }
 })
 
-// Debounced search utilisant le store users
+// Debounced search utilisant le store clients
 const debouncedSearch = debounce(async () => {
   if (searchQuery.value.length < 2) {
     searchResults.value = []
@@ -192,8 +197,8 @@ const debouncedSearch = debounce(async () => {
   }
   isLoading.value = true
   try {
-    await userStore.fetchUsers({ search: searchQuery.value, limit: 10 })
-    searchResults.value = userStore.users
+    await clientStore.listClients({ search: searchQuery.value, limit: 10 })
+    searchResults.value = clientStore.clients
   } catch (error) {
     searchResults.value = []
   } finally {
@@ -406,4 +411,26 @@ input.error, select.error {
   opacity: 0.6;
   cursor: not-allowed;
 }
-</style> 
+
+.search-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.loader.small {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #007bff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>

@@ -5,44 +5,99 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="36c7ccd2-a3be-45c0-a01d-ff76f66bc6c5" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.cursor/rules/microservices.mdc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/be0dd432-4519-4b07-8abb-8cac5e51d932.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/be0dd432-4519-4b07-8abb-8cac5e51d932.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/be0dd432-4519-4b07-8abb-8cac5e51d932/storage_v2/_src_/database/main.uQUzAA/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/be0dd432-4519-4b07-8abb-8cac5e51d932/storage_v2/_src_/database/main.uQUzAA/schema/public.abK9xQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Database/config/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/config/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/abonnement.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/abonnement.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/action.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/action.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/adresse.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/adresse.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/compteur.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/compteur.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/contrat.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/contrat.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/contratCosignataire.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/contratCosignataire.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/entreprise.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/entreprise.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/facture.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/facture.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/intervention.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/intervention.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/lettrage.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/lettrage.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/ligneFacture.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/ligneFacture.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/lotFacturation.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/lotFacturation.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/page.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/page.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/pageAction.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/pageAction.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/paiement.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/paiement.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/rolePagePermission.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/rolePagePermission.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/models/tarif.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/tarif.model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/models/ContractCounter.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/ContractCounter.model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/models/client.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/client.model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/models/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/models/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Database/models/user.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/models/user.model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/node_modules/.package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/node_modules/dotenv/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/Database/node_modules/dotenv/CHANGELOG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/node_modules/dotenv/README-es.md" beforeDir="false" afterPath="$PROJECT_DIR$/Database/node_modules/dotenv/README-es.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/node_modules/dotenv/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/Database/node_modules/dotenv/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/node_modules/dotenv/lib/cli-options.js" beforeDir="false" afterPath="$PROJECT_DIR$/Database/node_modules/dotenv/lib/cli-options.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/node_modules/dotenv/lib/env-options.js" beforeDir="false" afterPath="$PROJECT_DIR$/Database/node_modules/dotenv/lib/env-options.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/node_modules/dotenv/lib/main.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/node_modules/dotenv/lib/main.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/node_modules/dotenv/lib/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/Database/node_modules/dotenv/lib/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/node_modules/dotenv/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/node_modules/dotenv/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/repositories/client.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/repositories/client.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/repositories/contrat.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/repositories/contrat.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/sequelize.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Database/sequelize.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/domain/entité/contrat.ts" beforeDir="false" afterPath="$PROJECT_DIR$/domain/entité/contrat.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/CDC.docx" beforeDir="false" afterPath="$PROJECT_DIR$/docs/CDC.docx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/dist/assets/index-BcJmFnuC.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/dist/assets/index-Cqbs2y0i.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/dist/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/dist/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/_metadata.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/_metadata.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/axios.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/axios.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-PZ5AY32C.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-PZ5AY32C.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/clsx.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/clsx.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/pinia.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/pinia.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/tailwind-merge.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/tailwind-merge.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/vue-router.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/vue-router.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/vue-toastification.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/vue-toastification.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/vue.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/zod.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/zod.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/clients/ClientSearchCard.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/clients/ClientSearchCard.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/contrats/AddContratModal.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/contrats/AddContratModal.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/Sidebar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/layout/Sidebar.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ui/DynamicForm.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ui/DynamicForm.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/users/CreateUserModal.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/users/CreateUserModal.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/composables/use-websocket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/composables/use-websocket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/router/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/router/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/services/api.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/api.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/api/client.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/api/client.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/client.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/client.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/services/http.interceptor.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/http.interceptor.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/dashboard/ClientsView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/dashboard/ClientsView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/stores/auth.store.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/stores/auth.store.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/stores/contract-draft.store.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/stores/contract-draft.store.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/stores/meter.store.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/stores/meter.store.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/types/auth.types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/types/auth.types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/admin/AdminLayout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/admin/AdminLayout.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/clients/ListClientsView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/clients/ListClientsView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/contracts/CreateContractWizard.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/contracts/CreateContractWizard.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/contracts/steps/WizardStep1.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/contracts/steps/WizardStep1.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/contracts/steps/WizardStep2.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/contracts/steps/WizardStep2.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/contracts/steps/WizardStep3.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/contracts/steps/WizardStep3.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/contracts/steps/WizardStep4.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/contracts/steps/WizardStep4.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/contracts/steps/WizardStep5.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/contracts/steps/WizardStep5.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/contracts/steps/WizardStep6.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/contracts/steps/WizardStep6.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/views/dashboard/ContratsView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/dashboard/ContratsView.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/vite.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/vite.config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/.eslintrc.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/.prettierrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/nest-cli.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/src/app.controller.spec.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/src/app.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/src/app.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/src/app.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/src/main.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/test/app.e2e-spec.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/test/jest-e2e.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/tsconfig.build.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/affaire-service/tsconfig.json" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,51 +118,54 @@
     &quot;assignee&quot;: &quot;yasblha&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/yasblha/Projet-Annuel5IW.git",
-    "accountId": "bcf4e39e-fee5-4088-985e-1b72a3ef23f2"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/yasblha/aquerp.git&quot;,
+    &quot;accountId&quot;: &quot;bcf4e39e-fee5-4088-985e-1b72a3ef23f2&quot;
   }
-}]]></component>
+}</component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 1
 }</component>
   <component name="ProjectId" id="2wjybDEs0SVay16mTyNAcEPlx4y" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "feature/update-homepage-config",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/Users/yassineboulahnine/Desktop/Projects/5IW/X7/services/contrat-service/src/domain/entité",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
-    "ts.external.directory.path": "/Users/yassineboulahnine/Desktop/Projects/5IW/X7/services/facture-service/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/update-homepage-config&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/yassineboulahnine/Desktop/Projects/5IW/X7/services/facture-service&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/yassineboulahnine/Desktop/Projects/5IW/X7/frontend/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/services/contrat-service/src/domain/entité" />
+      <recent name="$PROJECT_DIR$/services/facture-service" />
       <recent name="$PROJECT_DIR$/services/api-gateway/src/application/dtos/contrat" />
-      <recent name="$PROJECT_DIR$/services/contrat-service/src" />
-      <recent name="$PROJECT_DIR$/services/api-gateway/src/application/dtos" />
-      <recent name="$PROJECT_DIR$/services/api-gateway/src/application" />
+      <recent name="$PROJECT_DIR$/services/affaire-service" />
+      <recent name="$PROJECT_DIR$/services/operation-service" />
+      <recent name="$PROJECT_DIR$/services/contrat-service/src/domain/entité" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/services/api-gateway/src/contrats" />
@@ -117,10 +175,17 @@
       <recent name="$PROJECT_DIR$/services/api-gateway/src/application/dtos/contrat" />
     </key>
   </component>
+  <component name="SQLScriptSettings">
+    <option name="matrix">
+      <map>
+        <entry key="POSTGRES.CreateComplete" value="ConstraintContext=CONSTRAINT_IN_TABLE" />
+      </map>
+    </option>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-WS-243.26053.12" />
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-WS-251.26927.40" />
       </set>
     </attachedChunks>
   </component>
@@ -142,7 +207,12 @@
       <workItem from="1751033426850" duration="42856000" />
       <workItem from="1751471587142" duration="76000" />
       <workItem from="1751471737581" duration="74184000" />
-      <workItem from="1751897216889" duration="61247000" />
+      <workItem from="1751897216889" duration="72363000" />
+      <workItem from="1752153325376" duration="135517000" />
+      <workItem from="1752371673449" duration="22317000" />
+      <workItem from="1752421301498" duration="9939000" />
+      <workItem from="1752431599777" duration="3990000" />
+      <workItem from="1752436600690" duration="24923000" />
     </task>
     <servers />
   </component>

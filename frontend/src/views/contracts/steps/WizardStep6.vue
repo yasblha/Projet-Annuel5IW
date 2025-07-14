@@ -84,6 +84,24 @@
             </svg>
             {{ isResending ? 'Envoi...' : 'Renvoyer les invitations' }}
           </button>
+
+          <!-- Bouton de finalisation du contrat -->
+          <button
+            v-if="allSignaturesCompleted"
+            type="button"
+            @click="finalizeContract"
+            :disabled="isFinalizingContract"
+            class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg v-if="isFinalizingContract" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <svg v-else class="-ml-1 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            {{ isFinalizingContract ? 'Finalisation...' : 'Finaliser le contrat' }}
+          </button>
         </div>
       </div>
 
@@ -202,12 +220,40 @@
         En attente des signatures ({{ signatureProgress }}%)
       </div>
     </div>
+    
+    <!-- Signature manuelle sur place -->
+    <div class="manual-signature-section bg-gray-50 p-4 rounded-md mb-6 mt-8">
+      <h3 class="font-medium text-gray-700 mb-3">Signature manuelle sur place</h3>
+      <div class="flex items-center">
+        <input 
+          v-model="manualSignerName" 
+          type="text" 
+          placeholder="Nom du signataire sur place" 
+          class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md mr-3"
+        />
+        <button 
+          @click="addManualSignature" 
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Ajouter signature
+        </button>
+      </div>
+      <p class="text-xs text-gray-500 mt-2">
+        Utilisez cette option uniquement si le cosignataire est présent et a signé physiquement le contrat.
+      </p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { format } from 'date-fns'
+import { fr } from 'date-fns/locale'
 import { useWebSocket } from '@/composables/use-websocket'
+import { useNotificationStore } from '@/stores/notification.store'
+
+// WebSocket
+const { isConnected, connect, disconnect, onMessage } = useWebSocket()
 
 // Props & Emits
 const props = defineProps<{
@@ -218,31 +264,22 @@ const emit = defineEmits<{
   'update:formData': [data: any]
   'next': []
   'previous': []
+  'contract-finalized': [contractId: string]
 }>()
 
 // Reactive state
 const signatures = ref<any[]>([])
-const notifications = ref<any[]>([])
-const wsStatus = ref<'connected' | 'disconnected'>('disconnected')
-const lastUpdate = ref<Date | null>(null)
+const lastUpdate = ref<Date | null>(new Date())
+const wsStatus = ref('disconnected')
 const isRefreshing = ref(false)
 const isResending = ref(false)
-const isLoading = ref(false)
-
-// WebSocket
-const { connect, disconnect, onMessage, isConnected } = useWebSocket()
+const isFinalizingContract = ref(false)
+const contractFinalizedStatus = ref<'pending' | 'success' | 'error' | null>(null)
+const finalizedContractId = ref<string | null>(null)
+const notifications = ref<any[]>([])
+const manualSignerName = ref('');
 
 // Computed
-const isValid = computed(() => {
-  return signatureProgress.value === 100
-})
-
-const signatureProgress = computed(() => {
-  if (signatures.value.length === 0) return 0
-  const signed = signatures.value.filter(s => s.statutSignature === 'SIGNE').length
-  return Math.round((signed / signatures.value.length) * 100)
-})
-
 const signedCount = computed(() => {
   return signatures.value.filter(s => s.statutSignature === 'SIGNE').length
 })
@@ -251,26 +288,35 @@ const totalSignatures = computed(() => {
   return signatures.value.length
 })
 
+const signatureProgress = computed(() => {
+  if (totalSignatures.value === 0) return 0
+  return Math.round((signedCount.value / totalSignatures.value) * 100)
+})
+
+const allSignaturesCompleted = computed(() => {
+  // Considérons qu'on peut finaliser le contrat quand toutes les signatures sont obtenues
+  // ou s'il n'y a pas de cosignataire requis
+  return totalSignatures.value === 0 || signedCount.value === totalSignatures.value
+})
+
 // Methods
+const formatTime = (date: Date) => {
+  if (!date) return ''
+  return format(date, 'dd MMMM yyyy à HH:mm', { locale: fr })
+}
+
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'SIGNE':
-      return 'bg-green-500'
+      return 'bg-green-100 text-green-800 border-green-200'
+    case 'EN_ATTENTE':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+    case 'INVITE_ENVOYEE':
+      return 'bg-blue-100 text-blue-800 border-blue-200'
     case 'REFUSE':
-      return 'bg-red-500'
+      return 'bg-red-100 text-red-800 border-red-200'
     default:
-      return 'bg-yellow-500'
-  }
-}
-
-const getStatusTextColor = (status: string) => {
-  switch (status) {
-    case 'SIGNE':
-      return 'text-green-600'
-    case 'REFUSE':
-      return 'text-red-600'
-    default:
-      return 'text-yellow-600'
+      return 'bg-gray-100 text-gray-800 border-gray-200'
   }
 }
 
@@ -278,132 +324,144 @@ const getStatusText = (status: string) => {
   switch (status) {
     case 'SIGNE':
       return 'Signé'
+    case 'EN_ATTENTE':
+      return 'En attente'
+    case 'INVITE_ENVOYEE':
+      return 'Invitation envoyée'
     case 'REFUSE':
       return 'Refusé'
     default:
-      return 'En attente'
+      return status
   }
 }
 
-const getNotificationClass = (type: string) => {
-  switch (type) {
-    case 'success':
-      return 'bg-green-50 border border-green-200'
-    case 'error':
-      return 'bg-red-50 border border-red-200'
-    default:
-      return 'bg-blue-50 border border-blue-200'
-  }
-}
-
-const getNotificationTextClass = (type: string) => {
-  switch (type) {
-    case 'success':
+const getStatusTextColor = (status: string) => {
+  switch (status) {
+    case 'SIGNE':
       return 'text-green-800'
-    case 'error':
+    case 'EN_ATTENTE':
+      return 'text-yellow-800'
+    case 'INVITE_ENVOYEE':
+      return 'text-blue-800'
+    case 'REFUSE':
       return 'text-red-800'
     default:
-      return 'text-blue-800'
+      return 'text-gray-800'
   }
 }
 
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
-const formatTime = (date: Date) => {
-  return date.toLocaleTimeString('fr-FR', {
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
+// Simuler actualisation des signatures
 const refreshSignatures = async () => {
   isRefreshing.value = true
   try {
-    // Simuler appel API
+    // Pour la démo, simule une mise à jour aléatoire des signatures
     await new Promise(resolve => setTimeout(resolve, 1000))
-    lastUpdate.value = new Date()
     
-    // Simuler mise à jour des signatures
-    signatures.value.forEach(sig => {
-      if (sig.statutSignature === 'EN_ATTENTE' && Math.random() > 0.7) {
-        sig.statutSignature = 'SIGNE'
-        sig.dateSignature = new Date().toISOString()
-        
-        notifications.value.unshift({
-          type: 'success',
-          message: `${sig.prenom} ${sig.nom} a signé le contrat`,
-          timestamp: new Date()
-        })
+    // Simule des changements de statut pour démonstration
+    signatures.value = signatures.value.map(s => {
+      // 20% de chance de signer si en attente ou invitation envoyée
+      if ((s.statutSignature === 'EN_ATTENTE' || s.statutSignature === 'INVITE_ENVOYEE') && Math.random() < 0.2) {
+        return {
+          ...s,
+          statutSignature: 'SIGNE',
+          dateSignature: new Date().toISOString()
+        }
       }
+      // 30% de chance de passer de "en attente" à "invitation envoyée" si en attente
+      if (s.statutSignature === 'EN_ATTENTE' && Math.random() < 0.3) {
+        return {
+          ...s,
+          statutSignature: 'INVITE_ENVOYEE'
+        }
+      }
+      return s
     })
+    
+    lastUpdate.value = new Date()
   } catch (error) {
-    console.error('Erreur actualisation:', error)
+    console.error('Erreur actualisation signatures:', error)
   } finally {
     isRefreshing.value = false
   }
 }
 
+// Renvoi des invitations
 const resendInvitations = async () => {
   isResending.value = true
   try {
-    // Simuler renvoi invitations
+    // Simuler appel API pour renvoyer les invitations
     await new Promise(resolve => setTimeout(resolve, 2000))
     
-    notifications.value.unshift({
-      type: 'info',
-      message: 'Invitations renvoyées avec succès',
-      timestamp: new Date()
+    // Marque toutes les signatures non signées comme ayant une invitation envoyée
+    signatures.value = signatures.value.map(s => {
+      if (s.statutSignature !== 'SIGNE') {
+        return {
+          ...s,
+          statutSignature: 'INVITE_ENVOYEE'
+        }
+      }
+      return s
     })
+    
+    lastUpdate.value = new Date()
   } catch (error) {
-    console.error('Erreur renvoi invitations:', error)
+    console.error('Erreur envoi invitations:', error)
   } finally {
     isResending.value = false
   }
 }
 
-const handleSignatureUpdate = (data: any) => {
-  const signatureIndex = signatures.value.findIndex(s => s.cosignataireId === data.cosignataireId)
-  
-  if (signatureIndex !== -1) {
-    signatures.value[signatureIndex] = { ...signatures.value[signatureIndex], ...data }
-    lastUpdate.value = new Date()
+// Finalisation du contrat
+const finalizeContract = async () => {
+  isFinalizingContract.value = true
+  try {
+    // Simuler appel API pour finaliser le contrat
+    await new Promise(resolve => setTimeout(resolve, 3000))
     
-    notifications.value.unshift({
-      type: data.statutSignature === 'SIGNE' ? 'success' : 'error',
-      message: `${signatures.value[signatureIndex].prenom} ${signatures.value[signatureIndex].nom} a ${data.statutSignature === 'SIGNE' ? 'signé' : 'refusé'} le contrat`,
-      timestamp: new Date()
-    })
+    // Générer un ID de contrat factice pour la démo
+    const contractId = 'CT-' + Math.floor(Math.random() * 10000)
+    finalizedContractId.value = contractId
+    contractFinalizedStatus.value = 'success'
+    
+    // Émettre l'événement de finalisation vers le parent
+    emit('contract-finalized', contractId)
+    
+    // Attendre un peu avant de passer à l'étape suivante pour montrer le succès
+    setTimeout(() => {
+      emit('next')
+    }, 1500)
+  } catch (error) {
+    console.error('Erreur finalisation contrat:', error)
+    contractFinalizedStatus.value = 'error'
+  } finally {
+    isFinalizingContract.value = false
   }
 }
 
 const handleSubmit = async () => {
-  if (!isValid.value) {
-    return
-  }
-  
-  isLoading.value = true
-  try {
-    emit('update:formData', { signatures: signatures.value })
-    emit('next')
-  } catch (error) {
-    console.error('Erreur finalisation:', error)
-  } finally {
-    isLoading.value = false
-  }
+  emit('update:formData', { signatures: signatures.value })
+  emit('next')
 }
 
 // WebSocket handlers
 const handleWebSocketMessage = (data: any) => {
   if (data.type === 'contract.cosigner_signed') {
-    handleSignatureUpdate(data.data)
+    const signatureIndex = signatures.value.findIndex(s => s.cosignataireId === data.data?.cosignataireId)
+    
+    if (signatureIndex !== -1) {
+      signatures.value[signatureIndex] = { 
+        ...signatures.value[signatureIndex], 
+        statutSignature: data.data?.statut,
+        dateSignature: data.data?.dateSignature
+      }
+      lastUpdate.value = new Date()
+      
+      notifications.value.unshift({
+        type: data.data?.statutSignature === 'SIGNE' ? 'success' : 'info',
+        message: `${signatures.value[signatureIndex].prenom} ${signatures.value[signatureIndex].nom} a ${data.data?.statutSignature === 'SIGNE' ? 'signé' : 'visualisé'} le contrat`,
+        timestamp: new Date()
+      })
+    }
   }
 }
 
@@ -439,4 +497,73 @@ onMounted(() => {
 watch(isConnected, (connected) => {
   wsStatus.value = connected ? 'connected' : 'disconnected'
 })
-</script> 
+
+// Simuler un API pour mettre à jour une signature
+const refreshSignatureStatus = (signatureId) => {
+  isRefreshing.value = true
+
+  // Simulation API call
+  setTimeout(() => {
+    signatures.value = signatures.value.map(sig => {
+      if (sig.id === signatureId) {
+        // Générer un nouveau statut aléatoirement (pour simulation)
+        const newStatus = getRandomStatus(sig.status)
+        
+        // Si le statut a changé et que c'est signé ou rejeté, notifier le propriétaire
+        if (newStatus !== sig.status && ['signed', 'rejected'].includes(newStatus)) {
+          notifyOwner(sig.email, newStatus, sig.name);
+        }
+        
+        return { ...sig, status: newStatus }
+      }
+      return sig
+    })
+    
+    isRefreshing.value = false
+    checkAllSignaturesComplete()
+  }, 1500)
+}
+
+// Fonction pour notifier le propriétaire du changement de statut d'une signature
+const notifyOwner = (signerEmail, status, signerName) => {
+  // En production, appel API réel pour déclencher l'email
+  console.log(`Notification envoyée au propriétaire: ${signerName} a ${status === 'signed' ? 'signé' : 'rejeté'} le contrat`)
+  
+  // Notification locale pour le démo
+  const message = status === 'signed' 
+    ? `${signerName} a signé le contrat`
+    : `${signerName} a rejeté le contrat`
+  
+  const notificationStore = useNotificationStore()
+  notificationStore.success('Mise à jour signature', message)
+}
+
+// Ajouter une signature manuelle sur place
+const addManualSignature = () => {
+  if (!manualSignerName.value) {
+    const notificationStore = useNotificationStore()
+    notificationStore.error('Erreur', 'Veuillez saisir le nom du signataire')
+    return;
+  }
+
+  // Ajouter une signature manuelle qui est déjà "signed"
+  const newSignature = {
+    id: `manual-${Date.now()}`,
+    name: manualSignerName.value,
+    email: 'signature-manuelle@sur-place.com',
+    status: 'signed',
+    date: new Date(),
+    share: 0,
+    isManual: true
+  };
+  
+  signatures.value.push(newSignature);
+  manualSignerName.value = '';
+  
+  // Notification de signature sur place
+  const notificationStore = useNotificationStore()
+  notificationStore.success('Signature sur place', `${newSignature.name} a signé le contrat sur place`)
+  
+  checkAllSignaturesComplete();
+}
+</script>

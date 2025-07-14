@@ -17,7 +17,11 @@
               <i class="fas fa-times text-xl"></i>
             </button>
           </div>
-          <CreateContractWizard @completed="onWizardCompleted" @cancelled="closeWizard" />
+          <CreateContractWizard
+            ref="wizardRef"
+            :form-data="draftStore.formData.value"
+            @completed="onWizardCompleted"
+            @cancelled="closeWizard" />
         </div>
       </div>
 
@@ -65,8 +69,22 @@
               </td>
               <td class="px-8 py-4">{{ formatDate(contrat.dateDebut) }}</td>
               <td class="px-8 py-4">{{ formatDate(contrat.dateFin) }}</td>
-              <td class="px-8 py-4 text-center">
-                <button class="text-blue-600 hover:text-blue-900 transition mr-2" @click="showDetail(contrat)"><i class="fas fa-eye"></i></button>
+              <td class="px-8 py-4 text-center flex gap-2 justify-center">
+                <button class="text-blue-600 hover:text-blue-900 transition" @click="showDetail(contrat)" title="Voir détails"><i class="fas fa-eye"></i></button>
+                <button 
+                  v-if="contrat.statut === 'EN_ATTENTE'" 
+                  class="text-green-600 hover:text-green-800 transition" 
+                  @click="resumeDraft(contrat)" 
+                  title="Reprendre">
+                  <i class="fas fa-play"></i>
+                </button>
+                <button
+                  v-if="contrat.statut === 'EN_ATTENTE'"
+                  class="text-red-600 hover:text-red-800 transition"
+                  @click="confirmDeleteDraft(contrat)"
+                  title="Supprimer brouillon">
+                  <i class="fas fa-trash"></i>
+                </button>
               </td>
             </tr>
             <tr v-if="contrats.length === 0">
@@ -82,25 +100,41 @@
         <span v-if="total">({{ total }} contrats au total)</span>
       </div>
       <AddContratModal v-if="showAddModal" @close="showAddModal = false" @created="fetchContrats(lastFilters)" />
-      <ContratDetailModal v-if="selectedContrat" :contrat="selectedContrat" @close="selectedContrat = null" />
+      <ConfirmationModal
+        v-if="showConfirmDelete"
+        title="Supprimer le brouillon ?"
+        :message="`Le contrat ${contratToDelete?.numero} sera définitivement supprimé.`"
+        confirm-text="Supprimer"
+        cancel-text="Annuler"
+        @confirm="executeDelete"
+        @cancel="showConfirmDelete = false"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, nextTick, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import SearchBar from '@/components/ui/SearchBar.vue'
 import AddContratModal from '@/components/contrats/AddContratModal.vue'
-import ContratDetailModal from '@/components/contrats/ContratDetailModal.vue'
 import CreateContractWizard from '@/views/contracts/CreateContractWizard.vue'
+import ConfirmationModal from '@/components/ui/ConfirmationModal.vue'
 import apiClient, { getContratById } from '@/services/api.service'
+import { useContractDraftStore } from "@/stores/contract-draft.store";
+import { useUserStore } from "@/stores/user.store";
+import { useClientStore } from "@/stores/client.store";
 
+const router = useRouter()
 const contrats = ref<any[]>([])
 const loading = ref(false)
 const showAddModal = ref(false)
 const showWizard = ref(false)
-const selectedContrat = ref<any|null>(null)
 const detailLoading = ref(false)
+const showConfirmDelete = ref(false)
+const contratToDelete = ref<any|null>(null)
+const userStore = useUserStore()
+const clientStore = useClientStore()
 
 const page = ref(1)
 const pageSize = 10
@@ -116,7 +150,8 @@ const searchFields: Array<{
   { name: 'numero', label: 'Numéro', type: 'text', placeholder: 'Numéro du contrat' },
   { name: 'typeProprietaire', label: 'Type propriétaire', type: 'select', options: [
     { value: 'UTILISATEUR', label: 'Utilisateur' },
-    { value: 'ENTREPRISE', label: 'Entreprise' }
+    { value: 'ENTREPRISE', label: 'Entreprise' },
+    { value: 'CLIENT', label: 'Client' }
   ] },
   { name: 'proprietaireNom', label: 'Nom propriétaire', type: 'text', placeholder: 'Nom du propriétaire' },
   { name: 'proprietaireId', label: 'ID propriétaire', type: 'text', placeholder: 'UUID propriétaire' },
@@ -138,9 +173,33 @@ async function fetchContrats(filters: Record<string, any> = {}) {
   loading.value = true
   lastFilters = { ...filters }
   try {
-    const res = await apiClient.get('/contracts', { params: { ...filters, page: page.value, pageSize } })
-    contrats.value = res.data.items || res.data
-    total.value = res.data.total || 0
+    const res = await apiClient.get('/contrats', { params: { ...filters, page: page.value, pageSize } })
+
+    const payload = res.data || {}
+
+    // Supporte les trois formats possibles de réponse API
+    const items = Array.isArray(payload.items) 
+      ? payload.items 
+      : (Array.isArray(payload.data) 
+        ? payload.data 
+        : (payload.data && Array.isArray(payload.data.contrats) 
+          ? payload.data.contrats 
+          : []))
+    
+    // Obtenir le total depuis les différentes structures possibles
+    total.value = typeof payload.total === 'number' 
+      ? payload.total 
+      : (payload.data && typeof payload.data.total === 'number' 
+        ? payload.data.total 
+        : items.length)
+
+    // Obtenir les données des contrats avant d'enrichir avec les infos propriétaires
+    contrats.value = items
+    
+    console.log('Contrats récupérés:', contrats.value);
+    
+    // Enrichir avec les infos des propriétaires
+    await enrichOwnerInfo()
   } catch (e) {
     contrats.value = []
     total.value = 0
@@ -165,16 +224,9 @@ function prevPage() {
   fetchContrats(lastFilters)
 }
 
-async function showDetail(contrat: any) {
-  detailLoading.value = true
-  try {
-    const res = await getContratById(contrat.id)
-    selectedContrat.value = res.data
-  } catch (e) {
-    selectedContrat.value = contrat // fallback
-  } finally {
-    detailLoading.value = false
-  }
+function showDetail(contrat: any) {
+  // Naviguer vers la page de détail du contrat dans le layout dashboard
+  router.push(`/dashboard/contrats/${contrat.id}`);
 }
 
 function closeWizard() {
@@ -189,9 +241,133 @@ function onWizardCompleted(contrat: any) {
   console.log('Contrat créé avec succès:', contrat)
 }
 
+const draftStore = useContractDraftStore()
+const wizardRef = ref<any>(null)
+
+async function resumeDraft(contrat: any) {
+  await draftStore.reset()
+  await draftStore.loadDraft(contrat.id)
+  showWizard.value = true
+  nextTick(() => {
+    wizardRef.value?.goToStep(draftStore.firstIncompleteStep())
+  })
+}
+
+function confirmDeleteDraft(contrat: any) {
+  contratToDelete.value = contrat
+  showConfirmDelete.value = true
+}
+
+async function executeDelete() {
+  if (!contratToDelete.value) return
+  showConfirmDelete.value = false
+
+  try {
+    await apiClient.delete(`/contrats/${contratToDelete.value.id}`)
+    await fetchContrats()
+  } catch (e) {
+    window.alert('Erreur: suppression impossible')
+  } finally {
+    contratToDelete.value = null
+  }
+}
+
 function formatDate(date: string | Date | undefined): string {
   if (!date) return '-'
   return new Date(date).toLocaleDateString('fr-FR')
+}
+
+// Fonction pour enrichir les contrats avec les informations des propriétaires
+async function enrichOwnerInfo() {
+  // Créer un cache pour éviter de récupérer plusieurs fois le même propriétaire
+  const ownerCache: Record<string, any> = {}
+  
+  const enrichTasks = contrats.value.map(async (contrat) => {
+    if (!contrat.proprietaireId) {
+      // Si pas d'ID propriétaire, on ajoute des valeurs par défaut
+      contrat.proprietaireNom = 'Non spécifié';
+      contrat.proprietaireEmail = '-';
+      contrat.proprietaireTelephone = '-';
+      return contrat;
+    }
+    
+    // Si l'ID est déjà en cache comme "non trouvé", ne pas réessayer
+    if (ownerCache[contrat.proprietaireId] === 'NOT_FOUND') {
+      contrat.proprietaireNom = 'Propriétaire inconnu';
+      contrat.proprietaireEmail = '-';
+      contrat.proprietaireTelephone = '-';
+      return contrat;
+    }
+    
+    try {
+      // Vérifier si on a déjà les infos de ce propriétaire en cache
+      if (!ownerCache[contrat.proprietaireId]) {
+        try {
+          let ownerInfo = null;
+          
+          // Déterminer si c'est un client ou un utilisateur selon le typeProprietaire
+          console.log(`Contrat ${contrat.id}: typeProprietaire=${contrat.typeProprietaire}, clientId=${contrat.clientId}, proprietaireId=${contrat.proprietaireId}`);
+          
+          // Essayer d'abord de récupérer comme client, puis comme utilisateur
+          const ownerId = contrat.clientId || contrat.proprietaireId;
+          
+          // Essayer d'abord comme client
+          try {
+            console.log(`Tentative: Récupération comme client ${ownerId} pour le contrat ${contrat.id}`);
+            ownerInfo = await clientStore.getClientById(ownerId);
+            console.log(`Client récupéré:`, ownerInfo);
+            if (ownerInfo) {
+              ownerCache[contrat.proprietaireId] = {
+                nom: ownerInfo.nom || '',
+                prenom: ownerInfo.prenom || '',
+                email: ownerInfo.email || '',
+                telephone: ownerInfo.telephone || ''
+              };
+            } else {
+              // Si pas de client trouvé, marquer comme non trouvé
+              ownerCache[contrat.proprietaireId] = 'NOT_FOUND';
+            }
+          } catch (clientError: any) {
+            console.log(`Client ${ownerId} non trouvé`);
+            ownerCache[contrat.proprietaireId] = 'NOT_FOUND';
+          }
+        } catch (error: any) {
+          // Si 404, marquer comme non trouvé dans le cache
+          if (error?.response?.status === 404) {
+            ownerCache[contrat.proprietaireId] = 'NOT_FOUND';
+            // Ne pas logger cette erreur pour réduire le bruit dans la console
+          } else {
+            // Pour les autres erreurs, on les loggue quand même
+            console.error(`Erreur lors de la récupération du propriétaire ${contrat.proprietaireId}:`, error);
+          }
+        }
+      }
+      
+      // Enrichir le contrat avec les infos du propriétaire
+      if (ownerCache[contrat.proprietaireId] && ownerCache[contrat.proprietaireId] !== 'NOT_FOUND') {
+        const owner = ownerCache[contrat.proprietaireId];
+        contrat.proprietaireNom = `${owner.prenom} ${owner.nom}`.trim() || 'N/A';
+        contrat.proprietaireEmail = owner.email || '-';
+        contrat.proprietaireTelephone = owner.telephone || '-';
+      } else {
+        // Valeurs par défaut si pas trouvé
+        contrat.proprietaireNom = 'Propriétaire inconnu';
+        contrat.proprietaireEmail = '-';
+        contrat.proprietaireTelephone = '-';
+      }
+    } catch (error) {
+      // Fallback en cas d'erreur inattendue
+      console.error(`Erreur inattendue lors de l'enrichissement du contrat:`, error);
+      contrat.proprietaireNom = 'Erreur';
+      contrat.proprietaireEmail = '-';
+      contrat.proprietaireTelephone = '-';
+    }
+    
+    return contrat;
+  });
+  
+  // Attendre que toutes les tâches d'enrichissement soient terminées
+  await Promise.allSettled(enrichTasks);
 }
 
 fetchContrats()

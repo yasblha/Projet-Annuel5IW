@@ -6,6 +6,8 @@ COPY package*.json ./
 
 COPY Database/ ./Database/
 
+COPY tsconfig.base.json ./
+
 RUN npm install
 
 WORKDIR /app/services/auth-service

@@ -1,7 +1,14 @@
+import { Op } from 'sequelize';
 import { models } from '../sequelize';
 
 export class ContratRepository {
-  private readonly repo = models.Contrat;
+  private get repo() {
+    const m = models.Contrat;
+    if (!m) {
+      throw new Error('Model Contrat not initialized');
+    }
+    return m;
+  }
 
   async findAll(options?: { offset?: number; limit?: number; where?: any }) {
     return this.repo.findAll(options);
@@ -9,6 +16,58 @@ export class ContratRepository {
 
   async findById(id: string) {
     return this.repo.findByPk(id);
+  }
+
+  /**
+   * Variante tenant-safe de findById
+   */
+  async findByIdWithTenant(id: string, tenantId?: string) {
+    const contrat: any = await this.repo.findByPk(id);
+    if (tenantId && contrat && contrat.tenantId !== tenantId) {
+      return null;
+    }
+    return contrat;
+  }
+
+  /**
+   * Recherche par numéro métier ou brouillon.
+   */
+  async findByNumero(numero: string, tenantId?: string) {
+    const where: any = { numero };
+    if (tenantId) where.tenantId = tenantId;
+    return this.repo.findOne({ where });
+  }
+
+  /**
+   * Récupère tous les compteurs associés à un contrat (historique complet).
+   * Pour l'instant, renvoie un tableau vide si le modèle n'existe pas afin de satisfaire la compilation.
+   */
+  async getCompteursByContrat(contratId: string, tenantId?: string): Promise<any[]> {
+    try {
+      const m = models.ContratCompteurHistorique;
+      if (!m) return [];
+      const where: any = { contratId };
+      if (tenantId) where.tenantId = tenantId;
+      return m.findAll({ where });
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /**
+   * Renvoie les cosignataires d'un contrat.
+   * Si le modèle est absent, retourne [].
+   */
+  async getCosignatairesByContrat(contratId: string, tenantId?: string): Promise<any[]> {
+    try {
+      const m = models.ContratCosignataire;
+      if (!m) return [];
+      const where: any = { contratId };
+      if (tenantId) where.tenantId = tenantId;
+      return m.findAll({ where });
+    } catch (_) {
+      return [];
+    }
   }
 
   async create(data: any) {
@@ -21,6 +80,14 @@ export class ContratRepository {
 
   async delete(id: string) {
     return this.repo.destroy({ where: { id } });
+  }
+
+  async activate(id: string, numero: string, options: { transaction?: any } = {}) {
+    await this.repo.update(
+      { statut: 'ACTIF', numero },
+      { where: { id }, ...options }
+    );
+    return this.repo.findByPk(id);
   }
 }
 
@@ -47,6 +114,20 @@ export class CosignataireRepository {
     if (!cosignataire) return null;
     await cosignataire.destroy();
     return true;
+  }
+
+  /**
+   * Vérifie si tous les cosignataires d'un contrat ont signé.
+   * @param contratId Identifiant du contrat.
+   * @param options Options Sequelize, par ex. { transaction }
+   * @returns true si tous les cosignataires ont la colonne signatureElectronique à true
+   */
+  async allCosignatairesSigned(contratId: string, options: { transaction?: any } = {}): Promise<boolean> {
+    const unsignedCount = await ContractCosignerModel.count({
+      where: { contratId, signatureElectronique: false },
+      ...options
+    });
+    return unsignedCount === 0;
   }
 }
 

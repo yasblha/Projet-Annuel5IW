@@ -1,0 +1,88 @@
+doctype html
+html(lang="fr")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Toutes les signatures ont été recueillies
+    style.
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        background-color: #3498db;
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+      .content {
+        padding: 20px;
+      }
+      .footer {
+        background-color: #f7f7f7;
+        padding: 15px;
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #3498db;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-top: 15px;
+      }
+      .details {
+        background-color: #f9f9f9;
+        border-left: 4px solid #3498db;
+        padding: 10px 15px;
+        margin: 15px 0;
+      }
+      @media only screen and (max-width: 600px) {
+        .container {
+          width: 100%;
+        }
+      }
+
+  body
+    div.container
+      div.header
+        h1 Bonnes nouvelles !
+      
+      div.content
+        p Cher/Chère #{name},
+        
+        p Nous avons le plaisir de vous informer que toutes les signatures requises pour votre contrat ont été recueillies avec succès.
+        
+        div.details
+          p
+            strong Numéro de contrat : 
+            | #{contractNumber}
+          p
+            strong Date de début : 
+            | #{new Date(dateDebut).toLocaleDateString('fr-FR')}
+        
+        p Vous pouvez dès maintenant finaliser le contrat et démarrer sa mise en œuvre.
+        
+        a.button(href=`${baseUrl}/dashboard/contracts/detail/${contractId}`) Voir le contrat
+        
+        p Si vous avez des questions concernant les prochaines étapes, n'hésitez pas à contacter notre service client.
+        
+        p
+          | Cordialement,
+          br
+          | L'équipe X7
+      
+      div.footer
+        p Ce message a été envoyé automatiquement. Merci de ne pas y répondre directement.
+        p &copy; 2023 X7 - Tous droits réservés

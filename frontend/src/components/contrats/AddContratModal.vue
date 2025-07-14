@@ -75,7 +75,7 @@ async function onSubmit() {
     return
   }
   try {
-    await apiClient.post('/contracts', form.value)
+    await apiClient.post('/contrats', form.value)
     emit('created')
     emit('close')
     form.value.zone = ''

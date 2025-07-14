@@ -1,6 +1,6 @@
 export class CreateCosignataireDto {
   contratId: string;
-  cosignataireId: string;
+  cosignataireId?: string;
   typeCosignataire: 'UTILISATEUR' | 'ENTREPRISE';
   roleType?: 'PRINCIPAL' | 'SECONDARY';
   pourcentageParts?: number;
@@ -40,4 +40,4 @@ export class CosignataireResponseDto {
   createdBy: string | null;
   updatedBy: string | null;
   tenantId: string | null;
-} 
+}

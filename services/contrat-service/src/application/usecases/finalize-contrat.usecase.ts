@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { sequelize } from '@Database/sequelize';
 import { ContratRepository } from '@Database/repositories/contrat.repository';
-import { CompteurRepository } from '@Database/repositories/compteur.repository';
-import { CosignataireRepository } from '@Database/repositories/contrat.repository';
+import { CompteurRepository } from '@infrastructure/repositories/compteur.repository';
+import { CosignataireRepository } from '@infrastructure/repositories/cosignataire.repository';
 import { NumberGenerator } from '../services/number-generator.service';
 import { AuditService } from '../services/audit.service';
 import { InterServiceService } from '../services/inter-service.service';
-import { EventBus } from '../../infrastructure/events/event-bus';
+import { EventBus } from '@infrastructure/events/event-bus';
 
 export class DomainError extends Error {
   constructor(public code: string, message: string) {
@@ -30,7 +30,7 @@ export class FinalizeContratUseCase {
   async execute(contratId: string, context: { userId?: string; tenantId: string; ipAddress?: string; userAgent?: string }): Promise<void> {
     await sequelize.transaction(async (tx) => {
       // 1. Charger le contrat
-      const contrat = await this.contratRepo.findById(contratId, context.tenantId, { transaction: tx });
+      const contrat = await this.contratRepo.findByIdWithTenant(contratId, context.tenantId);
       if (!contrat) throw new DomainError('CONTRAT_INTROUVABLE', 'Contrat introuvable');
 
       // 2. Vérifier le statut

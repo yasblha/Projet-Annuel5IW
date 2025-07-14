@@ -1,0 +1,41 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: traefik-acme-pvc
+  namespace: kube-system
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traefik-conf
+  namespace: kube-system
+  labels:
+    app: traefik
+data:
+  traefik.yml: |
+    entryPoints:
+      web:
+        address: ":80"
+      websecure:
+        address: ":443"
+    providers:
+      kubernetesCRD: {}
+      kubernetesIngress: {}
+    certificatesResolvers:
+      letsencrypt:
+        acme:
+          email: yassine.boulahnine@gmail.com
+          storage: /data/acme.json
+          httpChallenge:
+            entryPoint: web
+---
+# Ajout du volume dans le Deployment Traefik
+# (exemple, à adapter si le Deployment existe déjà)
+# Si le Deployment existe déjà, il faut juste ajouter le volumeMount et le volume 

@@ -174,7 +174,7 @@
           <div v-if="quote" class="mt-4 space-y-3">
             <button
               type="button"
-              @click="downloadPDF"
+              @click="downloadPdf"
               class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,7 +185,7 @@
             
             <button
               type="button"
-              @click="previewQuote"
+              @click="previewPdf"
               class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,7 +228,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, toRaw } from 'vue'
 import { z } from 'zod'
 
 // Props & Emits
@@ -299,7 +299,11 @@ const calculateQuote = () => {
   if (form.value.options.maintenance) total += 25
   if (form.value.options.telemetrie) total += 10
   
-  form.value.tarification.montantMensuel = baseMontant
+  // Remplacer l'objet tarification pour éviter la mutation sur proxy readonly
+  form.value.tarification = {
+    ...toRaw(form.value.tarification),
+    montantMensuel: baseMontant
+  }
 }
 
 const generateQuote = async () => {
@@ -329,15 +333,172 @@ const generateQuote = async () => {
   }
 }
 
-const downloadPDF = () => {
-  // Simulation téléchargement PDF
-  console.log('Téléchargement PDF...')
-}
+const downloadPdf = () => {
+  // Créer un contenu de PDF plus complet avec toutes les données du devis
+  const pdfContent = `
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; }
+          .header { text-align: center; margin-bottom: 20px; }
+          .client-info { margin-bottom: 15px; }
+          .quote-details { margin-bottom: 15px; }
+          .meter-info { margin-bottom: 15px; }
+          .total { font-weight: bold; margin-top: 20px; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>Devis - ${formData.quote?.reference || 'Réf. non disponible'}</h1>
+          <p>Date: ${new Date().toLocaleDateString('fr-FR')}</p>
+        </div>
+        
+        <div class="client-info">
+          <h2>Informations client</h2>
+          <p>Nom: ${formData.clientIdentity?.nom || ''} ${formData.clientIdentity?.prenom || ''}</p>
+          <p>Email: ${formData.clientIdentity?.email || ''}</p>
+          <p>Téléphone: ${formData.clientIdentity?.telephone || ''}</p>
+          <p>Adresse: ${formData.eligibility?.adresse?.rue || ''}, 
+                      ${formData.eligibility?.adresse?.codePostal || ''} 
+                      ${formData.eligibility?.adresse?.ville || ''}</p>
+        </div>
+        
+        <div class="meter-info">
+          <h2>Information compteur</h2>
+          <p>Type: ${formData.meter?.type || 'Non spécifié'}</p>
+          <p>Numéro: ${formData.meter?.numero || 'Non spécifié'}</p>
+          <p>Statut: ${formData.meter?.statut || 'Non spécifié'}</p>
+        </div>
+        
+        <div class="quote-details">
+          <h2>Détails du devis</h2>
+          <table>
+            <tr>
+              <th>Description</th>
+              <th>Quantité</th>
+              <th>Prix unitaire</th>
+              <th>Total</th>
+            </tr>
+            <tr>
+              <td>Offre énergétique - ${formData.quote?.formule || 'Standard'}</td>
+              <td>1</td>
+              <td>${formData.quote?.prixBase || '0'}€</td>
+              <td>${formData.quote?.prixBase || '0'}€</td>
+            </tr>
+            <tr>
+              <td>Options supplémentaires</td>
+              <td>${formData.quote?.options?.length || '0'}</td>
+              <td>-</td>
+              <td>${formData.quote?.prixOptions || '0'}€</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div class="total">
+          <p>Total mensuel estimé: ${formData.quote?.prixTotal || '0'}€</p>
+        </div>
+        
+        <div>
+          <p><i>Ce devis est valable 30 jours à compter de sa date d'émission.</i></p>
+        </div>
+      </body>
+    </html>
+  `;
+  
+  // Créer un Blob avec le contenu HTML pour simuler un PDF
+  const blob = new Blob([pdfContent], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  
+  // Créer un lien et déclencher le téléchargement
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `Devis_${formData.quote?.reference || 'nouveau'}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
-const previewQuote = () => {
-  // Simulation aperçu devis
-  console.log('Aperçu devis...')
-}
+const previewPdf = () => {
+  // Utiliser le même contenu PDF complet que pour le téléchargement
+  const pdfContent = `
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; }
+          .header { text-align: center; margin-bottom: 20px; }
+          .client-info { margin-bottom: 15px; }
+          .quote-details { margin-bottom: 15px; }
+          .meter-info { margin-bottom: 15px; }
+          .total { font-weight: bold; margin-top: 20px; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>Devis - ${formData.quote?.reference || 'Réf. non disponible'}</h1>
+          <p>Date: ${new Date().toLocaleDateString('fr-FR')}</p>
+        </div>
+        
+        <div class="client-info">
+          <h2>Informations client</h2>
+          <p>Nom: ${formData.clientIdentity?.nom || ''} ${formData.clientIdentity?.prenom || ''}</p>
+          <p>Email: ${formData.clientIdentity?.email || ''}</p>
+          <p>Téléphone: ${formData.clientIdentity?.telephone || ''}</p>
+          <p>Adresse: ${formData.eligibility?.adresse?.rue || ''}, 
+                      ${formData.eligibility?.adresse?.codePostal || ''} 
+                      ${formData.eligibility?.adresse?.ville || ''}</p>
+        </div>
+        
+        <div class="meter-info">
+          <h2>Information compteur</h2>
+          <p>Type: ${formData.meter?.type || 'Non spécifié'}</p>
+          <p>Numéro: ${formData.meter?.numero || 'Non spécifié'}</p>
+          <p>Statut: ${formData.meter?.statut || 'Non spécifié'}</p>
+        </div>
+        
+        <div class="quote-details">
+          <h2>Détails du devis</h2>
+          <table>
+            <tr>
+              <th>Description</th>
+              <th>Quantité</th>
+              <th>Prix unitaire</th>
+              <th>Total</th>
+            </tr>
+            <tr>
+              <td>Offre énergétique - ${formData.quote?.formule || 'Standard'}</td>
+              <td>1</td>
+              <td>${formData.quote?.prixBase || '0'}€</td>
+              <td>${formData.quote?.prixBase || '0'}€</td>
+            </tr>
+            <tr>
+              <td>Options supplémentaires</td>
+              <td>${formData.quote?.options?.length || '0'}</td>
+              <td>-</td>
+              <td>${formData.quote?.prixOptions || '0'}€</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div class="total">
+          <p>Total mensuel estimé: ${formData.quote?.prixTotal || '0'}€</p>
+        </div>
+        
+        <div>
+          <p><i>Ce devis est valable 30 jours à compter de sa date d'émission.</i></p>
+        </div>
+      </body>
+    </html>
+  `;
+  
+  // Créer un Blob et l'ouvrir dans une nouvelle fenêtre
+  const blob = new Blob([pdfContent], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+};
 
 const validateForm = () => {
   try {

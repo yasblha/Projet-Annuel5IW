@@ -1,38 +1,90 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Facture-Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Service de gestion des factures, paiements et lots de facturation pour le système X7.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Fonctionnalités
 
-## Description
+### Gestion des Factures
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Création de factures** : Génération de factures avec lignes détaillées, calcul automatique des montants et numérotation
+- **Émission de factures** : Changement de statut et notification au client par email avec PDF
+- **Annulation de factures** : Possibilité d'annuler une facture avec justification
+- **Suivi des factures** : Consultation par contrat, par client et statut (brouillon, émise, payée, impayée, annulée)
+- **Génération de PDF** : Création automatique de documents au format PDF lors de l'émission
 
-## Project setup
+### Gestion des Paiements
+
+- **Enregistrement des paiements** : Support de multiples types de paiement (virement, carte, prélèvement, etc.)
+- **Suivi des paiements** : Historique des paiements par facture et statuts de traitement
+- **Mise à jour automatique du statut des factures** : Gestion des paiements partiels et complets
+
+### Facturation par Lots
+
+- **Création de lots de facturation** : Génération automatisée de factures par période (mensuelle, trimestrielle, annuelle)
+- **Paramétrage des lots** : Filtrage par critères (type de contrat, zone géographique, etc.)
+- **Traitement asynchrone** : Exécution des lots de facturation en arrière-plan avec suivi de progression
+- **Statistiques de facturation** : Suivi des montants facturés et du nombre de factures par lot
+
+### Relance et Notifications
+
+- **Relance automatique** : Relance des clients pour les factures impayées après un délai configurable
+- **Notifications email** : Intégration avec le mailer-service pour les notifications de facturation, paiement et relance
+
+### Intégration avec d'autres Services
+
+- **Contract-Service** : Récupération des informations de contrat pour la facturation
+- **Compteur-Service** : Utilisation des relevés de compteur pour calculer la consommation
+- **Mailer-Service** : Envoi de notifications par email lors des événements de facturation
+
+## Architecture
+
+Le service est construit sur une architecture hexagonale avec :
+- **Couche Application** : Controllers, Services et DTOs
+- **Couche Domain** : Modèles et Énumérations
+- **Couche Infrastructure** : Adaptateurs de repository, gardes et configuration
+
+## API REST
+
+Documentation complète disponible via Swagger à l'adresse `/api-docs` une fois le service démarré.
+
+### Principales Routes
+
+#### Factures
+- `POST /factures` : Créer une nouvelle facture
+- `GET /factures/:id` : Consulter une facture
+- `GET /factures/contrat/:contratId` : Lister les factures d'un contrat
+- `GET /factures/client/:clientId` : Lister les factures d'un client
+- `PUT /factures/:id/emettre` : Émettre une facture
+- `PUT /factures/:id/annuler` : Annuler une facture
+- `POST /factures/:id/paiements` : Enregistrer un paiement
+- `POST /factures/relancer` : Relancer les factures impayées
+
+#### Lots de Facturation
+- `POST /lots-facturation` : Créer un nouveau lot de facturation
+- `GET /lots-facturation/:id` : Consulter un lot de facturation
+- `GET /lots-facturation` : Lister tous les lots de facturation
+- `GET /lots-facturation/periode` : Rechercher les lots par période
+
+## Installation
 
 ```bash
 $ npm install
 ```
 
-## Compile and run the project
+## Configuration
+
+Créer un fichier `.env` à la racine du projet avec les variables suivantes :
+
+```
+PORT=3002
+JWT_SECRET=your_jwt_secret
+CONTRAT_SERVICE_URL=http://localhost:3001
+COMPTEUR_SERVICE_URL=http://localhost:3003
+MAILER_SERVICE_URL=http://localhost:3004
+TARIF_SERVICE_URL=http://localhost:3005
+```
+
+## Démarrage
 
 ```bash
 # development
@@ -45,7 +97,7 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Run tests
+## Tests
 
 ```bash
 # unit tests
@@ -53,47 +105,10 @@ $ npm run test
 
 # e2e tests
 $ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
 
-## Deployment
+## Sécurité
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- Authentification via JWT
+- Multi-tenancy avec isolation des données par tenant
+- Audit logging de toutes les actions sensibles

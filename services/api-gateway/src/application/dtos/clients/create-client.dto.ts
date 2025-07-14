@@ -65,6 +65,15 @@ export class CreateClientDto {
   @IsPhoneNumber('FR')
   telephone?: string;
 
+  // --- Coordonnées bancaires ---
+  @IsOptional()
+  @IsString()
+  rib?: string;
+
+  @IsOptional()
+  @IsEnum(['PRELEVEMENT', 'VIREMENT', 'CHEQUE', 'CARTE', 'ESPECES', 'AUTRE'])
+  modePaiement?: string;
+
   @IsNotEmpty()
   @IsEnum(['PARTICULIER', 'ENTREPRISE'])
   type: string;

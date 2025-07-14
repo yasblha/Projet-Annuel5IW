@@ -12,7 +12,8 @@ export default defineConfig({
   },
   server: {
     port: 8080,
-    host: true,
+    host: 'app.aquaerp.cloud',
+    origin: 'https://app.aquaerp.cloud',
     proxy: {
       '/clients': {
         target: 'http://localhost:3000',
