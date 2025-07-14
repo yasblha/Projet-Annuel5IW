@@ -19,7 +19,7 @@ export function mapDtoToUser(dto: RegisterDto): User {
         null,
         dto.tenantId,
         dto.telephone ?? null,
-        dto.role,
+        dto.role ?? 'CLIENT',
         'EN_ATTENTE_VALIDATION',
         null,
         new Date(),

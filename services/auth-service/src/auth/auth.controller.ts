@@ -49,9 +49,10 @@ export class RegisterDtoSwagger {
   @ApiProperty({
     example: 'CLIENT',
     description: 'Rôle de l\'utilisateur dans le système',
-    enum: ['CLIENT', 'ADMIN', 'TECHNICIEN', 'COMMERCIAL', 'SUPPORT', 'COMPTABLE', 'MANAGER']
+    enum: ['CLIENT', 'ADMIN', 'TECHNICIEN', 'COMMERCIAL', 'SUPPORT', 'COMPTABLE', 'MANAGER'],
+    required: false
   })
-  role: 'CLIENT' | 'ADMIN' | 'TECHNICIEN' | 'COMMERCIAL' | 'SUPPORT' | 'COMPTABLE' | 'MANAGER';
+  role?: 'CLIENT' | 'ADMIN' | 'TECHNICIEN' | 'COMMERCIAL' | 'SUPPORT' | 'COMPTABLE' | 'MANAGER';
 
   @ApiProperty({
     example: 'tenant123',
@@ -305,7 +306,6 @@ export class AuthController {
                     email: 'jean.dupont@example.com',
                     motDePasse: 'MotDePasse123!',
                     telephone: '0123456789',
-                    role: 'CLIENT',
                     tenantId: 'client-tenant-001'
                 }
             },
