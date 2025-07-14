@@ -28,6 +28,10 @@ import AccessDeniedView from '@/views/errors/AccessDeniedView.vue';
 import ContractDetailsView from '@/views/contracts/ContractDetailsView.vue';
 import CompteurListView from '@/views/dashboard/CompteurListView.vue';
 import CompteurDetailView from '@/views/dashboard/CompteurDetailView.vue';
+// Import des pages légales
+import CguView from '@/views/legal/CguView.vue';
+import PrivacyView from '@/views/legal/PrivacyView.vue';
+import ContactView from '@/views/legal/ContactView.vue';
 import { setupAuthGuards } from './guards';
 
 // Importation statique des composants factures pour éviter les erreurs d'importation dynamique
@@ -41,6 +45,22 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView
+    },
+    // Routes pour les pages légales
+    {
+      path: '/cgu',
+      name: 'cgu',
+      component: CguView
+    },
+    {
+      path: '/privacy',
+      name: 'privacy',
+      component: PrivacyView
+    },
+    {
+      path: '/contact',
+      name: 'contact',
+      component: ContactView
     },
     {
       path: '/login',
