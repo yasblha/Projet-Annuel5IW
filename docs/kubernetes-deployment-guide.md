@@ -166,11 +166,13 @@ kubectl get deployments -n aquaerp
 ```
 
 ![Vérification des replicas](../docs/images/replicas-verification.png)
+![img.png](img.png)
 
 On constate que tous les services backend ont au minimum 2 replicas et que le frontend en a 3, conformément aux exigences.
 
 ### 5.2 Test de kill d'un pod
 
+![img_1.png](img_1.png)
 Testons la résilience en supprimant un pod pour vérifier qu'il est automatiquement recréé:
 
 ```bash
@@ -204,16 +206,20 @@ kubectl get pods -n aquaerp | grep api-gateway
 
 Et maintenant, réduisons le nombre de replicas:
 
+![img_2.png](img_2.png)
+
 ```bash
 # Scale down
 kubectl scale deployment api-gateway --replicas=2 -n aquaerp
-
+![img_3.png](img_3.png)
 # Vérifier le scaling
 kubectl get pods -n aquaerp | grep api-gateway
+
+
 ```
 
 ![Test de scale down](../docs/images/scale-down-test.png)
-
+![img_4.png](img_4.png)
 ### 5.4 Test de persistance des données
 
 Pour vérifier la persistance des données, nous allons redémarrer le pod PostgreSQL et confirmer que les données sont conservées:
@@ -365,3 +371,5 @@ Pour les problèmes de communication entre services:
 ```bash
 kubectl exec -it <POD_SOURCE> -n aquaerp -- curl <SERVICE_DESTINATION>:PORT/health
 ```
+### Grafana Dashboard
+![img_5.png](img_5.png)
