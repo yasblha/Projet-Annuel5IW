@@ -10,6 +10,8 @@ import { SuspensionContratDto } from '../application/dtos/contrat/suspension-con
 import { RenouvellementContratDto } from '../application/dtos/contrat/renouvellement-contrat.dto';
 import { LienAbonnementDto, LienCompteurDto, LienClientDto } from '../application/dtos/contrat/lien-contrat.dto';
 import { CreateCosignataireDto, UpdateCosignataireDto } from '../application/dtos/contrat/cosignataire.dto';
+import { CreateContratDraftDto } from '../application/dtos/contrat/create-contrat-draft.dto';
+import { AssignCompteurDto } from '../application/dtos/contrat/assign-compteur.dto';
 
 @ApiTags('contrats')
 @ApiBearerAuth()
@@ -57,6 +59,13 @@ export class ContractController {
     return this.handleRequest('contrat.create', { ...dto, context: this.extractContext(request) });
   }
 
+  @Post('draft')
+  @ApiOperation({ summary: 'Créer un brouillon de contrat' })
+  @ApiResponse({ status: 201, description: 'Brouillon créé' })
+  async createDraft(@Body() dto: CreateContratDraftDto, @Req() request: any) {
+    return this.handleRequest('contrat.createDraft', { ...dto, context: this.extractContext(request) });
+  }
+
   @Put(':id')
   @ApiOperation({ summary: 'Mettre à jour un contrat' })
   @ApiResponse({ status: 200, description: 'Contrat mis à jour' })
@@ -102,6 +111,22 @@ export class ContractController {
     return this.handleRequest('contrat.signCosignataire', { cosignataireId, context: this.extractContext(request) });
   }
 
+  @Post(':id/cosignataires/:cosignataireId/invitation')
+  @ApiOperation({ summary: 'Envoyer une invitation de signature à un cosignataire spécifique' })
+  @ApiResponse({ status: 200, description: 'Invitation envoyée' })
+  @ApiResponse({ status: 404, description: 'Cosignataire ou contrat non trouvé' })
+  async sendSignatureInvitation(@Param('id') id: string, @Param('cosignataireId') cosignataireId: string, @Body() data: any, @Req() request: any) {
+    return this.handleRequest('contrat.sendSignatureInvitation', { contratId: id, cosignataireId, ...data, context: this.extractContext(request) });
+  }
+
+  @Post(':id/cosignataires/invitations')
+  @ApiOperation({ summary: 'Envoyer des invitations de signature à tous les cosignataires du contrat' })
+  @ApiResponse({ status: 200, description: 'Invitations envoyées' })
+  @ApiResponse({ status: 404, description: 'Contrat non trouvé' })
+  async sendAllSignatureInvitations(@Param('id') id: string, @Body() data: any, @Req() request: any) {
+    return this.handleRequest('contrat.sendAllSignatureInvitations', { contratId: id, ...data, context: this.extractContext(request) });
+  }
+
   // === SIGNATURE ===
   @Post(':id/signature')
   @ApiOperation({ summary: 'Signer un contrat' })
@@ -110,10 +135,27 @@ export class ContractController {
     return this.handleRequest('contrat.signContrat', { id, ...dto, context: this.extractContext(request) });
   }
 
+  @Get('signature/validate/:token')
+  @ApiOperation({ summary: 'Valider un token de signature' })
+  @ApiResponse({ status: 200, description: 'Token valide, informations de signature' })
+  @ApiResponse({ status: 401, description: 'Token invalide ou expiré' })
+  async validateSignatureToken(@Param('token') token: string) {
+    return this.handleRequest('contrat.validateSignatureToken', { token });
+  }
+
+  @Post('signature')
+  @ApiOperation({ summary: 'Traiter une signature' })
+  @ApiResponse({ status: 200, description: 'Signature traitée' })
+  @ApiResponse({ status: 400, description: 'Données de signature invalides' })
+  async processSignature(@Body() data: any) {
+    return this.handleRequest('contrat.processSignature', data);
+  }
+
   // === RÉSILIATION ===
   @Post(':id/resiliation')
   @ApiOperation({ summary: 'Résilier un contrat' })
   @ApiResponse({ status: 200, description: 'Contrat résilié' })
+  @ApiResponse({ status: 404, description: 'Contrat non trouvé' })
   async resilierContrat(@Param('id') id: string, @Body() dto: ResiliationContratDto, @Req() request: any) {
     return this.handleRequest('contrat.resilierContrat', { id, ...dto, context: this.extractContext(request) });
   }
@@ -122,6 +164,7 @@ export class ContractController {
   @Post(':id/suspension')
   @ApiOperation({ summary: 'Suspendre un contrat' })
   @ApiResponse({ status: 200, description: 'Contrat suspendu' })
+  @ApiResponse({ status: 404, description: 'Contrat non trouvé' })
   async suspendreContrat(@Param('id') id: string, @Body() dto: SuspensionContratDto, @Req() request: any) {
     return this.handleRequest('contrat.suspendreContrat', { id, ...dto, context: this.extractContext(request) });
   }
@@ -130,8 +173,19 @@ export class ContractController {
   @Post(':id/renouvellement')
   @ApiOperation({ summary: 'Renouveler un contrat' })
   @ApiResponse({ status: 200, description: 'Contrat renouvelé' })
+  @ApiResponse({ status: 404, description: 'Contrat non trouvé' })
   async renouvelerContrat(@Param('id') id: string, @Body() dto: RenouvellementContratDto, @Req() request: any) {
     return this.handleRequest('contrat.renouvelerContrat', { id, ...dto, context: this.extractContext(request) });
+  }
+
+  // === FINALISATION ===
+  @Post(':id/finalize')
+  @ApiOperation({ summary: 'Finaliser un contrat' })
+  @ApiResponse({ status: 200, description: 'Contrat finalisé et activé' })
+  @ApiResponse({ status: 400, description: 'Validation échouée, le contrat ne peut pas être finalisé' })
+  @ApiResponse({ status: 404, description: 'Contrat non trouvé' })
+  async finalizeContrat(@Param('id') id: string, @Req() request: any) {
+    return this.handleRequest('contrat.finalizeContrat', { id, context: this.extractContext(request) });
   }
 
   // === LIENS ===
@@ -154,6 +208,21 @@ export class ContractController {
   @ApiResponse({ status: 200, description: 'Compteur dissocié' })
   async dissocierCompteur(@Param('id') id: string, @Req() request: any) {
     return this.handleRequest('contrat.dissocierCompteur', { id, context: this.extractContext(request) });
+  }
+
+  @Post('compteurs/generer')
+  @ApiOperation({ summary: 'Générer un compteur virtuel basé sur une adresse et une zone' })
+  @ApiResponse({ status: 201, description: 'Compteur virtuel généré' })
+  async generateVirtualMeter(@Body() data: { adresse: any, zone: string }, @Req() request: any) {
+    return this.handleRequest('contrat.generateVirtualMeter', { ...data, context: this.extractContext(request) });
+  }
+
+  @Post(':id/compteurs/assign')
+  @ApiOperation({ summary: 'Assigner un compteur à un contrat' })
+  @ApiResponse({ status: 200, description: 'Compteur assigné' })
+  @ApiResponse({ status: 404, description: 'Contrat ou compteur non trouvé' })
+  async assignCompteur(@Param('id') contratId: string, @Body() dto: AssignCompteurDto, @Req() request: any) {
+    return this.handleRequest('contrat.assignCompteur', { contratId, ...dto, context: this.extractContext(request) });
   }
 
   // === AUDIT & HISTORIQUE ===
@@ -198,4 +267,4 @@ export class ContractController {
       userAgent: request.headers['user-agent']
     };
   }
-} 
+}

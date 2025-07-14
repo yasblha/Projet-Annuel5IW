@@ -50,7 +50,7 @@
               </td>
               <td class="px-8 py-4 text-sm text-gray-500">{{ formatDate(client.dateCreation) }}</td>
               <td class="px-8 py-4 text-center">
-                <button class="text-blue-600 hover:text-blue-900 transition mr-2" @click="openDrawer(client)" title="Voir">
+                <button class="text-blue-600 hover:text-blue-900 transition mr-2" @click="viewClient(client)" title="Voir détails">
                   <i class="fas fa-eye"></i>
                 </button>
                 <button class="text-green-600 hover:text-green-900 transition mr-2" @click="editClient(client)" title="Modifier">
@@ -84,11 +84,13 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useClientStore } from '@/stores/client.store';
 import { storeToRefs } from 'pinia';
+import { useRouter } from 'vue-router';
 import ClientSearchCard from '@/components/clients/ClientSearchCard.vue';
 import AddClientModal from '@/components/clients/AddClientModal.vue';
 import ClientDetailDrawer from '@/components/clients/ClientDetailDrawer.vue';
 
 const clientStore = useClientStore();
+const router = useRouter();
 const showAddModal = ref(false);
 const drawerClient = ref(null);
 
@@ -155,8 +157,7 @@ const nextPage = () => {
 };
 
 const viewClient = (client: any) => {
-  // TODO: Implémenter la vue détaillée
-  console.log('Voir client:', client);
+  router.push(`/dashboard/clients/${client.id}/details`);
 };
 
 const editClient = (client: any) => {

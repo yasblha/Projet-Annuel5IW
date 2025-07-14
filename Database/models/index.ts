@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-const config = require('../config/config.json');
+import config from '../config/config.json';
 
 const env = process.env.NODE_ENV || 'development';
 const dbConfig = config[env];
@@ -36,6 +36,7 @@ import initAction from './action.model';
 import initRolePagePermission from './rolePagePermission.model';
 import initPageAction from './pageAction.model';
 import initContractCounter from './ContractCounter.model';
+import initAffaire from './affaire.model';
 
 // Initialisation des modèles
 const User = initUser(sequelize);
@@ -53,14 +54,17 @@ const Lettrage = initLettrage(sequelize);
 const LigneFacture = initLigneFacture(sequelize);
 const LotFacturation = initLotFacturation(sequelize);
 const ContratCosignataire = initContratCosignataire(sequelize);
+const Affaire = initAffaire(sequelize);
 const Page = initPage(sequelize);
 const Action = initAction(sequelize);
 const RolePagePermission = initRolePagePermission(sequelize);
 const PageAction = initPageAction(sequelize);
-const ContractCounter = initContractCounter(sequelize);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ContractCounter: any = initContractCounter(sequelize);
 
 // Établissement des associations
-const models = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const models: any = {
   User,
   Adresse,
   Client,
@@ -76,6 +80,7 @@ const models = {
   LigneFacture,
   LotFacturation,
   ContratCosignataire,
+  Affaire,
   Page,
   Action,
   RolePagePermission,
@@ -107,6 +112,7 @@ export {
   LigneFacture,
   LotFacturation,
   ContratCosignataire,
+  Affaire,
   Page,
   Action,
   RolePagePermission,

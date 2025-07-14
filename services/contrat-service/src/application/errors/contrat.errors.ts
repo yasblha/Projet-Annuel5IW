@@ -62,7 +62,7 @@ export enum ErrorCode {
 export class ContratError extends Error {
   constructor(
     message: string,
-    public code: ErrorCode,
+    public code: ErrorCode | keyof typeof BusinessErrorCodes,
     public statusCode: number = 400,
     public details?: any,
     public field?: string

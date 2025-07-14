@@ -123,9 +123,6 @@ services:
       - "3002:3000"
     volumes:
       - ./services/agency-service:/app/services/agency-service
-      - ./application:/app/application
-      - ./domain:/app/domain
-      - ./infrastructure:/app/infrastructure
       - ./Database:/app/Database
     environment:
       - DB_HOST=postgres
@@ -144,9 +141,6 @@ services:
       - "3003:3000"
     volumes:
       - ./services/contrat-service/src:/app/services/contrat-service/src
-      - ./application:/app/application
-      - ./domain:/app/domain
-      - ./infrastructure:/app/infrastructure
       - ./Database:/app/Database
     environment:
       - DB_HOST=postgres
@@ -163,81 +157,115 @@ services:
       - rabbitmq
       - mailer-service
 
-  affaire-service:
-    build: ./services/affaire-service
-    container_name: affaire-service
-    ports:
-      - "3004:3000"
-    volumes:
-      - ./services/affaire-service:/app/services/affaire-service
-      - ./application:/app/application
-      - ./domain:/app/domain
-      - ./infrastructure:/app/infrastructure
-      - ./Database:/app/Database
-    environment:
-      - DB_HOST=postgres
-      - DB_NAME=main
-      - DB_USER=postgres
-      - DB_PASS=postgres
-    depends_on:
-      - postgres
-
-  facture-service:
-    build: ./services/facture-service
-    container_name: facture-service
+  intervention-service:
+    build:
+      context: .
+      dockerfile: services/intervention-service/Dockerfile
+    container_name: intervention-service
     ports:
       - "3005:3000"
     volumes:
-      - ./services/facture-service:/app/services/facture-service
-      - ./application:/app/application
-      - ./domain:/app/domain
-      - ./infrastructure:/app/infrastructure
+      - ./services/intervention-service:/app/services/intervention-service
       - ./Database:/app/Database
+      - ./tsconfig.base.json:/app/tsconfig.base.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./package.json:/app/package.json
+      - intervention-service_node_modules:/app/services/intervention-service/node_modules
     environment:
       - DB_HOST=postgres
       - DB_NAME=main
       - DB_USER=postgres
       - DB_PASS=postgres
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+      - AUTH_SERVICE_HOST=0.0.0.0
+      - AUTH_SERVICE_PORT=3001
+      - MAILER_SERVICE_HOST=mailer-service
+      - MAILER_SERVICE_PORT=3000
     depends_on:
       - postgres
+      - rabbitmq
+      - mailer-service
 
-  operation-service:
-    build: ./services/operation-service
-    container_name: operation-service
+  facture-service:
+    build:
+      context: .
+      dockerfile: services/facture-service/Dockerfile
+    container_name: facture-service
     ports:
       - "3006:3000"
     volumes:
-      - ./services/operation-service:/app/services/operation-service
-      - ./application:/app/application
-      - ./domain:/app/domain
-      - ./infrastructure:/app/infrastructure
+      - ./services/facture-service:/app/services/facture-service
       - ./Database:/app/Database
+      - ./tsconfig.base.json:/app/tsconfig.base.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./package.json:/app/package.json
+      - facture-service_node_modules:/app/services/facture-service/node_modules
     environment:
       - DB_HOST=postgres
       - DB_NAME=main
       - DB_USER=postgres
       - DB_PASS=postgres
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+      - AUTH_SERVICE_HOST=0.0.0.0
+      - AUTH_SERVICE_PORT=3001
+      - MAILER_SERVICE_HOST=mailer-service
+      - MAILER_SERVICE_PORT=3000
     depends_on:
       - postgres
+      - rabbitmq
+      - mailer-service
+
+  operation-service:
+    build:
+      context: .
+      dockerfile: ./services/operation-service/Dockerfile
+    container_name: operation-service
+    ports:
+      - "3004:3000"
+    volumes:
+      - ./services/operation-service/src:/app/services/operation-service/src
+      - ./Database:/app/Database
+      - operation-service_node_modules:/app/services/operation-service/node_modules
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=main
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+      - AUTH_SERVICE_HOST=0.0.0.0
+      - AUTH_SERVICE_PORT=3001
+      - MAILER_SERVICE_HOST=mailer-service
+      - MAILER_SERVICE_PORT=3000
+    depends_on:
+      - postgres
+      - rabbitmq
+      - mailer-service
 
   workflow-service:
-    build: ./services/workflow-service
+    build:
+      context: .
+      dockerfile: ./services/workflow-service/Dockerfile
     container_name: workflow-service
     ports:
       - "3007:3000"
     volumes:
-      - ./services/workflow-service:/app/services/workflow-service
-      - ./application:/app/application
-      - ./domain:/app/domain
-      - ./infrastructure:/app/infrastructure
+      - ./services/workflow-service/src:/app/services/workflow-service/src
       - ./Database:/app/Database
+      - workflow-service_node_modules:/app/services/workflow-service/node_modules
     environment:
       - DB_HOST=postgres
       - DB_NAME=main
       - DB_USER=postgres
       - DB_PASS=postgres
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+      - AUTH_SERVICE_HOST=0.0.0.0
+      - AUTH_SERVICE_PORT=3001
+      - MAILER_SERVICE_HOST=mailer-service
+      - MAILER_SERVICE_PORT=3000
     depends_on:
       - postgres
+      - rabbitmq
+      - mailer-service
 
 volumes:
   shared_pgdata:
@@ -246,7 +274,7 @@ volumes:
   api-gateway_node_modules:
   agency-service_node_modules:
   contrat-service_node_modules:
-  affaire-service_node_modules:
+  intervention-service_node_modules:
   facture-service_node_modules:
   operation-service_node_modules:
   workflow-service_node_modules:

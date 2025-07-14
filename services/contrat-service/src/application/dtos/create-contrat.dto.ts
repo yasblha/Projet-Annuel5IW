@@ -1,4 +1,4 @@
-import { IsString, IsUUID, IsDateString, IsNotEmpty, IsOptional, IsEnum, IsIn } from 'class-validator';
+import { IsString, IsUUID, IsDateString, IsNotEmpty, IsOptional, IsEnum, IsIn, IsNumber } from 'class-validator';
 import { CreateCosignataireDto } from './cosignataire.dto';
 
 export class CreateContratDto {
@@ -41,4 +41,8 @@ export class CreateContratMetierDto extends CreateContratDto {
   @IsNotEmpty()
   @IsIn(['TLS', 'PAR', 'MAR', 'LYO', 'NAN', 'BOR', 'MON', 'NIC', 'STR', 'LIL']) // Zones autorisées
   zone: string;
+
+  @IsOptional()
+  @IsNumber()
+  montantTotal?: number;
 } 

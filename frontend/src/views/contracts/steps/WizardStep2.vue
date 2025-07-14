@@ -45,16 +45,9 @@
             required
           >
             <option value="">Sélectionner...</option>
-            <option value="TLS">Toulouse</option>
-            <option value="PAR">Paris</option>
-            <option value="MAR">Marseille</option>
-            <option value="LYO">Lyon</option>
-            <option value="NAN">Nantes</option>
-            <option value="BOR">Bordeaux</option>
-            <option value="MON">Montpellier</option>
-            <option value="NIC">Nice</option>
-            <option value="STR">Strasbourg</option>
-            <option value="LIL">Lille</option>
+            <option v-for="c in communes" :key="c.code" :value="c.code">
+              {{ c.nom }}
+            </option>
           </select>
           <p v-if="errors.zone" class="mt-1 text-sm text-red-600">
             {{ errors.zone }}
@@ -90,18 +83,40 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-              Rue *
+              Adresse *
             </label>
             <input
-              v-model="form.adresse.rue"
+              v-model="addressQuery"
+              @input="debouncedSearch"
+              @keydown.down.prevent="navigateSuggestions(1)"
+              @keydown.up.prevent="navigateSuggestions(-1)"
+              @keydown.enter.prevent="selectHighlighted"
+              @keydown.esc="closeSuggestions"
               type="text"
-              placeholder="123 Rue de la Paix"
+              placeholder="Ex : 10 rue de la Paix"
+              autocomplete="off"
               :class="[
                 'w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
                 errors.adresse?.rue ? 'border-red-500' : 'border-gray-300'
               ]"
               required
             />
+            <!-- Suggestions -->
+            <ul v-if="isLoadingSuggestions || suggestions.length" class="absolute z-10 bg-white border rounded-md w-full max-h-56 overflow-y-auto shadow-lg mt-1">
+              <li v-if="isLoadingSuggestions" class="px-3 py-2 text-gray-500">Chargement...</li>
+              <li
+                v-for="(s,idx) in suggestions"
+                :key="s.properties.id"
+                @click="selectSuggestion(s)"
+                :class="[
+                  'px-3 py-2 cursor-pointer',
+                  idx===highlighted ? 'bg-blue-600 text-white' : 'hover:bg-blue-50'
+                ]"
+              >
+                {{ s.properties.label }}
+              </li>
+              <li v-if="!isLoadingSuggestions && !suggestions.length" class="px-3 py-2 text-gray-500">Aucun résultat</li>
+            </ul>
             <p v-if="errors.adresse?.rue" class="mt-1 text-sm text-red-600">
               {{ errors.adresse.rue }}
             </p>
@@ -113,6 +128,7 @@
             </label>
             <input
               v-model="form.adresse.codePostal"
+              @blur="fetchCommunes"
               type="text"
               placeholder="75001"
               pattern="[0-9]{5}"
@@ -133,16 +149,18 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Ville *
             </label>
-            <input
+            <select
               v-model="form.adresse.ville"
-              type="text"
-              placeholder="Paris"
+              :disabled="communes.length === 0"
               :class="[
                 'w-full px-3 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
                 errors.adresse?.ville ? 'border-red-500' : 'border-gray-300'
               ]"
               required
-            />
+            >
+              <option value="" disabled>Sélectionner...</option>
+              <option v-for="c in communes" :key="c.code" :value="c.nom">{{ c.nom }}</option>
+            </select>
             <p v-if="errors.adresse?.ville" class="mt-1 text-sm text-red-600">
               {{ errors.adresse.ville }}
             </p>
@@ -225,13 +243,15 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
         </svg>
       </button>
+      <p v-if="submitError" class="text-center mt-4 text-red-600 text-sm">{{ submitError }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { z } from 'zod'
+import { addressApi } from '@/services/api/address.service'
 
 // Props & Emits
 const props = defineProps<{
@@ -246,26 +266,33 @@ const emit = defineEmits<{
 
 // Reactive state
 const form = ref({
-  typeContrat: '',
-  zone: '',
-  dateDebut: '',
+  typeContrat: props.formData?.eligibility?.typeContrat || '',
+  zone: props.formData?.eligibility?.zone || '',
+  dateDebut: props.formData?.eligibility?.dateDebut || '',
   adresse: {
-    rue: '',
-    codePostal: '',
-    ville: '',
-    pays: 'France'
+    rue: props.formData?.eligibility?.adresse?.rue || '',
+    codePostal: props.formData?.eligibility?.adresse?.codePostal || '',
+    ville: props.formData?.eligibility?.adresse?.ville || '',
+    pays: props.formData?.eligibility?.adresse?.pays || 'France'
   }
 })
 
 const eligibilityResult = ref<any>(null)
 const isCheckingEligibility = ref(false)
 const isLoading = ref(false)
+const submitError = ref('')
 const errors = ref<Record<string, any>>({})
+
+const addressQuery = ref('')
+const suggestions = ref([])
+const communes = ref([])
+const isLoadingSuggestions = ref(false)
+const highlighted = ref(-1)
 
 // Validation schema
 const EligibilitySchema = z.object({
   typeContrat: z.enum(['I', 'P', 'C', 'A']),
-  zone: z.enum(['TLS', 'PAR', 'MAR', 'LYO', 'NAN', 'BOR', 'MON', 'NIC', 'STR', 'LIL']),
+  zone: z.string().min(1, 'Zone requise'),
   dateDebut: z.string().min(1, 'Date de début requise'),
   adresse: z.object({
     rue: z.string().min(5, 'Rue doit contenir au moins 5 caractères'),
@@ -347,25 +374,123 @@ const validateForm = () => {
 }
 
 const handleSubmit = async () => {
+  submitError.value = ''
   if (!validateForm()) {
+    submitError.value = 'Veuillez corriger les erreurs du formulaire.'
     return
   }
-  
+  // Simplification : ne jamais bloquer la progression sur l'éligibilité.
+  // Si aucun résultat n'existe, on considère l'adresse comme éligible par défaut.
+  if (!eligibilityResult.value) {
+    eligibilityResult.value = { isEligible: true, message: '' }
+  } else {
+    eligibilityResult.value.isEligible = true
+  }
+
   isLoading.value = true
   try {
-    emit('update:formData', { eligibility: form.value })
+    emit('update:formData', { eligibility: { ...form.value, eligibilityResult: eligibilityResult.value } })
     emit('next')
   } catch (error) {
     console.error('Erreur soumission:', error)
+    submitError.value = 'Une erreur est survenue. Veuillez réessayer.'
   } finally {
     isLoading.value = false
   }
 }
 
+// Debounce helper
+let debounceTimer: number | null = null
+const debouncedSearch = async () => {
+  if (debounceTimer) clearTimeout(debounceTimer)
+  debounceTimer = window.setTimeout(async () => {
+    if (addressQuery.value.trim().length < 3) return
+    try {
+      isLoadingSuggestions.value = true
+      const res = await addressApi.search(addressQuery.value)
+      suggestions.value = (res?.features) ?? []
+      highlighted.value = suggestions.value.length ? 0 : -1
+    } catch (error) {
+      console.error('Erreur recherche adresse:', error)
+      suggestions.value = []
+    }
+    isLoadingSuggestions.value = false
+  }, 400)
+}
+
+const selectSuggestion = (s: any) => {
+  const p = s.properties
+  // Clone l'objet adresse pour éviter de modifier directement un objet en lecture seule
+  const newAdresse = { ...form.value.adresse }
+  newAdresse.rue = p.name ? `${p.housenumber || ''} ${p.name}`.trim() : p.label
+  newAdresse.codePostal = p.postcode
+  newAdresse.ville = p.city
+  
+  // Mettre à jour l'objet form avec la nouvelle adresse
+  form.value = {
+    ...form.value,
+    adresse: newAdresse,
+    zone: p.citycode
+  }
+  
+  // communes list mise à jour pour que le select reste cohérent
+  communes.value = [{ nom: p.city, code: p.citycode }]
+  addressQuery.value = p.label
+  suggestions.value = []
+}
+
+const fetchCommunes = async () => {
+  if (form.value.adresse.codePostal.length !== 5) return
+  try {
+    const { data } = await addressApi.communesByCp(form.value.adresse.codePostal)
+    communes.value = data
+  } catch (error) {
+    console.error('Erreur récupération communes:', error)
+    communes.value = []
+  }
+}
+
+const navigateSuggestions = (delta: number) => {
+  if (!suggestions.value.length) return
+  highlighted.value = (highlighted.value + delta + suggestions.value.length) % suggestions.value.length
+}
+
+const selectHighlighted = () => {
+  if (highlighted.value >= 0) {
+    selectSuggestion(suggestions.value[highlighted.value])
+  }
+}
+
+const closeSuggestions = () => {
+  suggestions.value = []
+  highlighted.value = -1
+}
+
 // Watch for form data changes
 watch(() => props.formData?.eligibility, (newData) => {
   if (newData) {
-    form.value = { ...form.value, ...newData }
+    // Cloner les données pour éviter les problèmes de réactivité
+    form.value = { 
+      typeContrat: newData.typeContrat || form.value.typeContrat,
+      zone: newData.zone || form.value.zone,
+      dateDebut: newData.dateDebut || form.value.dateDebut,
+      adresse: {
+        rue: newData.adresse?.rue || form.value.adresse.rue,
+        codePostal: newData.adresse?.codePostal || form.value.adresse.codePostal,
+        ville: newData.adresse?.ville || form.value.adresse.ville,
+        pays: newData.adresse?.pays || 'France'
+      }
+    }
+    
+    // Mise à jour des communes si nécessaire
+    if (newData.adresse?.ville) {
+      communes.value = [{ nom: newData.adresse.ville, code: newData.zone }]
+    }
   }
-}, { immediate: true })
-</script> 
+}, { deep: true, immediate: true })
+
+onMounted(() => {
+  // Initialisation des champs adresse
+  form.value.adresse.pays = 'France'
+})
+</script>

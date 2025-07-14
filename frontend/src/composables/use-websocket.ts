@@ -16,7 +16,9 @@ export function useWebSocket() {
       return
     }
 
-    const wsUrl = `${import.meta.env.VITE_WS_URL}/contracts`
+    const wsHost = window.location.hostname
+    const wsPort = import.meta.env.VITE_WS_PORT || '8080'
+    const wsUrl = `ws://${wsHost}:${wsPort}/contrats`
     socket.value = new WebSocket(wsUrl)
 
     socket.value.onopen = () => {

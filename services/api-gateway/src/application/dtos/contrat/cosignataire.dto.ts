@@ -1,47 +1,24 @@
-import { IsString, IsUUID, IsOptional, IsNumber, IsEnum } from 'class-validator';
-
 export class CreateCosignataireDto {
-  @IsUUID()
+  contratId: string;
   cosignataireId: string;
-
-  @IsEnum(['UTILISATEUR', 'ENTREPRISE'])
   typeCosignataire: 'UTILISATEUR' | 'ENTREPRISE';
-
-  @IsOptional()
-  @IsEnum(['PRINCIPAL', 'SECONDARY'])
   roleType?: 'PRINCIPAL' | 'SECONDARY';
-
-  @IsOptional()
-  @IsNumber()
   pourcentageParts?: number;
-
-  @IsOptional()
-  @IsString()
   emailCosignataire?: string;
-
-  @IsOptional()
-  @IsString()
   telephoneCosignataire?: string;
+  tenantId?: string;
+  createdBy?: string;
+  updatedBy?: string;
 }
 
 export class UpdateCosignataireDto {
-  @IsOptional()
-  @IsEnum(['PRINCIPAL', 'SECONDARY'])
   roleType?: 'PRINCIPAL' | 'SECONDARY';
-
-  @IsOptional()
-  @IsNumber()
   pourcentageParts?: number;
-
-  @IsOptional()
-  @IsEnum(['ENVOYE', 'ACCEPTE', 'REFUSE'])
   statutInvitation?: 'ENVOYE' | 'ACCEPTE' | 'REFUSE';
-
-  @IsOptional()
   signatureElectronique?: boolean;
-
-  @IsOptional()
   signatureDate?: Date;
+  tenantId?: string;
+  updatedBy?: string;
 }
 
 export class CosignataireResponseDto {

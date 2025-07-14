@@ -6,7 +6,8 @@ export type AuditAction =
   | 'RENOUVELLEMENT' | 'ASSOCIATION_COMPTEUR' | 'DISSOCIATION_COMPTEUR'
   | 'ASSOCIATION_ABONNEMENT' | 'DISSOCIATION_ABONNEMENT' | 'ASSOCIATION_CLIENT'
   | 'DISSOCIATION_CLIENT' | 'AJOUT_COSIGNATAIRE' | 'SUPPRESSION_COSIGNATAIRE'
-  | 'SIGNATURE_COSIGNATAIRE' | 'INTERVENTION_CREEE' | 'INTERVENTION_TERMINEE';
+  | 'SIGNATURE_COSIGNATAIRE' | 'INTERVENTION_CREEE' | 'INTERVENTION_TERMINEE'
+  | 'ACTIVATION' | 'FINALISATION' | 'CREATION_BROUILLON' | 'ASSIGNATION_COMPTEUR' | 'MODIFICATION_COSIGNATAIRE';
 
 export interface AuditDetails {
   anciennesValeurs?: any;
@@ -60,22 +61,4 @@ export class AuditService {
     return this.auditRepository.findByContratId(contratId, options);
   }
 
-  async getAuditSummary(contratId: string): Promise<{
-    totalActions: number;
-    derniereAction: any;
-    actionsParType: Record<AuditAction, number>;
-  }> {
-    const auditTrail = await this.getAuditTrail(contratId, { limit: 1000 });
-    
-    const actionsParType = auditTrail.reduce((acc, entry) => {
-      acc[entry.action] = (acc[entry.action] || 0) + 1;
-      return acc;
-    }, {} as Record<AuditAction, number>);
-
-    return {
-      totalActions: auditTrail.length,
-      derniereAction: auditTrail[0] || null,
-      actionsParType
-    };
-  }
 } 

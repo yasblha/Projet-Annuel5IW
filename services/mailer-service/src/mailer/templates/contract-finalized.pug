@@ -1,0 +1,80 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    title Votre contrat a été finalisé
+    style.
+      body {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        text-align: center;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+      }
+      .logo {
+        max-width: 120px;
+      }
+      .content {
+        padding: 20px 0;
+      }
+      .button {
+        display: inline-block;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        margin: 20px 0;
+      }
+      .highlight {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+        border-left: 4px solid #4CAF50;
+      }
+      .footer {
+        font-size: 12px;
+        color: #777;
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+      }
+
+  body
+    .header
+      img.logo(src='https://via.placeholder.com/120x60?text=LOGO', alt='Company Logo')
+      h1 Votre contrat est finalisé !
+
+    .content
+      p Bonjour #{name},
+      
+      p Félicitations ! Votre contrat référence #{contractNumber} a été finalisé avec succès.
+      
+      .highlight
+        p Toutes les signatures nécessaires ont été obtenues et votre contrat est maintenant actif.
+
+      p Vous pouvez consulter votre contrat et tous ses détails en cliquant sur le lien ci-dessous :
+      
+      p
+        a.button(href=dashboardUrl) Accéder à mon contrat
+      
+      p Voici ce qui se passe maintenant :
+      ul
+        li Nous préparons la mise en service de votre contrat
+        li Si une installation de compteur est nécessaire, vous recevrez prochainement un email avec les détails de l'intervention
+        li Votre première facture sera émise selon les modalités définies dans votre contrat
+      
+      p Si vous avez des questions concernant votre contrat ou votre abonnement, n'hésitez pas à contacter notre service client.
+
+    .footer
+      p Ce message a été envoyé automatiquement, merci de ne pas y répondre.
+      p © 2025 Votre Fournisseur d'Énergie. Tous droits réservés.

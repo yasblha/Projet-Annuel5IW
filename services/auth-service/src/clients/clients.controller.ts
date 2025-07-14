@@ -3,9 +3,11 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CreateClientUseCase } from '@application/usecases/clients/create-client.usecase';
 import { ListClientsUseCase } from '@application/usecases/clients/list-clients.usecase';
 import { GetClientByIdUseCase } from '@application/usecases/clients/get-client-by-id.usecase';
+import { UpdateClientUseCase } from '@application/usecases/clients/update-client.usecase';
 import { AuthGuard } from '@infrastructure/guards/auth.guard';
 import { RolesGuard } from '@infrastructure/guards/roles.guard';
-import { Roles } from '@infrastructure/guards/roles.decorator';
+import { Roles } from '@infrastructure/decorators/roles.decorator';
+import { UserRole } from '@Database/models/enums/userRole.enum';
 
 @Controller('clients')
 export class ClientsController {
@@ -13,19 +15,20 @@ export class ClientsController {
     private readonly createClient: CreateClientUseCase,
     private readonly listClients: ListClientsUseCase,
     private readonly getClientById: GetClientByIdUseCase,
+    private readonly updateClient: UpdateClientUseCase,
   ) {}
 
   // ENDPOINTS HTTP (avec guards)
   @Get()
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles('ADMIN', 'COMMERCIAL', 'TECHNICIEN')
+  @Roles(UserRole.ADMIN, UserRole.COMMERCIAL, UserRole.DIRECTEUR, UserRole.COMPTABLE, UserRole.SUPPORT_CLIENT)
   async list(@Query() query: any) {
     return this.listClients.execute(query);
   }
 
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles('ADMIN', 'COMMERCIAL')
+  @Roles(UserRole.ADMIN, UserRole.COMMERCIAL, UserRole.DIRECTEUR)
   async create(@Body() body: any) {
     return this.createClient.execute(body);
   }
@@ -33,13 +36,13 @@ export class ClientsController {
   // HANDLERS MICROSERVICES POUR API GATEWAY (SANS GUARDS)
   @MessagePattern('clients.list')
   async listMicro(@Payload() query: any) {
-    console.log('🔍 [ClientsController] MessagePattern clients.list reçu:', query);
+    console.log(' [ClientsController] MessagePattern clients.list reçu:', query);
     try {
       const result = await this.listClients.execute(query);
-      console.log('✅ [ClientsController] clients.list réussi:', result);
+      console.log(' [ClientsController] clients.list réussi:', result);
       return result;
     } catch (error) {
-      console.error('❌ [ClientsController] clients.list erreur:', error);
+      console.error(' [ClientsController] clients.list erreur:', error);
       throw error;
     }
   }
@@ -56,8 +59,7 @@ export class ClientsController {
 
   @MessagePattern('clients.update')
   async updateMicro(@Payload() data: any) {
-    // TODO: Implémenter UpdateClientUseCase
-    throw new Error('UpdateClientUseCase not implemented yet');
+    return this.updateClient.execute(data);
   }
 
   @MessagePattern('clients.delete')
@@ -65,4 +67,4 @@ export class ClientsController {
     // TODO: Implémenter DeleteClientUseCase
     throw new Error('DeleteClientUseCase not implemented yet');
   }
-} 
+}

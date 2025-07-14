@@ -23,6 +23,10 @@ export class ContratResponseDto {
   dateCreation: Date;
   dateMaj: Date;
   
+  // Ajout des propriétés manquantes
+  typeContrat: string | null;
+  adresse: any;
+  
   // Calculs dérivés
   dureeEnJours: number;
   isActif: boolean;
@@ -34,4 +38,4 @@ export class ContratResponseDto {
   cosignataires?: CosignataireResponseDto[];
   auditTrail?: any[];
   compteurHistorique?: any[];
-} 
+}

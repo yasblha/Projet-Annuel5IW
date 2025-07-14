@@ -3,6 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { ListClientsDto } from '../application/dtos/clients/list-clients.dto';
 import { CreateClientDto } from '../application/dtos/clients/create-client.dto';
+import { UpdateClientDto } from '../application/dtos/clients/update-client.dto';
 
 @Controller('clients')
 export class ClientsController {
@@ -14,31 +15,31 @@ export class ClientsController {
 
   @Get()
   async listClients(@Query() query: ListClientsDto) {
-    this.logger.log(`🔍 [ClientsController] GET /clients - Paramètres: ${JSON.stringify(query)}`);
+    this.logger.log(` [ClientsController] GET /clients - Paramètres: ${JSON.stringify(query)}`);
     return this.handleRequest('clients.list', query);
   }
 
   @Get(':id')
   async getClientById(@Param('id') id: string) {
-    this.logger.log(`🔍 [ClientsController] GET /clients/${id}`);
+    this.logger.log(` [ClientsController] GET /clients/${id}`);
     return this.handleRequest('clients.getById', { id });
   }
 
   @Post()
   async createClient(@Body() createClientDto: CreateClientDto) {
-    this.logger.log(`➕ [ClientsController] POST /clients - Création: ${createClientDto.nom} ${createClientDto.prenom}`);
+    this.logger.log(` [ClientsController] POST /clients - Création: ${createClientDto.nom} ${createClientDto.prenom}`);
     return this.handleRequest('clients.create', createClientDto);
   }
 
   @Put(':id')
-  async updateClient(@Param('id') id: string, @Body() updateClientDto: any) {
-    this.logger.log(`✏️ [ClientsController] PUT /clients/${id}`);
+  async updateClient(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
+    this.logger.log(` [ClientsController] PUT /clients/${id}`);
     return this.handleRequest('clients.update', { id, ...updateClientDto });
   }
 
   @Delete(':id')
   async deleteClient(@Param('id') id: string) {
-    this.logger.log(`🗑️ [ClientsController] DELETE /clients/${id}`);
+    this.logger.log(` [ClientsController] DELETE /clients/${id}`);
     return this.handleRequest('clients.delete', { id });
   }
 

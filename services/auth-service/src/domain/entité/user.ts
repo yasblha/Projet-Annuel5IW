@@ -1,3 +1,5 @@
+import { UserRole } from '../enums/user-role.enum';
+
 export class User {
     constructor(
         public id: string | undefined,
@@ -12,7 +14,7 @@ export class User {
         public dernierEchec: Date | null,
         public tenantId: string,
         public telephone: string | null,
-        public role: 'ADMIN' | 'CLIENT' | 'TECHNICIEN' | 'COMMERCIAL' | 'SUPPORT' | 'COMPTABLE' | 'MANAGER',
+        public role: UserRole,
         public statut: 'EN_ATTENTE_VALIDATION' | 'ACTIF' | 'SUSPENDU' | 'BLACKLISTE' | 'ARCHIVE' | 'SUPPRIME',
         public dateDerniereConnexion: Date | null,
         public createdAt: Date,

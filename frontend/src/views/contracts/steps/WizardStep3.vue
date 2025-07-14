@@ -115,7 +115,7 @@
                 ]"
               >
                 <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1z"></path>
                 </svg>
                 Scan QR
               </button>
@@ -151,7 +151,7 @@
                     class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1z"></path>
                     </svg>
                     Démarrer le scan
                   </button>
@@ -267,12 +267,14 @@
         </svg>
       </button>
     </div>
+    <p v-if="submitError" class="text-center mt-4 text-red-600 text-sm">{{ submitError }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { z } from 'zod'
+import { meterApi } from '@/services/api/meter.service'
 
 // Props & Emits
 const props = defineProps<{
@@ -300,6 +302,7 @@ const isScanning = ref(false)
 const visitStatus = ref<'scheduled' | 'completed' | null>(null)
 const meterInfo = ref<any>(null)
 const isLoading = ref(false)
+const submitError = ref('')
 const errors = ref<Record<string, string>>({})
 
 // Refs
@@ -399,6 +402,14 @@ const validateForm = () => {
   try {
     MeterScanSchema.parse(form.value)
     errors.value = {}
+    if (!visitDate.value) {
+      errors.value.visitDate = 'Date requise'
+      return false
+    }
+    if (!visitTime.value) {
+      errors.value.visitTime = 'Heure requise'
+      return false
+    }
     return true
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -414,30 +425,51 @@ const validateForm = () => {
 }
 
 const handleSubmit = async () => {
+  submitError.value = ''
   if (!validateForm()) {
+    submitError.value = 'Veuillez corriger les erreurs du formulaire.'
     return
   }
   
   isLoading.value = true
   try {
-    // Simuler la création du compteur
-    meterInfo.value = {
-      numero: `M-${props.formData?.eligibility?.zone || 'TLS'}-${form.value.calibre}-${form.value.numeroSerie}`,
+    // Création réelle du compteur via l'API au lieu de simuler
+    const meterData = {
+      numeroSerie: form.value.numeroSerie,
       calibre: form.value.calibre,
-      statut: 'ACTIF'
+      coordonnees: form.value.coordonnees,
+      zone: props.formData?.eligibility?.zone,
+      adresse: props.formData?.eligibility?.adresse
+    }
+    
+    // Génération d'un compteur virtuel via l'API
+    const response = await meterApi.generateVirtualMeter(meterData)
+    
+    if (!response || !response.id) {
+      throw new Error('Échec de création du compteur virtuel')
+    }
+    
+    // Stocker les informations du compteur retournées par l'API
+    meterInfo.value = {
+      numero: response.numero,
+      calibre: form.value.calibre,
+      statut: response.statut || 'ACTIF',
+      id: response.id
     }
     
     visitStatus.value = 'completed'
     
+    // Mettre à jour les données du formulaire avec l'ID réel du compteur
     emit('update:formData', { 
       meterScan: {
         ...form.value,
-        compteurId: 'generated-id-' + Date.now()
+        compteurId: response.id
       }
     })
     emit('next')
   } catch (error) {
-    console.error('Erreur soumission:', error)
+    console.error('Erreur création compteur:', error)
+    submitError.value = 'Erreur lors de la création du compteur. Veuillez réessayer.'
   } finally {
     isLoading.value = false
   }

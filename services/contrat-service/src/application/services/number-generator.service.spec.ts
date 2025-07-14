@@ -18,12 +18,20 @@ describe('NumberGenerator', () => {
 
   describe('nextCompteurNumber', () => {
     it('should generate correct compteur number format', () => {
-      const result = service.nextCompteurNumber('TLS', '40', '723456');
+      const result = service.nextCompteurNumber({
+        zone: 'TLS',
+        calibre: '40',
+        serie: '723456'
+      });
       expect(result).toBe('M-TLS-40-0723456');
     });
 
     it('should pad serie number to 7 digits', () => {
-      const result = service.nextCompteurNumber('TLS', '40', '123');
+      const result = service.nextCompteurNumber({
+        zone: 'TLS',
+        calibre: '40',
+        serie: '123'
+      });
       expect(result).toBe('M-TLS-40-0000123');
     });
   });

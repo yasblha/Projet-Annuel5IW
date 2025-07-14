@@ -32,7 +32,21 @@ class ClientService {
   }
 
   async create(clientData: CreateClientRequest): Promise<Client> {
-    const response = await apiService.post<Client>(this.baseUrl, clientData);
+    // Création d'une copie profonde des données pour éviter de modifier l'objet original
+    const payload = JSON.parse(JSON.stringify(clientData));
+    
+    // Vérifier si l'adresse existe et assurer sa compatibilité avec le backend
+    if (payload.adresse) {
+      // S'assurer que tous les champs requis sont présents
+      payload.adresse = {
+        ...payload.adresse,
+        // Garantir que le backend reçoit les bonnes propriétés
+        type: payload.adresse.type || 'PRINCIPALE',
+        clientId: payload.adresse.clientId
+      };
+    }
+    
+    const response = await apiService.post<Client>(this.baseUrl, payload);
     return response.data;
   }
 
@@ -42,7 +56,21 @@ class ClientService {
   }
 
   async update(id: string, clientData: Partial<CreateClientRequest>): Promise<Client> {
-    const response = await apiService.put<Client>(`${this.baseUrl}/${id}`, clientData);
+    // Création d'une copie profonde des données pour éviter de modifier l'objet original
+    const payload = JSON.parse(JSON.stringify(clientData));
+    
+    // Vérifier si l'adresse existe et assurer sa compatibilité avec le backend
+    if (payload.adresse) {
+      // S'assurer que tous les champs requis sont présents
+      payload.adresse = {
+        ...payload.adresse,
+        // Garantir que le backend reçoit les bonnes propriétés
+        type: payload.adresse.type || 'PRINCIPALE',
+        clientId: id
+      };
+    }
+    
+    const response = await apiService.put<Client>(`${this.baseUrl}/${id}`, payload);
     return response.data;
   }
 

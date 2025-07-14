@@ -10,6 +10,9 @@ export interface CreateClientParams {
     telephone?: string;
     type: 'PARTICULIER' | 'ENTREPRISE';
     statut?: 'PROSPECT' | 'ACTIF' | 'SUSPENDU' | 'INACTIF' | 'RESILIE' | 'ARCHIVE';
+    // Coordonnées bancaires
+    rib?: string;
+    modePaiement?: 'PRELEVEMENT' | 'VIREMENT' | 'CHEQUE' | 'CARTE' | 'ESPECES' | 'AUTRE';
     statutContractuel?: 'SANS_CONTRAT' | 'EN_NEGOCIATION' | 'EN_ATTENTE_SIGNATURE' | 'CONTRAT_ACTIF' | 'CONTRAT_SUSPENDU' | 'CONTRAT_RESILIE' | 'CONTRAT_EXPIRE';
     statutPaiement?: 'A_JOUR' | 'RETARD_LEGER' | 'RETARD_MODERE' | 'RETARD_IMPORTANT' | 'IMPAYE' | 'EN_PROCEDURE' | 'LITIGE';
     statutTechnique?: 'OPERATIONNEL' | 'MAINTENANCE' | 'DEFAILLANT' | 'COUPURE' | 'INSTALLATION' | 'DEMENAGEMENT';
@@ -223,11 +226,11 @@ export class ClientRepository {
 
         // Mettre à jour le client
         await this.update(clientId, {
-            statutContractuel,
-            statutPaiement,
-            statutAbonnement,
-            statutFacturation,
-            statutTechnique,
+            statutContractuel: statutContractuel as CreateClientParams['statutContractuel'],
+            statutPaiement: statutPaiement as CreateClientParams['statutPaiement'],
+            statutAbonnement: statutAbonnement as CreateClientParams['statutAbonnement'],
+            statutFacturation: statutFacturation as CreateClientParams['statutFacturation'],
+            statutTechnique: statutTechnique as CreateClientParams['statutTechnique'],
             montantImpaye,
             nombreFacturesImpayees,
             dateDernierPaiement: paiements.length > 0 ? paiements[paiements.length - 1].datePaiement : null,

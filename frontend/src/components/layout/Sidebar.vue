@@ -12,68 +12,123 @@
     <nav class="flex-1 p-4 space-y-6 overflow-y-auto">
       <div>
         <h3 class="text-xs font-semibold uppercase text-gray-500 mb-2 pl-2 tracking-wider">Tableau de bord</h3>
-        <router-link to="/dashboard" class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path === '/dashboard' }">
+        <router-link 
+          v-if="hasPermission('dashboard', 'view')"
+          to="/dashboard" 
+          class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
+          :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path === '/dashboard' }">
           <i class="fas fa-chart-line"></i>
           <span>Accueil</span>
+        </router-link>
+        <router-link 
+          v-if="hasPermission('dashboard', 'view')"
+          to="/dashboard/analytics" 
+          class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
+          :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path === '/dashboard/analytics' }">
+          <i class="fas fa-chart-bar"></i>
+          <span>Analytique</span>
+        </router-link>
+        <router-link 
+          v-if="hasPermission('dashboard', 'view')"
+          to="/hub" 
+          class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
+          :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path === '/hub' }">
+          <i class="fas fa-th-large"></i>
+          <span>Hub Central</span>
         </router-link>
       </div>
       <div>
         <h3 class="text-xs font-semibold uppercase text-gray-500 mb-2 pl-2 tracking-wider">Clients & Contrats</h3>
-        <router-link to="/dashboard/clients" class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/dashboard/clients') }">
+        <router-link 
+          v-if="hasPermission('clients', 'view')"
+          to="/dashboard/clients" 
+          class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
+          :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/dashboard/clients') }">
           <i class="fas fa-users"></i>
           <span>Clients</span>
         </router-link>
-        <router-link to="/dashboard/contrats" class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/dashboard/contrats') }">
+        <!-- Lien Détails clients masqué -->
+        <router-link 
+          v-if="hasPermission('contracts', 'view')"
+          to="/dashboard/contrats" 
+          class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
+          :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/dashboard/contrats') }">
           <i class="fas fa-file-contract"></i>
           <span>Contrats</span>
         </router-link>
       </div>
       <div>
-        <h3 class="text-xs font-semibold uppercase text-gray-500 mb-2 pl-2 tracking-wider">Facturation</h3>
-        <router-link to="/invoices" class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/invoices') }">
-          <i class="fas fa-file-invoice-dollar"></i>
-          <span>Factures</span>
-        </router-link>
-        <router-link to="/payments" class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/payments') }">
-          <i class="fas fa-credit-card"></i>
-          <span>Paiements</span>
-        </router-link>
-      </div>
-      <div>
-        <h3 class="text-xs font-semibold uppercase text-gray-500 mb-2 pl-2 tracking-wider">Interventions</h3>
-        <router-link to="/interventions" class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/interventions') }">
+        <h3 class="text-xs font-semibold uppercase text-gray-500 mb-2 pl-2 tracking-wider">Opérations</h3>
+        <router-link 
+          v-if="hasPermission('interventions', 'view')"
+          to="/dashboard/interventions" 
+          class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
+          :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/dashboard/interventions') }">
           <i class="fas fa-tools"></i>
           <span>Interventions</span>
         </router-link>
-        <router-link to="/maintenance" class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/maintenance') }">
-          <i class="fas fa-wrench"></i>
-          <span>Maintenance</span>
+        <!-- Lien Maintenance masqué -->
+        <router-link 
+          to="/dashboard/compteurs" 
+          class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
+          :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/dashboard/compteurs') }">
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Compteurs</span>
+        </router-link>
+        <router-link 
+          v-if="hasPermission('billing', 'view')"
+          to="/dashboard/factures" 
+          class="flex items-center gap-3 p-2.5 text-sm rounded-lg text-gray-600 transition duration-150 ease-in-out hover:bg-blue-50 hover:text-blue-800"
+          active-class="bg-blue-50 text-blue-800 font-semibold"
+        >
+          <i class="fas fa-file-invoice text-xl"></i>
+          <span>Facturation</span>
+        </router-link>
+        <router-link 
+          v-if="hasPermission('billing', 'manage')"
+          to="/dashboard/paiements" 
+          class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
+          :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/dashboard/paiements') }">
+          <i class="fas fa-money-check-alt"></i>
+          <span>Paiements</span>
         </router-link>
       </div>
-      <div v-if="authStore.isAdmin">
+      <!-- Section Paramètres masquée -->
+      <div v-if="hasPermission('admin', 'view')">
         <h3 class="text-xs font-semibold uppercase text-gray-500 mb-2 pl-2 tracking-wider">Administration</h3>
-        <router-link to="/users" class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/users') }">
-          <i class="fas fa-user-shield"></i>
+        <router-link 
+          v-if="hasPermission('admin.users', 'view')"
+          to="/admin/utilisateurs" 
+          class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
+          :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/admin/utilisateurs') }">
+          <i class="fas fa-users-cog"></i>
           <span>Utilisateurs</span>
         </router-link>
-        <router-link to="/agencies" class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/agencies') }">
-          <i class="fas fa-building"></i>
-          <span>Agences</span>
+        <router-link 
+          v-if="hasPermission('admin.roles', 'view')"
+          to="/admin/roles" 
+          class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
+          :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/admin/roles') }">
+          <i class="fas fa-user-shield"></i>
+          <span>Rôles & Permissions</span>
         </router-link>
-        <router-link to="/reports" class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/reports') }">
-          <i class="fas fa-chart-bar"></i>
-          <span>Rapports</span>
+        <router-link 
+          v-if="hasPermission('admin.activity', 'view')"
+          to="/admin/logs" 
+          class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
+          :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/admin/logs') }">
+          <i class="fas fa-clipboard-list"></i>
+          <span>Logs d'activité</span>
         </router-link>
       </div>
       <div>
-        <h3 class="text-xs font-semibold uppercase text-gray-500 mb-2 pl-2 tracking-wider">Paramètres</h3>
-        <router-link to="/profile" class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/profile') }">
-          <i class="fas fa-user"></i>
-          <span>Profil</span>
-        </router-link>
-        <router-link to="/settings" class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/settings') }">
-          <i class="fas fa-cog"></i>
-          <span>Paramètres</span>
+        <h3 class="text-xs font-semibold uppercase text-gray-500 mb-2 pl-2 tracking-wider">Support</h3>
+        <router-link 
+          to="/aide" 
+          class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
+          :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path === '/aide' }">
+          <i class="fas fa-question-circle"></i>
+          <span>Aide</span>
         </router-link>
       </div>
     </nav>
@@ -102,10 +157,20 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
+import { useAuthorizationService } from '@/services/authorization.service'
+import { computed } from 'vue'
+
 const router = useRouter()
 const authStore = useAuthStore()
+const { hasPermission, isRoleAtLeast } = useAuthorizationService()
+
+// Vérifier si l'utilisateur est administrateur
+const isAdmin = computed(() => {
+  return isRoleAtLeast('ADMIN', authStore.user?.role || null);
+})
+
 const handleLogout = () => {
   authStore.logout()
   router.push('/login')
 }
-</script> 
+</script>

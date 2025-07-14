@@ -1,0 +1,7 @@
+export enum LigneFactureType {
+  CONSOMMATION = 'CONSOMMATION',
+  ABONNEMENT = 'ABONNEMENT',
+  TAXE = 'TAXE',
+  FRAIS = 'FRAIS',
+  REMISE = 'REMISE',
+}

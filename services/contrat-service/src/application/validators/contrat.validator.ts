@@ -30,10 +30,7 @@ export class ContratValidator {
     const errors: string[] = [];
 
     // Validation des champs obligatoires
-    if (!dto.proprietaireId) {
-      errors.push('Le propriétaire est obligatoire');
-    }
-
+    // Le propriétaire n'est obligatoire qu'après sélection client
     if (!dto.typeProprietaire) {
       errors.push('Le type de propriétaire est obligatoire');
     } else if (!['UTILISATEUR', 'ENTREPRISE'].includes(dto.typeProprietaire)) {
@@ -78,10 +75,7 @@ export class ContratValidator {
     const errors: string[] = [];
 
     // Validation des champs obligatoires de base
-    if (!dto.proprietaireId) {
-      errors.push('Le propriétaire est obligatoire');
-    }
-
+    // Le propriétaire n'est obligatoire qu'après sélection client
     if (!dto.typeProprietaire) {
       errors.push('Le type de propriétaire est obligatoire');
     } else if (!['UTILISATEUR', 'ENTREPRISE'].includes(dto.typeProprietaire)) {
@@ -99,9 +93,8 @@ export class ContratValidator {
     if (!dto.zone) {
       errors.push('La zone est obligatoire');
     } else {
-      const zonesAutorisees = ['TLS', 'PAR', 'MAR', 'LYO', 'NAN', 'BOR', 'MON', 'NIC', 'STR', 'LIL'];
-      if (!zonesAutorisees.includes(dto.zone)) {
-        errors.push(`La zone doit être une des suivantes: ${zonesAutorisees.join(', ')}`);
+      if (!/^[A-Za-z0-9_-]{2,10}$/.test(dto.zone)) {
+        errors.push('La zone doit contenir uniquement des caractères alphanumériques, tirets ou underscore (2-10).');
       }
     }
 
@@ -143,10 +136,7 @@ export class ContratValidator {
     const errors: string[] = [];
 
     // Validation des champs obligatoires
-    if (!dto.proprietaireId) {
-      errors.push('Le propriétaire est obligatoire');
-    }
-
+    // Le propriétaire n'est obligatoire qu'après sélection client
     if (!dto.typeProprietaire) {
       errors.push('Le type de propriétaire est obligatoire');
     } else if (!['UTILISATEUR', 'ENTREPRISE'].includes(dto.typeProprietaire)) {
@@ -156,9 +146,8 @@ export class ContratValidator {
     if (!dto.zone) {
       errors.push('La zone est obligatoire');
     } else {
-      const zonesAutorisees = ['TLS', 'PAR', 'MAR', 'LYO', 'NAN', 'BOR', 'MON', 'NIC', 'STR', 'LIL'];
-      if (!zonesAutorisees.includes(dto.zone)) {
-        errors.push(`La zone doit être une des suivantes: ${zonesAutorisees.join(', ')}`);
+      if (!/^[A-Za-z0-9_-]{2,10}$/.test(dto.zone)) {
+        errors.push('La zone doit contenir uniquement des caractères alphanumériques, tirets ou underscore (2-10).');
       }
     }
 
@@ -202,7 +191,7 @@ export class ContratValidator {
   // === VALIDATION FINALISATION ===
   static async validateFinalization(contratId: string, tenantId: string): Promise<void> {
     const repository = new ContratRepository();
-    const contrat = await repository.findById(contratId, tenantId);
+    const contrat = await repository.findByIdWithTenant(contratId, tenantId);
     
     if (!contrat) {
       throw new ValidationError('Contrat non trouvé', 'contratId', 'CONTRAT_NOT_FOUND');
@@ -222,12 +211,15 @@ export class ContratValidator {
       errors.push('Le contrat doit avoir au moins un compteur actif lié');
     }
 
-    // Vérifier que tous les cosignataires ont signé
+    // Vérifier que tous les cosignataires ont signé (seulement s'il y en a)
     const cosignataires = await repository.getCosignatairesByContrat(contratId, tenantId);
-    const cosignatairesNonSignes = cosignataires.filter(c => c.statutSignature !== 'SIGNE');
-    if (cosignatairesNonSignes.length > 0) {
-      errors.push('Tous les cosignataires doivent avoir signé le contrat');
+    if (cosignataires && cosignataires.length > 0) {
+      const cosignatairesNonSignes = cosignataires.filter(c => c.statutSignature !== 'SIGNE');
+      if (cosignatairesNonSignes.length > 0) {
+        errors.push('Tous les cosignataires doivent avoir signé le contrat');
+      }
     }
+    // Les cosignataires sont désormais optionnels - aucune validation n'est nécessaire s'il n'y en a pas
 
     // Vérifier que le contrat n'est pas déjà actif ou résilié
     if (['ACTIF', 'ANNULE', 'TERMINE'].includes(contrat.statut)) {
@@ -450,20 +442,32 @@ export class ContratValidator {
 
   // === VALIDATION COSIGNATAIRES ===
   private static validateCosignataires(cosignataires: CreateCosignataireDto[], errors: string[]): void {
+    // Si le tableau est vide ou undefined, il n'y a rien à valider - les cosignataires sont optionnels
+    if (!cosignataires || cosignataires.length === 0) {
+      return;
+    }
+    
     const cosignataireIds = new Set<string>();
     let totalPourcentage = 0;
 
     for (let i = 0; i < cosignataires.length; i++) {
       const cos = cosignataires[i];
+      
+      // Ignorer les cosignataires sans ID ou email (optionnels)
+      if (!cos.cosignataireId && !cos.emailCosignataire) {
+        continue;
+      }
 
       // Vérifier l'unicité des cosignataires
-      if (cosignataireIds.has(cos.cosignataireId)) {
+      if (cos.cosignataireId && cosignataireIds.has(cos.cosignataireId)) {
         errors.push(`Le cosignataire ${cos.cosignataireId} est dupliqué`);
       }
-      cosignataireIds.add(cos.cosignataireId);
+      if (cos.cosignataireId) {
+        cosignataireIds.add(cos.cosignataireId);
+      }
 
       // Validation du type
-      if (!['UTILISATEUR', 'ENTREPRISE'].includes(cos.typeCosignataire)) {
+      if (cos.typeCosignataire && !['UTILISATEUR', 'ENTREPRISE'].includes(cos.typeCosignataire)) {
         errors.push(`Type de cosignataire invalide pour l'index ${i}`);
       }
 
@@ -496,11 +500,14 @@ export class ContratValidator {
       errors.push('Le total des pourcentages des cosignataires ne peut pas dépasser 100%');
     }
 
-    // Vérifier qu'il y a au moins un cosignataire principal
+    // Vérifier qu'il y a au moins un cosignataire principal n'est plus nécessaire
+    // car les cosignataires sont maintenant optionnels
+    /*
     const hasPrincipal = cosignataires.some(cos => cos.roleType === 'PRINCIPAL');
     if (!hasPrincipal) {
       errors.push('Au moins un cosignataire principal est requis');
     }
+    */
   }
 
   // === VALIDATION EMAIL ===

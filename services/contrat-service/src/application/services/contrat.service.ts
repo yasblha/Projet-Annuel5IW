@@ -1,882 +1,355 @@
+/**
+ * ContratService - Façade pour les opérations de contrat
+ * Délègue aux services spécialisés (Command, Query, etc.)
+ */
 import { Injectable } from '@nestjs/common';
-import { ContratRepository } from '@Database/repositories/contrat.repository';
-import { CreateContratDto } from '../dtos/create-contrat.dto';
-import { CreateContratDraftDto } from '../dtos/create-contrat-draft.dto';
-import { AssignCompteurDto } from '../dtos/assign-compteur.dto';
-import { UpdateContratDto } from '../dtos/update-contrat.dto';
-import { ContratMapper } from '../mappers/contrat.mapper';
-import { ContratValidator } from '../validators/contrat.validator';
-import { CosignataireRepository } from '@Database/repositories/contrat.repository';
-import { CreateCosignataireDto, UpdateCosignataireDto } from '../dtos/cosignataire.dto';
-import { SignatureContratDto } from '../dtos/signature-contrat.dto';
-import { ResiliationContratDto } from '../dtos/resiliation-contrat.dto';
-import { SuspensionContratDto } from '../dtos/suspension-contrat.dto';
-import { RenouvellementContratDto } from '../dtos/renouvellement-contrat.dto';
-import { LienAbonnementDto, LienCompteurDto, LienClientDto } from '../dtos/lien-contrat.dto';
-import { AuditService, AuditAction } from './audit.service';
+import { ContratCommandService } from './contrat-command.service';
+import { ContratQueryService } from './contrat-query.service';
+import { CompteurService } from './compteur.service';
+import { AuditService } from './audit.service';
+import { NotificationService } from './notification.service';
 import { InterServiceService } from './inter-service.service';
-import { MultiTenantService } from './multi-tenant.service';
 import { NumberGenerator } from './number-generator.service';
+
+// Interfaces standardisées pour les DTOs
+export interface ContratContext {
+  userId?: string;
+  tenantId?: string;
+  ipAddress?: string;
+  userAgent?: string;
+}
+
+export interface ContratBaseDto {
+  proprietaireId: string;
+  typeContrat?: string;
+  zone?: string;
+  adresse?: any;
+  cosignataires?: any[];
+  [key: string]: any;
+}
+
+export interface AssignCompteurDto {
+  contratId: string;
+  compteurId: string;
+}
 
 @Injectable()
 export class ContratService {
-  private readonly repository = new ContratRepository();
-  private readonly cosignataireRepository = new CosignataireRepository();
-
   constructor(
+    private readonly commandService: ContratCommandService,
+    private readonly queryService: ContratQueryService,
+    private readonly compteurService: CompteurService,
     private readonly auditService: AuditService,
+    private readonly notificationService: NotificationService,
     private readonly interServiceService: InterServiceService,
-    private readonly multiTenantService: MultiTenantService,
     private readonly numberGenerator: NumberGenerator,
-    private readonly contratValidator: ContratValidator
   ) {}
 
-  async findAll(query?: { 
-    page?: number; 
-    limit?: number; 
-    search?: string;
-    tenantId?: string;
-    userId?: string;
-  }) {
-    const tenantId = query?.tenantId;
-    
-    if (!query) {
-      const contrats = await this.repository.findAll({ tenantId });
-      return contrats.map(ContratMapper.toResponse);
-    }
-    
-    const page = query.page ?? 1;
-    const limit = query.limit ?? 10;
-    const offset = (page - 1) * limit;
-    const where = query.search
-      ? { numero: { $like: `%${query.search}%` } }
-      : undefined;
-      
-    const contrats = await this.repository.findAll({ 
-      offset, 
-      limit, 
-      where, 
-      tenantId 
-    });
-    
-    return contrats.map(ContratMapper.toResponse);
+  /**
+   * Récupère un contrat par son ID
+   * @param id Identifiant du contrat
+   * @param context Contexte d'exécution
+   */
+  async findById(id: string, context: ContratContext) {
+    return this.queryService.findById(id, context);
   }
 
-  async findById(id: string, tenantId?: string, userId?: string): Promise<any> {
-    const contrat = await this.repository.findById(id, tenantId);
-    if (!contrat) {
-      throw new Error('Contrat non trouvé');
-    }
-
-    // Vérifier l'accès multi-tenant
-    if (tenantId && contrat.tenantId !== tenantId) {
-      throw new Error('Accès non autorisé à ce contrat');
-    }
-
-    return ContratMapper.toResponse(contrat);
-  }
-
-  async create(dto: CreateContratDto, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<any> {
-    // Validation inter-services
-    const validation = await this.interServiceService.validateContratCreation({
-      clientId: dto.proprietaireId,
-      compteurId: dto.compteurId,
-      abonnementId: dto.abonnementId
-    });
-
-    if (!validation.isValid) {
-      throw new Error(`Validation échouée: ${validation.errors.join(', ')}`);
-    }
-
-    // Ajouter le tenantId
-    const contratData = this.multiTenantService.addTenantToData(dto, context.tenantId);
-    contratData.createdBy = context.userId;
-    contratData.updatedBy = context.userId;
-
-    const contrat = await this.repository.create(contratData);
-
-    // Audit trail
-    await this.auditService.logAction({
-      contratId: contrat.id,
-      userId: context.userId,
-      action: 'CREATION' as AuditAction,
-      details: { contratData: dto },
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      tenantId: context.tenantId
-    });
-
-    // Créer les cosignataires si fournis
-    if (dto.cosignataires && dto.cosignataires.length > 0) {
-      for (const cosignataireDto of dto.cosignataires) {
-        await this.createCosignataire(contrat.id, cosignataireDto, context);
-      }
-    }
-
-    // Créer une intervention de pose si un compteur est associé
-    if (dto.compteurId) {
-      await this.lierCompteur(contrat.id, { compteurId: dto.compteurId }, context);
-    }
-
-    return ContratMapper.toResponse(contrat);
-  }
-
-  async update(id: string, dto: UpdateContratDto, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<any> {
-    const contrat = await this.repository.findById(id, context.tenantId);
-    if (!contrat) {
-      throw new Error('Contrat non trouvé');
-    }
-
-    // Audit trail - sauvegarder les anciennes valeurs
-    const anciennesValeurs = {
-      statut: contrat.statut,
-      dateFin: contrat.dateFin,
-      objet: contrat.objet,
-      montantTotal: contrat.montantTotal
-    };
-
-    const updatedContrat = await this.repository.update(id, {
-      ...dto,
-      updatedBy: context.userId,
-      dateMaj: new Date()
-    }, context.tenantId);
-
-    // Audit trail
-    await this.auditService.logAction({
-      contratId: id,
-      userId: context.userId,
-      action: 'MODIFICATION' as AuditAction,
-      details: {
-        anciennesValeurs,
-        nouvellesValeurs: dto
-      },
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      tenantId: context.tenantId
-    });
-
-    return ContratMapper.toResponse(updatedContrat);
-  }
-
-  async delete(id: string, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<boolean> {
-    const contrat = await this.repository.findById(id, context.tenantId);
-    if (!contrat) {
-      throw new Error('Contrat non trouvé');
-    }
-
-    const deleted = await this.repository.delete(id, context.tenantId);
-
-    if (deleted) {
-      // Audit trail
-      await this.auditService.logAction({
-        contratId: id,
-        userId: context.userId,
-        action: 'SUPPRESSION' as AuditAction,
-        details: { contratSupprime: ContratMapper.toResponse(contrat) },
-        ipAddress: context.ipAddress,
-        userAgent: context.userAgent,
-        tenantId: context.tenantId
-      });
-    }
-
-    return deleted;
-  }
-
-  async getCosignatairesByContrat(contratId: string, tenantId?: string): Promise<any[]> {
-    return this.cosignataireRepository.findAllByContrat(contratId, tenantId);
-  }
-
-  async createCosignataire(contratId: string, dto: CreateCosignataireDto, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<any> {
-    const cosignataire = await this.cosignataireRepository.create({
-      ...dto,
-      contratId,
-      tenantId: context.tenantId,
-      createdBy: context.userId,
-      updatedBy: context.userId
-    });
-
-    // Audit trail
-    await this.auditService.logAction({
-      contratId,
-      userId: context.userId,
-      action: 'AJOUT_COSIGNATAIRE' as AuditAction,
-      details: { cosignataireData: dto },
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      tenantId: context.tenantId
-    });
-
-    // Notifier le cosignataire
-    if (dto.emailCosignataire) {
-      await this.interServiceService.notifyCosignataire(
-        dto.cosignataireId,
-        `Vous avez été invité à signer le contrat ${contratId}`
-      );
-    }
-
-    return cosignataire;
-  }
-
-  async updateCosignataire(id: string, dto: UpdateCosignataireDto, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<any> {
-    const cosignataire = await this.cosignataireRepository.update(id, dto, context.tenantId);
-    
-    if (cosignataire) {
-      // Audit trail
-      await this.auditService.logAction({
-        contratId: cosignataire.contratId,
-        userId: context.userId,
-        action: 'MODIFICATION_COSIGNATAIRE' as AuditAction,
-        details: { cosignataireData: dto },
-        ipAddress: context.ipAddress,
-        userAgent: context.userAgent,
-        tenantId: context.tenantId
-      });
-    }
-
-    return cosignataire;
-  }
-
-  async signContrat(id: string, dto: SignatureContratDto, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<any> {
-    const contrat = await this.repository.findById(id, context.tenantId);
-    if (!contrat) {
-      throw new Error('Contrat non trouvé');
-    }
-    
-    if (contrat.statutSignature === 'SIGNE') {
-      throw new Error('Déjà signé');
-    }
-
-    const updatedContrat = await this.repository.update(id, {
-      statutSignature: 'SIGNE',
-      dateSignature: dto.dateSignature || new Date(),
-      updatedBy: context.userId,
-      dateMaj: new Date()
-    }, context.tenantId);
-
-    // Audit trail
-    await this.auditService.logAction({
-      contratId: id,
-      userId: context.userId,
-      action: 'SIGNATURE' as AuditAction,
-      details: { 
-        signataireId: dto.signataireId,
-        dateSignature: dto.dateSignature || new Date()
-      },
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      tenantId: context.tenantId
-    });
-
-    // Notifier le client
-    await this.interServiceService.notifyClient(
-      contrat.proprietaireId,
-      `Votre contrat ${contrat.numero} a été signé avec succès`
-    );
-
-    return ContratMapper.toResponse(updatedContrat);
-  }
-
-  async resilierContrat(id: string, dto: ResiliationContratDto, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<any> {
-    const contrat = await this.repository.findById(id, context.tenantId);
-    if (!contrat) {
-      throw new Error('Contrat non trouvé');
-    }
-    
-    if (contrat.statut === 'RESILIE') {
-      throw new Error('Déjà résilié');
-    }
-
-    const updatedContrat = await this.repository.update(id, {
-      statut: 'RESILIE',
-      dateResiliation: dto.dateResiliation || new Date(),
-      motifResiliation: dto.motif,
-      updatedBy: context.userId,
-      dateMaj: new Date()
-    }, context.tenantId);
-
-    // Audit trail
-    await this.auditService.logAction({
-      contratId: id,
-      userId: context.userId,
-      action: 'RESILIATION' as AuditAction,
-      details: { 
-        motif: dto.motif,
-        dateResiliation: dto.dateResiliation || new Date()
-      },
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      tenantId: context.tenantId
-    });
-
-    // Créer une intervention de dépose de compteur
-    const currentCompteur = await this.repository.getCurrentCompteur(id, context.tenantId);
-    if (currentCompteur) {
-      await this.interServiceService.createIntervention({
-        type: 'DEPOSE_COMPTEUR',
-        contratId: id,
-        compteurId: currentCompteur.compteurId,
-        description: `Dépose de compteur suite à résiliation du contrat`,
-        priorite: 'NORMALE'
-      });
-    }
-
-    return ContratMapper.toResponse(updatedContrat);
-  }
-
-  async suspendreContrat(id: string, dto: SuspensionContratDto, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<any> {
-    const contrat = await this.repository.findById(id, context.tenantId);
-    if (!contrat) {
-      throw new Error('Contrat non trouvé');
-    }
-    
-    if (contrat.statut === 'SUSPENDU') {
-      throw new Error('Déjà suspendu');
-    }
-
-    const updatedContrat = await this.repository.update(id, {
-      statut: 'SUSPENDU',
-      motifResiliation: dto.motif,
-      updatedBy: context.userId,
-      dateMaj: dto.dateSuspension || new Date()
-    }, context.tenantId);
-
-    // Audit trail
-    await this.auditService.logAction({
-      contratId: id,
-      userId: context.userId,
-      action: 'SUSPENSION' as AuditAction,
-      details: { 
-        motif: dto.motif,
-        dateSuspension: dto.dateSuspension || new Date()
-      },
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      tenantId: context.tenantId
-    });
-
-    return ContratMapper.toResponse(updatedContrat);
-  }
-
-  async renouvelerContrat(id: string, dto: RenouvellementContratDto, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<any> {
-    const contrat = await this.repository.findById(id, context.tenantId);
-    if (!contrat) {
-      throw new Error('Contrat non trouvé');
-    }
-
-    const updatedContrat = await this.repository.update(id, {
-      dateDebut: dto.nouvelleDateDebut,
-      dateFin: dto.nouvelleDateFin,
-      statut: 'ACTIF',
-      statutSignature: 'EN_ATTENTE',
-      dateSignature: null,
-      dateResiliation: null,
-      motifResiliation: null,
-      updatedBy: context.userId,
-      dateMaj: new Date()
-    }, context.tenantId);
-
-    // Audit trail
-    await this.auditService.logAction({
-      contratId: id,
-      userId: context.userId,
-      action: 'RENOUVELLEMENT' as AuditAction,
-      details: { 
-        nouvelleDateDebut: dto.nouvelleDateDebut,
-        nouvelleDateFin: dto.nouvelleDateFin
-      },
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      tenantId: context.tenantId
-    });
-
-    return ContratMapper.toResponse(updatedContrat);
-  }
-
-  async lierAbonnement(id: string, dto: LienAbonnementDto, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<any> {
-    const contrat = await this.repository.findById(id, context.tenantId);
-    if (!contrat) {
-      throw new Error('Contrat non trouvé');
-    }
-
-    // Valider l'abonnement
-    const abonnementValide = await this.interServiceService.validateAbonnement(dto.abonnementId);
-    if (!abonnementValide) {
-      throw new Error('Abonnement invalide ou non actif');
-    }
-
-    const updatedContrat = await this.repository.update(id, { 
-      abonnementId: dto.abonnementId,
-      updatedBy: context.userId,
-      dateMaj: new Date()
-    }, context.tenantId);
-
-    // Audit trail
-    await this.auditService.logAction({
-      contratId: id,
-      userId: context.userId,
-      action: 'ASSOCIATION_ABONNEMENT' as AuditAction,
-      details: { abonnementId: dto.abonnementId },
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      tenantId: context.tenantId
-    });
-
-    return ContratMapper.toResponse(updatedContrat);
-  }
-
-  async lierCompteur(id: string, dto: LienCompteurDto, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<any> {
-    const contrat = await this.repository.findById(id, context.tenantId);
-    if (!contrat) {
-      throw new Error('Contrat non trouvé');
-    }
-
-    // Valider le compteur
-    const compteurValide = await this.interServiceService.validateCompteur(dto.compteurId);
-    if (!compteurValide) {
-      throw new Error('Compteur invalide ou non actif');
-    }
-
-    // Vérifier la disponibilité
-    const compteurDisponible = await this.interServiceService.checkCompteurAvailability(dto.compteurId);
-    if (!compteurDisponible) {
-      throw new Error('Compteur déjà associé à un autre contrat');
-    }
-
-    const updatedContrat = await this.repository.update(id, { 
-      compteurId: dto.compteurId,
-      updatedBy: context.userId,
-      dateMaj: new Date()
-    }, context.tenantId);
-
-    // Créer l'historique
-    await this.repository.createCompteurHistorique({
-      contratId: id,
-      compteurId: dto.compteurId,
-      typeAction: 'ASSOCIATION',
-      dateDebut: new Date(),
-      motif: 'Association initiale',
-      tenantId: context.tenantId,
-      createdBy: context.userId,
-      updatedBy: context.userId
-    });
-
-    // Créer une intervention de pose
-    await this.interServiceService.createIntervention({
-      type: 'POSE_COMPTEUR',
-      contratId: id,
-      compteurId: dto.compteurId,
-      description: `Pose de compteur ${dto.compteurId} pour le contrat ${contrat.numero}`,
-      priorite: 'NORMALE'
-    });
-
-    // Audit trail
-    await this.auditService.logAction({
-      contratId: id,
-      userId: context.userId,
-      action: 'ASSOCIATION_COMPTEUR' as AuditAction,
-      details: { compteurId: dto.compteurId },
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      tenantId: context.tenantId
-    });
-
-    return ContratMapper.toResponse(updatedContrat);
-  }
-
-  async dissocierCompteur(id: string, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<any> {
-    const contrat = await this.repository.findById(id, context.tenantId);
-    if (!contrat) {
-      throw new Error('Contrat non trouvé');
-    }
-
-    const currentCompteur = await this.repository.getCurrentCompteur(id, context.tenantId);
-    if (!currentCompteur) {
-      throw new Error('Aucun compteur associé à ce contrat');
-    }
-
-    // Dissocier le compteur
-    await this.repository.dissocierCompteur(
-      id, 
-      currentCompteur.compteurId, 
-      'Dissociation demandée',
-      context.tenantId
-    );
-
-    // Créer une intervention de dépose
-    await this.interServiceService.createIntervention({
-      type: 'DEPOSE_COMPTEUR',
-      contratId: id,
-      compteurId: currentCompteur.compteurId,
-      description: `Dépose de compteur ${currentCompteur.compteurId} du contrat ${contrat.numero}`,
-      priorite: 'NORMALE'
-    });
-
-    // Audit trail
-    await this.auditService.logAction({
-      contratId: id,
-      userId: context.userId,
-      action: 'DISSOCIATION_COMPTEUR' as AuditAction,
-      details: { compteurId: currentCompteur.compteurId },
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      tenantId: context.tenantId
-    });
-
-    return { success: true, message: 'Compteur dissocié avec succès' };
-  }
-
-  async getAuditTrail(contratId: string, context: {
-    tenantId: string;
-    userId?: string;
-  }, options?: {
-    page?: number;
-    limit?: number;
-    action?: string;
-    dateDebut?: Date;
-    dateFin?: Date;
-  }): Promise<any[]> {
-    return this.repository.getAuditTrail(contratId, {
+  /**
+   * Récupère tous les contrats selon les critères spécifiés
+   * @param options Options de filtrage et pagination
+   * @param context Contexte d'exécution
+   */
+  async findAll(options: any, context: ContratContext) {
+    // Intégrer le tenantId dans les options plutôt que de le passer séparément
+    return this.queryService.findAll({
       ...options,
       tenantId: context.tenantId
     });
   }
 
-  async getCompteurHistorique(contratId: string, context: {
-    tenantId: string;
-    userId?: string;
-  }): Promise<any[]> {
-    return this.repository.getCompteurHistorique(contratId, context.tenantId);
-  }
-
-  async searchContrats(criteria: {
-    search?: string;
-    statut?: string;
-    dateDebut?: Date;
-    dateFin?: Date;
-    proprietaireId?: string;
-    tenantId: string;
-    page?: number;
-    limit?: number;
-  }): Promise<{ contrats: any[]; total: number }> {
-    return this.repository.searchContrats(criteria);
-  }
-
-  async getContratStats(context: {
-    tenantId: string;
-    userId?: string;
-  }): Promise<any> {
-    return this.repository.getContratStats(context.tenantId);
+  /**
+   * Crée un nouveau contrat
+   * @param dto Données du contrat à créer
+   * @param context Contexte d'exécution
+   */
+  async create(dto: ContratBaseDto, context: ContratContext) {
+    return this.commandService.create(dto, context);
   }
 
   /**
-   * Crée un contrat avec le nouveau format de numéro métier
-   * Format: C-<TYPE>-<ZONE>-<YY>-<SEQ>
+   * Crée un contrat avec un numéro métier généré automatiquement
    * @param dto Données du contrat
    * @param context Contexte d'exécution
-   * @returns Contrat créé avec numéro généré
    */
-  async createWithMetierNumber(dto: CreateContratDto & { 
-    typeContrat: 'I' | 'P' | 'C' | 'A'; // I=Individuel, P=Particulier, C=Collectivité, A=Administration
-    zone: string; // Code zone (ex: TLS pour Toulouse)
-  }, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<any> {
-    // Validation inter-services
-    const validation = await this.interServiceService.validateContratCreation({
-      clientId: dto.proprietaireId,
-      compteurId: dto.compteurId,
-      abonnementId: dto.abonnementId
-    });
-
-    if (!validation.isValid) {
-      throw new Error(`Validation échouée: ${validation.errors.join(', ')}`);
-    }
-
-    // Générer le numéro de contrat selon le format métier
-    const numero = await this.numberGenerator.nextContractNumber(
-      dto.typeContrat, 
-      dto.zone
-    );
-
-    // Ajouter le tenantId et le numéro généré
-    const contratData = this.multiTenantService.addTenantToData({
-      ...dto,
-      numero,
-      zone: dto.zone,
-      typeContrat: dto.typeContrat
-    }, context.tenantId);
-    
-    contratData.createdBy = context.userId;
-    contratData.updatedBy = context.userId;
-
-    const contrat = await this.repository.create(contratData);
-
-    // Audit trail
-    await this.auditService.logAction({
-      contratId: contrat.id,
-      userId: context.userId,
-      action: 'CREATION' as AuditAction,
-      details: { 
-        contratData: dto,
-        numeroGenere: numero,
-        typeContrat: dto.typeContrat,
-        zone: dto.zone
-      },
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      tenantId: context.tenantId
-    });
-
-    // Créer les cosignataires si fournis
-    if (dto.cosignataires && dto.cosignataires.length > 0) {
-      for (const cosignataireDto of dto.cosignataires) {
-        await this.createCosignataire(contrat.id, cosignataireDto, context);
-      }
-    }
-
-    // Créer une intervention de pose si un compteur est associé
-    if (dto.compteurId) {
-      await this.lierCompteur(contrat.id, { compteurId: dto.compteurId }, context);
-    }
-
-    return ContratMapper.toResponse(contrat);
-  }
-
-  /**
-   * Valide un numéro de contrat selon le format métier
-   * @param numero Numéro à valider
-   * @returns true si le format est valide
-   */
-  validateContractNumber(numero: string): boolean {
-    return this.numberGenerator.validateContractNumber(numero);
-  }
-
-  /**
-   * Extrait les composants d'un numéro de contrat
-   * @param numero Numéro de contrat
-   * @returns Objet avec les composants extraits ou null si invalide
-   */
-  parseContractNumber(numero: string): { type: string; zone: string; year: string; seq: number } | null {
-    return this.numberGenerator.parseContractNumber(numero);
-  }
-
-  async createDraft(dto: CreateContratDraftDto, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<any> {
-    // Validation métier
-    await this.contratValidator.validateDraftCreation(dto);
-
-    // Ajouter le tenantId et marquer comme brouillon
-    const contratData = this.multiTenantService.addTenantToData({
-      ...dto,
-      statut: 'EN_ATTENTE',
-      statutSignature: 'EN_ATTENTE',
-      numero: 'DRAFT_' + Date.now() // Numéro temporaire
-    }, context.tenantId);
-    
-    contratData.createdBy = context.userId;
-    contratData.updatedBy = context.userId;
-
-    const contrat = await this.repository.create(contratData);
-
-    // Audit trail
-    await this.auditService.logAction({
-      contratId: contrat.id,
-      userId: context.userId,
-      action: 'CREATION_BROUILLON' as AuditAction,
-      details: { contratData: dto },
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      tenantId: context.tenantId
-    });
-
-    // Créer les cosignataires si fournis
-    if (dto.cosignataires && dto.cosignataires.length > 0) {
-      for (const cosignataireDto of dto.cosignataires) {
-        await this.createCosignataire(contrat.id, cosignataireDto, context);
-      }
-    }
-
-    return ContratMapper.toResponse(contrat);
-  }
-
-  async assignCompteur(dto: AssignCompteurDto, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<any> {
-    const contrat = await this.repository.findById(dto.contratId, context.tenantId);
-    if (!contrat) {
-      throw new Error('Contrat non trouvé');
-    }
-
-    if (contrat.statut !== 'EN_ATTENTE') {
-      throw new Error('Seuls les contrats en attente peuvent recevoir un compteur');
-    }
-
-    // Validation inter-services
-    const validation = await this.interServiceService.validateCompteurAssignment({
-      contratId: dto.contratId,
-      compteurId: dto.compteurId,
-      tenantId: context.tenantId
-    });
-
-    if (!validation.isValid) {
-      throw new Error(`Validation échouée: ${validation.errors.join(', ')}`);
-    }
-
-    // Lier le compteur
-    await this.lierCompteur(dto.contratId, { compteurId: dto.compteurId }, context);
-
-    // Audit trail
-    await this.auditService.logAction({
-      contratId: dto.contratId,
-      userId: context.userId,
-      action: 'ASSIGNATION_COMPTEUR' as AuditAction,
-      details: { compteurId: dto.compteurId },
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      tenantId: context.tenantId
-    });
-
-    return this.findById(dto.contratId, context.tenantId, context.userId);
-  }
-
-  async finalizeContrat(contratId: string, context: {
-    tenantId: string;
-    userId?: string;
-    ipAddress?: string;
-    userAgent?: string;
-  }): Promise<any> {
-    const contrat = await this.repository.findById(contratId, context.tenantId);
-    if (!contrat) {
-      throw new Error('Contrat non trouvé');
-    }
-
-    // Validation métier stricte
-    await this.contratValidator.validateFinalization(contratId, context.tenantId);
-
-    // Générer le numéro métier
+  async createWithMetierNumber(dto: ContratBaseDto, context: ContratContext) {
+    // Générer un numéro métier
     const numeroMetier = await this.numberGenerator.generateContractNumber({
-      typeContrat: contrat.typeContrat,
-      zone: contrat.zone,
+      typeContrat: dto.typeContrat || 'P',
+      zone: dto.zone || '00'
+    });
+    
+    // Créer le contrat avec le numéro métier
+    return this.create({ ...dto, numero: numeroMetier }, context);
+  }
+
+  /**
+   * Crée un brouillon de contrat
+   * @param dto Données du brouillon
+   * @param context Contexte d'exécution
+   */
+  async createDraft(dto: any, context: ContratContext) {
+    // Ajouter les propriétés par défaut pour respecter ContratBaseDto
+    const enhancedDto: ContratBaseDto = {
+      ...dto,
+      proprietaireId: dto.proprietaireId || '',  // Valeur par défaut pour satisfaire le type
+      numero: `DRAFT_${Date.now()}_${Math.floor(Math.random() * 1000)}` // Numéro temporaire pour les brouillons
+    };
+    
+    // Créer un brouillon avec statut = EN_ATTENTE, en ignorant la validation du client
+    return this.commandService.create({
+      ...enhancedDto,
+      statut: 'EN_ATTENTE'
+    }, context, { skipValidation: true });
+  }
+
+  /**
+   * Met à jour un contrat existant
+   * @param id Identifiant du contrat
+   * @param dto Données à mettre à jour
+   * @param context Contexte d'exécution
+   */
+  async update(id: string, dto: Partial<ContratBaseDto>, context: ContratContext) {
+    return this.commandService.update(id, dto, context);
+  }
+
+  /**
+   * Supprime un contrat
+   * @param id Identifiant du contrat
+   * @param context Contexte d'exécution
+   */
+  async delete(id: string, context: ContratContext) {
+    return this.commandService.delete(id, context);
+  }
+
+  /**
+   * Ajoute un cosignataire au contrat
+   * @param contratId Identifiant du contrat
+   * @param dto Données du cosignataire
+   * @param context Contexte d'exécution
+   */
+  async createCosignataire(contratId: string, dto: any, context: ContratContext) {
+    return this.commandService.createCosignataire(contratId, dto, context);
+  }
+
+  /**
+   * Met à jour un cosignataire
+   * @param cosignataireId Identifiant du cosignataire
+   * @param dto Données à mettre à jour
+   * @param context Contexte d'exécution
+   */
+  async updateCosignataire(cosignataireId: string, dto: any, context: ContratContext) {
+    return this.commandService.updateCosignataire(cosignataireId, dto, context);
+  }
+
+  /**
+   * Enregistre une signature sur un contrat
+   * @param id Identifiant du contrat
+   * @param dto Données de signature
+   * @param context Contexte d'exécution
+   */
+  async signContrat(id: string, dto: any, context: ContratContext) {
+    return this.commandService.signContrat(id, dto, context);
+  }
+  
+  /**
+   * Finalise un contrat en le rendant actif
+   * @param id Identifiant du contrat
+   * @param context Contexte d'exécution
+   */
+  async finalizeContrat(id: string, context: ContratContext) {
+    // Vérifier si le contrat est prêt à être finalisé
+    const contrat = await this.findById(id, context);
+    
+    // Générer un numéro métier si nécessaire
+    let updatedContrat = contrat;
+    if (!contrat.numero || contrat.numero.startsWith('DRAFT')) {
+      const numeroMetier = await this.numberGenerator.generateContractNumber({
+        typeContrat: contrat.typeContrat || 'C',
+        zone: contrat.adresse?.codePostal?.substring(0, 2) || '00'
+      });
+      
+      // Mettre à jour le contrat avec le numéro métier
+      updatedContrat = await this.update(id, { 
+        numero: numeroMetier,
+        statut: 'ACTIF'
+      }, context);
+    }
+    
+    // Notifier la finalisation du contrat
+    await this.notificationService.notifyContractFinalized({
+      contratId: id,
+      numero: updatedContrat.numero,
+      proprietaireId: updatedContrat.proprietaireId,
       tenantId: context.tenantId
     });
-
-    // Vérifier que le numéro n'existe pas déjà
-    const existingContrat = await this.repository.findByNumero(numeroMetier, context.tenantId);
-    if (existingContrat) {
-      throw new Error('Numéro de contrat déjà existant');
-    }
-
-    // Mettre à jour le contrat avec le numéro métier et le statut actif
-    const updatedContrat = await this.repository.update(contratId, {
-      numero: numeroMetier,
-      statut: 'ACTIF',
-      statutSignature: 'SIGNE',
-      dateSignature: new Date(),
-      updatedBy: context.userId,
-      dateMaj: new Date()
-    }, context.tenantId);
-
-    // Appel à operation-service avec gestion d'erreur
-    try {
-      await this.interServiceService.notifyOperationService({
-        action: 'CONTRAT_FINALISE',
-        contratId: contratId,
-        numero: numeroMetier,
+    
+    // Créer une intervention d'installation de compteur si nécessaire
+    if (updatedContrat.compteurId) {
+      await this.interServiceService.createIntervention({
+        type: 'POSE_COMPTEUR',
+        contratId: id,
+        compteurId: updatedContrat.compteurId,
+        description: `Installation du compteur pour le contrat ${updatedContrat.numero}`,
+        priorite: 'HAUTE',
         tenantId: context.tenantId
       });
-    } catch (error) {
-      // Rollback: marquer le contrat comme à réactiver
-      await this.repository.update(contratId, {
-        statut: 'EN_ATTENTE',
-        statutSignature: 'EN_ATTENTE',
-        updatedBy: context.userId,
-        dateMaj: new Date()
-      }, context.tenantId);
       
-      throw new Error(`Erreur lors de la finalisation: ${error.message}`);
+      // Notification de l'installation du compteur
+      await this.notificationService.notifyMeterInstallation({
+        contratId: id,
+        numero: updatedContrat.numero,
+        compteurId: updatedContrat.compteurId,
+        proprietaireId: updatedContrat.proprietaireId,
+        tenantId: context.tenantId
+      });
     }
-
-    // Audit trail
+    
+    // Audit de la finalisation
     await this.auditService.logAction({
-      contratId: contratId,
+      contratId: id,
       userId: context.userId,
-      action: 'FINALISATION' as AuditAction,
-      details: { numeroMetier },
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
+      action: 'FINALISATION',
+      details: { 
+        statut: 'ACTIF',
+        numero: updatedContrat.numero
+      },
       tenantId: context.tenantId
     });
-
-    return ContratMapper.toResponse(updatedContrat);
+    
+    return updatedContrat;
   }
-} 
+
+  /**
+   * Envoie une invitation à signer un contrat
+   * @param id Identifiant du contrat
+   * @param cosignataireId Identifiant du cosignataire
+   * @param context Contexte d'exécution
+   */
+  async sendSignatureInvitation(id: string, cosignataireId: string, context: ContratContext) {
+    const contrat = await this.findById(id, context);
+    const cosignataires = await this.queryService.getCosignatairesByContrat(id, context);
+    const cosignataire = cosignataires.find(c => c.id === cosignataireId);
+    
+    if (!cosignataire) {
+      throw new Error(`Cosignataire ${cosignataireId} non trouvé pour le contrat ${id}`);
+    }
+    
+    // Récupérer les informations du propriétaire
+    const proprietaire = await this.interServiceService.getClientInfo(
+      contrat.proprietaireId,
+      context.tenantId
+    );
+    
+    // Construire l'URL de base pour la signature
+    const baseUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}`;
+    
+    // Appeler la méthode avec les 4 arguments attendus
+    await this.notificationService.notifyCosignataireSignature(
+      cosignataire,
+      contrat,
+      proprietaire,
+      baseUrl
+    );
+    
+    // Mettre à jour le statut d'invitation du cosignataire
+    await this.commandService.updateCosignataire(cosignataireId, {
+      statutInvitation: 'ENVOYEE',
+      dateInvitation: new Date()
+    }, context);
+    
+    // Audit de l'envoi d'invitation
+    await this.auditService.logAction({
+      contratId: id,
+      userId: context.userId,
+      action: 'MODIFICATION_COSIGNATAIRE', 
+      details: { 
+        cosignataireId, 
+        cosignataireEmail: cosignataire.email,
+        typeModification: 'INVITATION_SIGNATURE'
+      },
+      tenantId: context.tenantId
+    });
+    
+    return { success: true, message: `Invitation envoyée à ${cosignataire.email}` };
+  }
+  
+  /**
+   * Récupère les cosignataires d'un contrat
+   * @param contratId Identifiant du contrat
+   * @param context Contexte d'exécution
+   */
+  async getCosignataires(contratId: string, context: ContratContext) {
+    // Passage du contexte complet plutôt que juste le tenantId
+    return this.queryService.getCosignatairesByContrat(contratId, context);
+  }
+  
+  /**
+   * Assigne un compteur à un contrat
+   * @param dto Données d'assignation
+   * @param context Contexte d'exécution
+   */
+  async assignCompteur(dto: AssignCompteurDto, context: ContratContext) {
+    const contrat = await this.findById(dto.contratId, context);
+    if (!contrat) {
+      throw new Error(`Contrat ${dto.contratId} non trouvé`);
+    }
+    
+    const compteur = await this.compteurService.findOne(dto.compteurId);
+    if (!compteur) {
+      throw new Error(`Compteur ${dto.compteurId} non trouvé`);
+    }
+    
+    // Mettre à jour le contrat avec le compteur assigné
+    const updated = await this.update(dto.contratId, { 
+      compteurId: dto.compteurId 
+    }, context);
+    
+    // Audit de l'assignation
+    await this.auditService.logAction({
+      contratId: dto.contratId,
+      userId: context.userId,
+      action: 'ASSIGNATION_COMPTEUR',
+      details: { compteurId: dto.compteurId },
+      tenantId: context.tenantId
+    });
+    
+    return updated;
+  }
+
+  /**
+   * Récupère les compteurs associés à un contrat
+   * @param contratId Identifiant du contrat
+   */
+  async getCompteursByContratId(contratId: string) {
+    return this.compteurService.getCompteursByContratId(contratId);
+  }
+
+  /**
+   * Récupère l'historique d'audit d'un contrat
+   * @param id Identifiant du contrat
+   * @param context Contexte d'exécution
+   * @param options Options de pagination
+   */
+  async getAuditTrail(id: string, context: ContratContext, options?: { page?: number; limit?: number }) {
+    return this.queryService.getAuditTrail(id, context, options);
+  }
+  
+  /**
+   * Récupère l'historique des compteurs d'un contrat
+   * @param id Identifiant du contrat
+   * @param context Contexte d'exécution
+   */
+  async getCompteurHistorique(id: string, context: ContratContext) {
+    return this.queryService.getCompteurHistorique(id, context);
+  }
+}

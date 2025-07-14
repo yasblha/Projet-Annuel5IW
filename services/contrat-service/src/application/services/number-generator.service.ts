@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { sequelize } from '@Database/sequelize';
-import { ContractCounter } from '@Database/models/ContractCounter.model';
+import { ContractCounter } from '@Database/models';
 
 @Injectable()
 export class NumberGenerator {
   /**
    * Génère le numéro de contrat selon le format : C-<TYPE>-<ZONE>-<YY>-<SEQ>
-   * @param type Type de contrat : 'I' (Individuel), 'P' (Particulier), 'C' (Collectivité), 'A' (Administration)
-   * @param zone Code zone (ex: TLS pour Toulouse)
+   * @param params Paramètres de génération (type de contrat, zone)
    * @returns Numéro de contrat formaté (ex: C-P-TLS-25-00432)
    */
-  async nextContractNumber(type: string, zone: string): Promise<string> {
+  async generateContractNumber(params: { typeContrat: string; zone: string }): Promise<string> {
+    const type = params.typeContrat.charAt(0).toUpperCase(); // Utilise la première lettre du type
+    const zone = params.zone.toUpperCase().substring(0, 4); // Limite à 4 caractères max
     const year = new Date().getFullYear().toString().slice(-2);
     
     const nextSeq = await sequelize.transaction(async (tx) => {
@@ -33,14 +34,30 @@ export class NumberGenerator {
   }
 
   /**
-   * Génère l'identifiant de compteur selon le format : M-<ZONE>-<CAL>-<SERIE>
-   * @param zone Code zone (ex: TLS pour Toulouse)
-   * @param calibre Calibre du compteur (ex: 40 pour 40mm)
-   * @param serie Numéro de série du constructeur
-   * @returns Identifiant de compteur formaté (ex: M-TLS-40-0723456)
+   * @deprecated Remplacé par generateContractNumber
    */
-  nextCompteurNumber(zone: string, calibre: string, serie: string): string {
+  async nextContractNumber(type: string, zone: string): Promise<string> {
+    return this.generateContractNumber({ typeContrat: type, zone });
+  }
+
+  /**
+   * @deprecated Remplacé par generateContractNumber
+   */
+  async nextContract(zone: string): Promise<string> {
+    return this.generateContractNumber({ typeContrat: 'P', zone });
+  }
+
+  /**
+   * Génère l'identifiant de compteur selon le format : M-<ZONE>-<CAL>-<SERIE>
+   * @param params Paramètres du compteur (zone et autres données)
+   * @returns Identifiant de compteur formaté
+   */
+  nextCompteurNumber(params: { zone: string; calibre?: string; serie?: string }): string {
+    const zone = params.zone.toUpperCase().substring(0, 4);
+    const calibre = params.calibre || '40';
+    const serie = params.serie || Math.floor(Math.random() * 10000000).toString();
     const seriePadded = serie.padStart(7, '0');
+    
     return `M-${zone}-${calibre}-${seriePadded}`;
   }
 

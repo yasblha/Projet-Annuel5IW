@@ -3,7 +3,7 @@ import { CreateContratDto } from '../dtos/create-contrat.dto';
 import { ContratResponseDto } from '../dtos/contrat-response.dto';
 import { NumberGenerator } from '../services/number-generator.service';
 import { ContratValidator, ValidationError } from '../validators/contrat.validator';
-import { ContratService } from '../services/contrat.service';
+import { ContratCommandService } from '../services/contrat-command.service';
 import { AuditService } from '../services/audit.service';
 import { InterServiceService } from '../services/inter-service.service';
 import { MultiTenantService } from '../services/multi-tenant.service';
@@ -29,7 +29,7 @@ export interface CreateContratResult {
 @Injectable()
 export class CreateContratUseCase {
   constructor(
-    private readonly contratService: ContratService,
+    private readonly commandService: ContratCommandService,
     private readonly numberGenerator: NumberGenerator,
     private readonly auditService: AuditService,
     private readonly interServiceService: InterServiceService,
@@ -97,7 +97,7 @@ export class CreateContratUseCase {
           error.message,
           BusinessErrorCodes.CONTRAT_CREATION_FAILED,
           400,
-          { field: error.field, details: error.details }
+          { field: error.field, code: error.code }
         );
       }
       throw error;
@@ -111,7 +111,6 @@ export class CreateContratUseCase {
         clientId: dto.proprietaireId,
         compteurId: dto.compteurId,
         abonnementId: dto.abonnementId,
-        tenantId: context.tenantId
       });
 
       if (!validation.isValid) {
@@ -158,7 +157,6 @@ export class CreateContratUseCase {
       statutSignature: 'EN_ATTENTE',
       dateCreation: new Date(),
       dateMaj: new Date(),
-      tenantId: context.tenantId,
       createdBy: context.userId,
       updatedBy: context.userId
     };
@@ -169,7 +167,7 @@ export class CreateContratUseCase {
   // === CRÉATION DU CONTRAT ===
   private async createContract(contratData: any, context: CreateContratContext): Promise<any> {
     try {
-      return await this.contratService.create(contratData, context);
+      return await this.commandService.create(contratData, context);
     } catch (error) {
       throw new ContratError(
         'Erreur lors de la création du contrat en base de données',
@@ -187,7 +185,7 @@ export class CreateContratUseCase {
     if (dto.cosignataires && dto.cosignataires.length > 0) {
       for (const cosignataireDto of dto.cosignataires) {
         try {
-          const cosignataire = await this.contratService.createCosignataire(contratId, cosignataireDto, context);
+          const cosignataire = await this.commandService.createCosignataire(contratId, cosignataireDto, context);
           cosignataires.push(cosignataire);
         } catch (error) {
           throw new ContratError(
@@ -208,12 +206,12 @@ export class CreateContratUseCase {
     try {
       // Liaison du compteur si fourni
       if (dto.compteurId) {
-        await this.contratService.lierCompteur(contratId, { compteurId: dto.compteurId }, context);
+        await this.commandService.lierCompteur(contratId, { compteurId: dto.compteurId }, context);
       }
 
       // Liaison de l'abonnement si fourni
       if (dto.abonnementId) {
-        await this.contratService.lierAbonnement(contratId, { abonnementId: dto.abonnementId }, context);
+        await this.commandService.lierAbonnement(contratId, { abonnementId: dto.abonnementId }, context);
       }
     } catch (error) {
       throw new ContratError(
@@ -248,7 +246,7 @@ export class CreateContratUseCase {
         tenantId: context.tenantId
       });
 
-      return await this.auditService.getAuditTrail(contrat.id, context);
+      return await this.auditService.getAuditTrail(contrat.id);
     } catch (error) {
       throw new ContratError(
         'Erreur lors de la création de l\'audit trail',
@@ -295,4 +293,4 @@ export class CreateContratUseCase {
       );
     }
   }
-} 
+}

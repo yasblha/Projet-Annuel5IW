@@ -1,0 +1,45 @@
+extends layout/main-layout
+
+block content
+  tr
+    td.email-body(width='570', cellpadding='0', cellspacing='0')
+      div.email-body-inner
+        h1 Rappel - Facture impayée
+        
+        p Bonjour #{prenom} #{nom},
+        
+        p Nous constatons que la facture référencée ci-dessous n'a toujours pas été réglée et que la date d'échéance est dépassée. Nous vous invitons à procéder au règlement dans les meilleurs délais.
+        
+        .details-block.alert
+          h2 Détails de la facture
+          table.details-table(width='100%', cellpadding='0', cellspacing='0')
+            tr
+              td.details-label Numéro:
+              td.details-value #{numero}
+            tr
+              td.details-label Montant dû:
+              td.details-value #{montantRestant} €
+            tr
+              td.details-label Date d'émission:
+              td.details-value #{dateEmission}
+            tr
+              td.details-label Date d'échéance:
+              td.details-value #{dateEcheance}
+            tr
+              td.details-label Retard:
+              td.details-value #{joursRetard} jours
+        
+        if montantPaye > 0
+          p Nous avons bien enregistré un paiement partiel de #{montantPaye} € sur cette facture. Merci de régler le solde restant.
+        
+        .button-container
+          a.button.urgent(href=lienPaiement, target='_blank') Payer maintenant
+          a.button.secondary(href=lienFacture, target='_blank') Consulter ma facture
+        
+        p Si vous avez déjà effectué le règlement, nous vous prions de ne pas tenir compte de ce rappel. Le traitement de votre paiement peut prendre jusqu'à 48h.
+        
+        .important-note
+          p.important En cas de difficultés de paiement, n'hésitez pas à contacter notre service client pour envisager la mise en place d'un échéancier.
+
+block footer-content
+  p Ce message a été envoyé automatiquement, merci de ne pas y répondre directement.
