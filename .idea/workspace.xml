@@ -37,6 +37,7 @@
   "selectedUrlAndAccountId": {
     "url": "https://github.com/yasblha/Projet-Annuel5IW.git",
     "accountId": "bcf4e39e-fee5-4088-985e-1b72a3ef23f2"
+
   }
 }]]></component>
   <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
@@ -51,6 +52,7 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
@@ -77,11 +79,12 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/services/api-gateway/src/application/dtos" />
-      <recent name="$PROJECT_DIR$/services/api-gateway/src/application" />
-      <recent name="$PROJECT_DIR$/services/auth-service/src/application/usecases/users" />
-      <recent name="$PROJECT_DIR$/services/auth-service/src" />
-      <recent name="$PROJECT_DIR$/frontend" />
+
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/services/workflow-service" />
+      <recent name="$PROJECT_DIR$/services/operation-service" />
+      <recent name="$PROJECT_DIR$/services/facture-service" />
+      <recent name="$PROJECT_DIR$/services/contrat-service" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/services/auth-service/src/application/dtos" />
@@ -116,7 +119,9 @@
       <workItem from="1751033426850" duration="42856000" />
       <workItem from="1751471587142" duration="76000" />
       <workItem from="1751471737581" duration="74184000" />
+
       <workItem from="1751897216889" duration="9380000" />
+
     </task>
     <servers />
   </component>

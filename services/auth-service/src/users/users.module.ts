@@ -8,6 +8,7 @@ import { UpdateUserStatusUseCase } from '@application/usecases/users/update-user
 import { DeleteUserUseCase } from '@application/usecases/users/delete-user.usecase';
 import { ResendInvitationUseCase } from '@application/usecases/users/resend-invitation.usecase';
 
+
 @Module({
   providers: [
     UsersService,
@@ -20,5 +21,6 @@ import { ResendInvitationUseCase } from '@application/usecases/users/resend-invi
   ],
   exports: [UsersService],
   controllers: [UsersController],
+
 })
 export class UsersModule {}

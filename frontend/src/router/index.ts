@@ -15,6 +15,7 @@ import RolesView from '@/views/admin/RolesView.vue'
 import PagesHabilitationView from '@/views/admin/PagesHabilitationView.vue'
 import TarifsAutoUpdateView from '@/views/admin/TarifsAutoUpdateView.vue'
 import CaissesView from '@/views/admin/CaissesView.vue'
+
 import { useAuthStore } from '@/stores/auth.store.ts';
 import ForgotPasswordView from '@/views/auth/ForgotPasswordView.vue';
 import ResetPasswordView from '@/views/auth/ResetPasswordView.vue';
@@ -37,6 +38,7 @@ import { setupAuthGuards } from './guards';
 // Importation statique des composants factures pour éviter les erreurs d'importation dynamique
 import FactureListView from '@/views/factures/FactureListView.vue'
 import FactureDetailView from '@/views/factures/FactureDetailView.vue'
+
 
 const router = createRouter({
   history: createWebHistory('/'),
@@ -111,6 +113,7 @@ const router = createRouter({
       }
     },
     {
+
       path: '/clients',
       name: 'clients',
       component: ListClientsView,
@@ -118,6 +121,7 @@ const router = createRouter({
         requiresAuth: true,
         permission: { module: 'clients', action: 'view' }
       }
+
     },
     {
       path: '/clients/:id',

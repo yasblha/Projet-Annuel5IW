@@ -7,11 +7,13 @@
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600">
           Choisissez un mot de passe pour activer votre compte.
+
         </p>
       </div>
       <Card class="p-8">
         <form @submit.prevent="handleConfirm" class="space-y-6">
           <div>
+
             <label for="password" class="block text-sm font-medium text-gray-700">
               Nouveau mot de passe
             </label>
@@ -40,6 +42,7 @@
               class="mt-1"
             />
           </div>
+
           <div v-if="authStore.error" class="text-red-600 text-sm text-center">
             {{ authStore.error }}
           </div>
@@ -56,6 +59,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+
 import Card from '@/components/ui/card/Card.vue'
 import Input from '@/components/ui/input/Input.vue'
 import Button from '@/components/ui/button/Button.vue'
@@ -84,6 +88,7 @@ const handleConfirm = async () => {
       token: route.params.token as string,
       password: form.value.password
     })
+
     router.push('/login')
   } catch (err) {
     // L'erreur est déjà gérée dans le store
