@@ -10,7 +10,12 @@ async function bootstrap() {
 
   // Active CORS pour le frontend
   app.enableCors({
-    origin: ['http://localhost:8080', 'http://localhost:5173', 'http://localhost:3000'],
+    origin: [
+      'https://app.aquaerp.cloud', // autorise le frontend en prod
+      'http://localhost:8080',     // autorise le frontend en dev local
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ],
     credentials: true,
   });
 
