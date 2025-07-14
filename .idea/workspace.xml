@@ -5,32 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="36c7ccd2-a3be-45c0-a01d-ff76f66bc6c5" name="Changes" comment="">
-
-      <change beforePath="$PROJECT_DIR$/.github/workflows/deploy.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/deploy.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.github/workflows/selective-deploy.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/selective-deploy.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/img.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/img_1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/img_2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/img_3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/img_4.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/img_5.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/api-gateway.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/auth-service.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/contrat-service.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/database-init.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/k8s/database-init.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/facture-service.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/frontend.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/k8s/frontend.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/frontend/deployment.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/intervention-service.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/mailer-service.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/operation-service.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/services/api-gateway.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/k8s/services/api-gateway.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/services/auth-service.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/k8s/services/auth-service.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/services/contrat-service.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/k8s/services/contrat-service.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/services/facture-service.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/k8s/services/facture-service.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/services/frontend.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/k8s/services/frontend.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/services/intervention-service.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/k8s/services/intervention-service.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/services/mailer-service.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/k8s/services/mailer-service.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/services/operation-service.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/k8s/services/operation-service.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/services/workflow-service.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/k8s/services/workflow-service.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/k8s/workflow-service.yaml" beforeDir="false" />
-
+      <change beforePath="$PROJECT_DIR$/docs/kubernetes-deployment-guide.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/kubernetes-deployment-guide.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,12 +33,13 @@
     &quot;assignee&quot;: &quot;yasblha&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/yasblha/Projet-Annuel5IW.git&quot;,
-    &quot;accountId&quot;: &quot;bcf4e39e-fee5-4088-985e-1b72a3ef23f2&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/yasblha/Projet-Annuel5IW.git",
+    "accountId": "bcf4e39e-fee5-4088-985e-1b72a3ef23f2"
+
   }
-}</component>
+}]]></component>
   <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
   <component name="KubernetesApiProvider"><![CDATA[{
   "isMigrated": true
