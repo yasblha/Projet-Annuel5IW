@@ -2,24 +2,25 @@ import { Module } from '@nestjs/common';
 import { MailerModule as NestMailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 import { MailerModule } from './mailer/mailer.module';
+import { FactureEvents } from './events/facture.events';
 
 @Module({
   imports: [
     NestMailerModule.forRoot({
       transport: {
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: parseInt(process.env.SMTP_PORT || '587', 10),
+        secure: process.env.SMTP_SECURE === 'true' || false,
         auth: {
-          user: 'contactprojectys@gmail.com',
-          pass: 'mvuogahxlrxrlpwi',
+          user: process.env.SMTP_USER || 'contactprojectys@gmail.com',
+          pass: process.env.SMTP_PASS || 'mvuogahxlrxrlpwi',
         },
         tls: {
           rejectUnauthorized: false,
         },
       },
       defaults: {
-        from: '"Water App" <contactprojectys@gmail.com>',
+        from: process.env.SMTP_FROM || '"Water App" <contactprojectys@gmail.com>',
       },
       template: {
         dir: process.env.NODE_ENV === 'production'
@@ -32,6 +33,9 @@ import { MailerModule } from './mailer/mailer.module';
       },
     }),
     MailerModule,
+  ],
+  providers: [
+    FactureEvents
   ],
 })
 export class AppModule {}

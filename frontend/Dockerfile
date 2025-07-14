@@ -1,18 +1,15 @@
-FROM node:18-alpine
-
+FROM node:18-alpine AS build
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
-
-# Copy source code
 COPY . .
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+RUN npm run build
 
-# Expose port
+FROM node:18-alpine AS prod
+WORKDIR /app
+RUN npm install -g serve
+COPY --from=build /app/dist ./dist
 EXPOSE 8080
-
-# Start development server
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["serve", "-s", "dist", "-l", "8080"]

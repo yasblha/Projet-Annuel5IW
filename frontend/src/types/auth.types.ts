@@ -12,7 +12,20 @@ export interface User {
   updatedAt?: string
 }
 
-export type UserRole = 'CLIENT' | 'ADMIN' | 'TECHNICIEN' | 'COMMERCIAL' | 'SUPPORT' | 'COMPTABLE' | 'MANAGER'
+export type UserRole = 
+  | 'SUPER_ADMIN' 
+  | 'ADMIN' 
+  | 'DIRECTEUR' 
+  | 'COMMERCIAL' 
+  | 'COMPTABLE' 
+  | 'TECHNICIEN'
+  | 'INTERVENANT_EXTERNE' 
+  | 'SUPPORT_CLIENT' 
+  | 'MANAGER' 
+  | 'AUDITEUR' 
+  | 'CONSULTANT' 
+  | 'CLIENT' 
+  | 'SUPPORT'
 
 export type UserStatus = 'ACTIF' | 'INACTIF' | 'EN_ATTENTE_VALIDATION' | 'SUSPENDU'
 
@@ -28,7 +41,7 @@ export interface RegisterRequest {
   email: string
   motDePasse: string
   telephone?: string
-  role: UserRole
+  role?: UserRole
   tenantId?: string
 }
 

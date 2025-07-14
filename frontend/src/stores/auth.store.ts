@@ -49,17 +49,20 @@ export const useAuthStore = defineStore('auth', () => {
         token.value = data.access_token
         user.value = data.user
         
-        // Sauvegarde dans localStorage
+        // Stockage dans localStorage pour persistance
         localStorage.setItem('auth_token', data.access_token)
-        localStorage.setItem('user', JSON.stringify(data.user))
+        localStorage.setItem('auth_user', JSON.stringify(data.user))
+        
+        // Notification de succès
+        notificationStore.success('Connexion réussie', `Bienvenue ${data.user.prenom} ${data.user.nom}`)
       } else {
-        // Gérer l'erreur de la réponse
-        throw new Error(response.data.error || 'Erreur lors de la connexion')
+        // Erreur de connexion
+        throw new Error(response.data.message || 'Erreur lors de la connexion')
       }
-      
     } catch (err: any) {
-      error.value = err.response?.data?.error || err.message || 'Erreur lors de la connexion'
-      throw err
+      // Gestion des erreurs
+      error.value = err.response?.data?.message || err.message || 'Erreur lors de la connexion'
+      notificationStore.error('Échec de connexion', error.value)
     } finally {
       isLoading.value = false
     }
@@ -94,13 +97,13 @@ export const useAuthStore = defineStore('auth', () => {
     
     // Nettoyage du localStorage
     localStorage.removeItem('auth_token')
-    localStorage.removeItem('user')
+    localStorage.removeItem('auth_user')
   }
 
   const checkAuth = (): void => {
     // Vérification de l'authentification au démarrage
     const storedToken = localStorage.getItem('auth_token')
-    const storedUser = localStorage.getItem('user')
+    const storedUser = localStorage.getItem('auth_user')
     
     if (storedToken && storedUser) {
       try {
@@ -127,7 +130,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = data.user
       
       localStorage.setItem('auth_token', data.access_token)
-      localStorage.setItem('user', JSON.stringify(data.user))
+      localStorage.setItem('auth_user', JSON.stringify(data.user))
       
     } catch (err: any) {
       // Si le refresh échoue, on déconnecte l'utilisateur
@@ -147,7 +150,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = response.data.data
       
       // Mise à jour du localStorage
-      localStorage.setItem('user', JSON.stringify(user.value))
+      localStorage.setItem('auth_user', JSON.stringify(user.value))
       
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Erreur lors de la mise à jour du profil'
@@ -245,7 +248,7 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = data.user
         
         localStorage.setItem('auth_token', data.access_token)
-        localStorage.setItem('user', JSON.stringify(data.user))
+        localStorage.setItem('auth_user', JSON.stringify(data.user))
       }
     } catch (err: any) {
       error.value = err.response?.data?.error || err.message || 'Erreur lors de l\'activation'

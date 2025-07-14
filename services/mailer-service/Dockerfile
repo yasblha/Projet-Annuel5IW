@@ -1,11 +1,24 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
-COPY ./services/mailer-service/package*.json ./
-RUN npm install
+# 1) Ne copier que les fichiers de dépendances du service mailer
+COPY services/mailer-service/package*.json ./
 
-COPY ./services/mailer-service/. .
+# 2) Installer toutes les dépendances (incluant dev pour start:dev)
+RUN npm install --legacy-peer-deps
+
+# 3) Copier le code du service mailer uniquement
+COPY services/mailer-service/. .
+
+# 4) Compiler le code TypeScript
 RUN npm run build
 
-CMD ["npm", "run", "start:dev"]
+# 5) Exposer le port sur lequel Nest écoute
+EXPOSE 3005
+
+# 6) Définir la variable d'environnement NODE_ENV
+ENV NODE_ENV=production
+
+# 7) Lancer en mode production
+CMD ["npm", "run", "start:prod"]

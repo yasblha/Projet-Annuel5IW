@@ -88,25 +88,6 @@
             </p>
           </div>
 
-          <div>
-            <label for="role" class="block text-sm font-medium text-gray-700">
-              Rôle
-            </label>
-            <select
-              id="role"
-              v-model="form.role"
-              required
-              class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="CLIENT">Client</option>
-              <option value="ADMIN">Administrateur</option>
-              <option value="TECHNICIEN">Technicien</option>
-              <option value="COMMERCIAL">Commercial</option>
-              <option value="SUPPORT">Support</option>
-              <option value="COMPTABLE">Comptable</option>
-              <option value="MANAGER">Manager</option>
-            </select>
-          </div>
 
           <div v-if="authStore.error" class="text-red-600 text-sm text-center">
             {{ authStore.error }}
@@ -143,8 +124,7 @@ const form = ref<RegisterRequest>({
   prenom: '',
   email: '',
   motDePasse: '',
-  telephone: '',
-  role: 'CLIENT'
+  telephone: ''
 })
 
 const handleRegister = async () => {

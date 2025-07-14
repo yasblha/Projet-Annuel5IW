@@ -13,7 +13,7 @@ export class RegisterInterfaceUsecase {
     ) {}
 
     public async execute(user: User): Promise<{ user: User; activationToken: string }> {
-        const requiredFields = ['nom', 'prenom', 'email', 'hashMotDePasse', 'role'];
+        const requiredFields = ['nom', 'prenom', 'email', 'hashMotDePasse'];
         const missingFields = this.passwordValidator.getMissingFields(user, requiredFields);
 
         if (missingFields.length > 0) {
@@ -53,6 +53,10 @@ export class RegisterInterfaceUsecase {
         const activationTokenExpiration = new Date();
         activationTokenExpiration.setHours(activationTokenExpiration.getHours() + 24); // Expire dans 24h
 
+        // Déterminer le rôle en fonction du nombre d'utilisateurs existants
+        const userCount = await this.userRepository.count();
+        const finalRole = user.role ?? (userCount === 0 ? 'ADMIN' : 'CLIENT');
+
         console.log(`🔐 Génération token d'activation: ${activationToken}`);
         console.log(`⏰ Expiration: ${activationTokenExpiration}`);
 
@@ -60,7 +64,7 @@ export class RegisterInterfaceUsecase {
             nom: user.nom,
             prenom: user.prenom,
             email: user.email,
-            role: user.role,
+            role: finalRole,
             telephone: user.telephone ?? null,
             hashMotDePasse: hashed,
             tenantId: user.tenantId,

@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: facture-service
+  namespace: aquaerp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: facture-service
+  template:
+    metadata:
+      labels:
+        app: facture-service
+    spec:
+      containers:
+      - name: facture-service
+        image: registry.digitalocean.com/aquaerp-registry/facture-service:latest
+        ports:
+        - containerPort: 3003
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: NODE_ENV
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DATABASE_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DATABASE_PORT
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DATABASE_NAME
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: username
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: password
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: secret
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          timeoutSeconds: 5
+          failureThreshold: 6
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: facture-service
+  namespace: aquaerp
+spec:
+  selector:
+    app: facture-service
+  ports:
+  - port: 3003
+    targetPort: 3003
+  type: ClusterIP

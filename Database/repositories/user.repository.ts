@@ -86,6 +86,11 @@ export class UserRepository {
         return this.repo.findOne({ where: { telephone } });
     }
 
+    /** Retourne le nombre total d'utilisateurs */
+    async count(): Promise<number> {
+        return this.repo.count();
+    }
+
     /** Recherche un utilisateur par son personnel info */
     async findByPersonalInfo(personalInfo: string): Promise<UserInstance | null> {
         return this.repo.findOne({

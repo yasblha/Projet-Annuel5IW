@@ -27,7 +27,13 @@ fs
     );
   })
   .forEach(file => {
-    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+    const imported = require(path.join(__dirname, file));
+    const initModel = imported.default || imported;
+    if (typeof initModel !== 'function') {
+      console.warn(`Model file ${file} does not export a function. Skipped.`);
+      return;
+    }
+    const model = initModel(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
   });
 

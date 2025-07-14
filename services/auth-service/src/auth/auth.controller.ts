@@ -1,16 +1,17 @@
-import { Controller, Post, Body, Req, UseGuards, Patch, Request } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, Patch, Request, ForbiddenException } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from '@application/dtos/auth/register.dto';
 import { LoginDto } from '@application/dtos/auth/login.dto';
 import { mapDtoToUser, mapJwtToUser } from '@application/mappers/user.mapper';
 import { ApiTags, ApiBody, ApiBearerAuth, ApiOperation, ApiResponse, ApiProperty } from '@nestjs/swagger';
-import { Roles } from '@infrastructure/guards/roles.decorator';
+import { Roles } from '@infrastructure/decorators/roles.decorator';
 import { AuthGuard } from '@infrastructure/guards/auth.guard';
 import { RolesGuard } from '@infrastructure/guards/roles.guard';
 import { JwtService } from '@nestjs/jwt';
 import { UpdateProfileDto } from '@application/dtos/auth/update-profile.dto';
 import { addTokenToBlacklist } from '@infrastructure/guards/auth.guard';
+import { UserRole } from '@Database/models/enums/userRole.enum';
 
 // DTOs pour Swagger avec exemples
 export class RegisterDtoSwagger {
@@ -48,9 +49,10 @@ export class RegisterDtoSwagger {
   @ApiProperty({
     example: 'CLIENT',
     description: 'Rôle de l\'utilisateur dans le système',
-    enum: ['CLIENT', 'ADMIN', 'TECHNICIEN', 'COMMERCIAL', 'SUPPORT', 'COMPTABLE', 'MANAGER']
+    enum: ['CLIENT', 'ADMIN', 'TECHNICIEN', 'COMMERCIAL', 'SUPPORT', 'COMPTABLE', 'MANAGER'],
+    required: false
   })
-  role: 'CLIENT' | 'ADMIN' | 'TECHNICIEN' | 'COMMERCIAL' | 'SUPPORT' | 'COMPTABLE' | 'MANAGER';
+  role?: 'CLIENT' | 'ADMIN' | 'TECHNICIEN' | 'COMMERCIAL' | 'SUPPORT' | 'COMPTABLE' | 'MANAGER';
 
   @ApiProperty({
     example: 'tenant123',
@@ -257,6 +259,34 @@ export class AuthController {
         }
     }
 
+    @MessagePattern('auth.verify')
+    async handleVerify(@Payload() data: { token: string }) {
+        try {
+            // Décoder et vérifier le JWT
+            const payload: any = this.jwtService.verify(data.token, {
+                secret: process.env.JWT_SECRET || 'secret-key',
+            });
+
+            // Tenter de récupérer l'utilisateur complet pour obtenir tenantId et autres infos manquantes
+            let user: any;
+            try {
+                user = await this.UsersService.getUserById(payload.sub as any);
+            } catch (e) {
+                // Si non trouvé ou erreur, on se contente du payload
+                user = null;
+            }
+
+            return {
+                id: user?.id ?? payload.sub,
+                email: user?.email ?? payload.email,
+                role: user?.role ?? payload.role,
+                tenantId: user?.tenantId ?? payload.tenantId ?? null,
+            };
+        } catch (error) {
+            return null;
+        }
+    }
+
     // Handlers HTTP (accès direct)
     @Post('register')
     @ApiOperation({ 
@@ -276,7 +306,6 @@ export class AuthController {
                     email: 'jean.dupont@example.com',
                     motDePasse: 'MotDePasse123!',
                     telephone: '0123456789',
-                    role: 'CLIENT',
                     tenantId: 'client-tenant-001'
                 }
             },
@@ -341,7 +370,7 @@ export class AuthController {
         type: UserResponseSwagger
     })
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles('ADMIN')
+    @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DIRECTEUR)
     registerByAdmin(@Req() req, @Body() dto: RegisterDto) {
         const admin = mapJwtToUser(req.user);
         const newUser = mapDtoToUser(dto);
@@ -357,7 +386,7 @@ export class AuthController {
     @Post('invite')
     @ApiBearerAuth()
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles('ADMIN')
+    @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DIRECTEUR)
     invite(@Body('userId') userId: number) {
 
         return this.UsersService.inviteUser(userId);
@@ -375,6 +404,9 @@ export class AuthController {
 
     @Post('debug-status')
     debugStatus(@Body() body: { email: string }) {
+        if (process.env.NODE_ENV === 'production') {
+            throw new ForbiddenException('Route disabled in production');
+        }
         return this.UsersService.debugUserStatus(body.email);
     }
 

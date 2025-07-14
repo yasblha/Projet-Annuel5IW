@@ -1,0 +1,45 @@
+extends layout/main-layout
+
+block content
+  tr
+    td.email-body(width='570', cellpadding='0', cellspacing='0')
+      div.email-body-inner
+        h1 Confirmation de paiement
+        
+        p Bonjour #{prenom} #{nom},
+        
+        p Nous vous confirmons la bonne réception de votre paiement pour la facture référencée ci-dessous.
+        
+        .details-block
+          h2 Détails du paiement
+          table.details-table(width='100%', cellpadding='0', cellspacing='0')
+            tr
+              td.details-label Facture numéro:
+              td.details-value #{numero}
+            tr
+              td.details-label Montant payé:
+              td.details-value #{montantPaye} €
+            tr
+              td.details-label Date du paiement:
+              td.details-value #{datePaiement}
+            tr
+              td.details-label Méthode de paiement:
+              td.details-value #{methodePaiement}
+            if reference
+              tr
+                td.details-label Référence du paiement:
+                td.details-value #{reference}
+        
+        if montantRestant > 0
+          .alert-box
+            p.important Il reste #{montantRestant} € à régler sur cette facture.
+        else
+          p.success Votre facture a été entièrement réglée. Merci pour votre paiement.
+        
+        .button-container
+          a.button(href=lienFacture, target='_blank') Voir ma facture
+        
+        p Vous pouvez consulter l'historique de tous vos paiements dans votre espace client.
+
+block footer-content
+  p Ce message a été envoyé automatiquement, merci de ne pas y répondre directement.

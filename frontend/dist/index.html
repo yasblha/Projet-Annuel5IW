@@ -2,11 +2,17 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Billing System</title>
-    <script type="module" crossorigin src="/assets/index-BcJmFnuC.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-Cqbs2y0i.css">
+    <!-- Sécurité -->
+    <!-- CSP élargie pour autoriser les API publiques gouv.fr utilisées (adresse & géo) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' http://localhost:8080 ws://localhost:8080 http://localhost:3000 https://api.aquaerp.cloud https://api-adresse.data.gouv.fr https://geo.api.gouv.fr https://geocodage.geo.gouv.fr;">
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <script type="module" crossorigin src="/assets/index-DoP8gccn.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DE6xV6PF.css">
   </head>
   <body>
     <div id="app"></div>

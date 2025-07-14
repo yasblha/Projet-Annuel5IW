@@ -71,6 +71,17 @@ $ mau deploy
 
 With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
+## Variables d'environnement nécessaires (production)
+
+À définir dans un Secret Kubernetes ou un fichier .env (jamais en dur dans le code) :
+
+- SMTP_HOST : hôte SMTP (ex: smtp.gmail.com)
+- SMTP_PORT : port SMTP (ex: 587)
+- SMTP_SECURE : true/false (true pour SSL/TLS, false pour STARTTLS)
+- SMTP_USER : identifiant SMTP
+- SMTP_PASS : mot de passe SMTP
+- SMTP_FROM : adresse d'expéditeur par défaut (ex: "Water App" <noreply@aquaerp.cloud>)
+
 ## Resources
 
 Check out a few resources that may come in handy when working with NestJS:
@@ -97,3 +108,30 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+---
+
+### Exemple de Secret Kubernetes pour SMTP
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mailer-smtp-secret
+  namespace: aquaerp
+stringData:
+  SMTP_HOST: smtp.gmail.com
+  SMTP_PORT: "587"
+  SMTP_SECURE: "false"
+  SMTP_USER: "user@domaine.com"
+  SMTP_PASS: "votre_mot_de_passe"
+  SMTP_FROM: "Water App <noreply@aquaerp.cloud>"
+```
+
+À monter dans le manifest du mailer-service via `envFrom` :
+
+```yaml
+        envFrom:
+          - secretRef:
+              name: mailer-smtp-secret
+```

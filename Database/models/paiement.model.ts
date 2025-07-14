@@ -38,7 +38,15 @@ export default (sequelize: Sequelize): typeof Model => {
             type: DataTypes.DATE,
             allowNull: false,
             defaultValue: DataTypes.NOW
-        }
+        },
+        statut: { type: DataTypes.STRING(30), allowNull: false, defaultValue: 'EN_ATTENTE' },
+        dateValidation: { type: DataTypes.DATE, allowNull: true },
+        commentaire: { type: DataTypes.TEXT, allowNull: true },
+        dateCreation: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        dateMaj: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+        createdBy: { type: DataTypes.UUID, allowNull: true },
+        updatedBy: { type: DataTypes.UUID, allowNull: true },
+        tenantId: { type: DataTypes.STRING, allowNull: true }
     }, {
         sequelize,
         modelName: 'Paiement',

@@ -49,6 +49,7 @@ export declare class UserRepository {
     findById(id: number): Promise<UserInstance>;
     findByEmail(email: string): Promise<UserInstance | null>;
     findByPhone(telephone: string | null): Promise<UserInstance | null>;
+    count(): Promise<number>;
     findByPersonalInfo(personalInfo: string): Promise<UserInstance | null>;
     updatePassword({ userId, newHash }: UpdatePasswordParams): Promise<void>;
     activateUser(userId: string, newHash: string): Promise<void>;

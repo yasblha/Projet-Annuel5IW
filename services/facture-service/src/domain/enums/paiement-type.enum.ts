@@ -1,0 +1,14 @@
+export enum PaiementType {
+  CARTE_BANCAIRE = 'CARTE_BANCAIRE',
+  VIREMENT = 'VIREMENT',
+  PRELEVEMENT = 'PRELEVEMENT',
+  CHEQUE = 'CHEQUE',
+  ESPECES = 'ESPECES',
+}
+
+export enum PaiementStatut {
+  EN_ATTENTE = 'EN_ATTENTE',
+  VALIDE = 'VALIDE',
+  REJETE = 'REJETE',
+  ANNULE = 'ANNULE',
+}

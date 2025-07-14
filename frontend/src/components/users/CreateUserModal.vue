@@ -9,7 +9,6 @@
         <!-- Header -->
         <div class="flex items-center justify-between p-6 border-b border-gray-200">
           <h3 class="text-lg font-medium text-gray-900">
-            <i class="fas fa-user-plus mr-2 text-blue-600"></i>
             Créer un nouvel utilisateur
           </h3>
           <button 
@@ -99,22 +98,16 @@
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">Sélectionner un rôle</option>
-              <option value="ADMIN">
-                <i class="fas fa-crown"></i> Administrateur
-              </option>
-              <option value="CLIENT">
-                <i class="fas fa-user"></i> Client
-              </option>
-              <option value="TECHNICIEN">
-                <i class="fas fa-tools"></i> Technicien
-              </option>
+              <option value="ADMIN">Administrateur</option>
+              <option value="CLIENT">Client</option>
+              <option value="TECHNICIEN">Technicien</option>
             </select>
           </div>
 
           <!-- Message d'information -->
           <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
             <div class="flex">
-              <i class="fas fa-info-circle text-blue-600 mt-0.5 mr-2"></i>
+              <span class="text-blue-600 mt-0.5 mr-2">ℹ️</span>
               <div class="text-sm text-blue-800">
                 <p class="font-medium">Invitation automatique</p>
                 <p>Un email d'invitation sera automatiquement envoyé à l'utilisateur pour qu'il puisse définir son mot de passe.</p>

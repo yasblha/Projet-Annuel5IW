@@ -1,0 +1,46 @@
+extends layout/main-layout
+
+block content
+  tr
+    td.email-body(width='570', cellpadding='0', cellspacing='0')
+      div.email-body-inner
+        h1 Nouvelle facture disponible
+        
+        p Bonjour #{prenom} #{nom},
+        
+        p Nous vous informons qu'une nouvelle facture est disponible sur votre espace client.
+        
+        .details-block
+          h2 Détails de la facture
+          table.details-table(width='100%', cellpadding='0', cellspacing='0')
+            tr
+              td.details-label Numéro:
+              td.details-value #{numero}
+            tr
+              td.details-label Montant:
+              td.details-value #{montantTTC} €
+            tr
+              td.details-label Date d'émission:
+              td.details-value #{dateEmission}
+            tr
+              td.details-label Date d'échéance:
+              td.details-value #{dateEcheance}
+            if periodeDebut && periodeFin
+              tr
+                td.details-label Période facturée:
+                td.details-value Du #{periodeDebut} au #{periodeFin}
+        
+        p Vous pouvez consulter et télécharger cette facture en vous connectant à votre espace client.
+        
+        .button-container
+          a.button(href=lienFacture, target='_blank') Consulter ma facture
+        
+        if datePaiementPrevue
+          p Nous vous informons qu'un prélèvement automatique sera effectué sur votre compte bancaire le #{datePaiementPrevue} pour régler cette facture.
+        else
+          p.important Merci de procéder au règlement de cette facture avant la date d'échéance.
+        
+        p Si vous avez des questions concernant cette facture, n'hésitez pas à contacter notre service client.
+
+block footer-content
+  p Ce message a été envoyé automatiquement, merci de ne pas y répondre directement.

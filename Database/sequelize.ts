@@ -1,16 +1,19 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op, fn, col } from 'sequelize';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
 
+export { Op, fn, col };
+
 dotenv.config();
 
 export const sequelize = new Sequelize(
-    process.env.DB_NAME || 'main',
-    process.env.DB_USER || 'postgres',
-    process.env.DB_PASS || 'postgres',
+    process.env.DATABASE_NAME || process.env.DB_NAME || 'aquaerp',
+    process.env.DATABASE_USERNAME || process.env.DB_USER || 'aquaerp',
+    process.env.DATABASE_PASSWORD || process.env.DB_PASS || 'aquaerppassword',
     {
-        host: process.env.DB_HOST || 'localhost',
+        host: process.env.DB_HOST || process.env.DB_HOST || 'postgres-service',
+        port: parseInt(process.env.DATABASE_PORT || process.env.DB_PORT || '5432'),
         dialect: 'postgres',
         logging: false,
     }
@@ -27,15 +30,37 @@ export const initDatabase = async () => {
             .readdirSync(modelsPath)
             .filter(f => /\.(model\.(ts|js))$/.test(f));
 
+        console.log('Fichiers de modèles trouvés:', files);
+        
         for (const file of files) {
-            const initFn = require(path.join(modelsPath, file)).default;
-            if (typeof initFn !== 'function') {
-                console.warn(`⚠️  Aucun initFn exporté par défaut dans ${file}`);
-                continue;
+            try {
+                console.log(`Tentative de chargement du modèle depuis: ${file}`);
+                const modulePath = path.join(modelsPath, file);
+                const moduleExports = require(modulePath);
+                
+                if (!moduleExports || !moduleExports.default) {
+                    console.warn(`⚠️  Aucune exportation par défaut dans ${file}`);
+                    continue;
+                }
+                
+                const initFn = moduleExports.default;
+                if (typeof initFn !== 'function') {
+                    console.warn(`⚠️  L'export par défaut de ${file} n'est pas une fonction`);
+                    continue;
+                }
+                
+                console.log(`Initialisation du modèle depuis: ${file}`);
+                const model = initFn(sequelize);
+                if (!model || !model.name) {
+                    console.warn(`⚠️  Le modèle de ${file} n'a pas de propriété 'name' valide`);
+                    continue;
+                }
+                
+                models[model.name] = model;
+                console.log(`✅ Modèle chargé: ${model.name} (${file})`);
+            } catch (error) {
+                console.error(`❌ Erreur lors du chargement du modèle ${file}:`, error);
             }
-            const model = initFn(sequelize);
-            models[model.name] = model;
-            console.log(`🔄 Modèle chargé: ${model.name}`);
         }
 
         Object.values(models).forEach(m => {

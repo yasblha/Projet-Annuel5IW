@@ -127,17 +127,44 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-white border-t py-6 mt-8">
-      <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-2">
-          <i class="fas fa-tint text-blue-600"></i>
-          <span class="font-bold text-gray-700">Billing System</span>
+    <footer class="bg-white border-t py-8 mt-8">
+      <div class="max-w-7xl mx-auto px-4">
+        <!-- Main Footer -->
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
+          <div class="flex items-center gap-2">
+            <i class="fas fa-tint text-blue-600 text-xl"></i>
+            <span class="font-bold text-xl text-gray-700">Billing System</span>
+          </div>
+          <div class="flex flex-wrap justify-center gap-6">
+            <div class="flex flex-col">
+              <h4 class="font-semibold text-gray-800 mb-2">Navigation</h4>
+              <a href="#features" class="text-gray-600 hover:text-blue-600 mb-1">Fonctionnalités</a>
+              <a href="#about" class="text-gray-600 hover:text-blue-600 mb-1">À propos</a>
+              <a href="#contact" class="text-gray-600 hover:text-blue-600 mb-1">Contact</a>
+            </div>
+            <div class="flex flex-col">
+              <h4 class="font-semibold text-gray-800 mb-2">Légal</h4>
+              <router-link to="/cgu" class="text-gray-600 hover:text-blue-600 mb-1">CGU/CGV</router-link>
+              <router-link to="/privacy" class="text-gray-600 hover:text-blue-600 mb-1">Confidentialité</router-link>
+              <router-link to="/contact" class="text-gray-600 hover:text-blue-600 mb-1">Nous contacter</router-link>
+            </div>
+          </div>
         </div>
-        <div class="text-gray-500 text-sm">&copy; {{ new Date().getFullYear() }} - Tous droits réservés</div>
-        <div class="flex gap-4">
-          <a href="#features" class="hover:underline text-gray-500">Fonctionnalités</a>
-          <a href="#about" class="hover:underline text-gray-500">À propos</a>
-          <a href="#contact" class="hover:underline text-gray-500">Contact</a>
+        
+        <!-- Copyright -->
+        <div class="border-t pt-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="text-gray-500 text-sm">&copy; {{ new Date().getFullYear() }} - Billing System - Tous droits réservés</div>
+          <div class="flex items-center gap-4">
+            <a href="#" class="text-gray-500 hover:text-blue-600">
+              <i class="fab fa-linkedin text-lg"></i>
+            </a>
+            <a href="#" class="text-gray-500 hover:text-blue-600">
+              <i class="fab fa-twitter text-lg"></i>
+            </a>
+            <a href="#" class="text-gray-500 hover:text-blue-600">
+              <i class="fab fa-github text-lg"></i>
+            </a>
+          </div>
         </div>
       </div>
     </footer>
@@ -157,4 +184,4 @@ const userFullName = computed(() => authStore.userFullName)
 html, body {
   background: #f8fafc;
 }
-</style> 
+</style>
