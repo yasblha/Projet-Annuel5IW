@@ -46,8 +46,8 @@ export class RegisterDto {
     @IsString()
     tenantId: string;
 
-    @ApiProperty({ example: 'CLIENT' })
-    @IsNotEmpty()
+    @ApiProperty({ example: 'CLIENT', required: false })
+    @IsOptional()
     @IsIn([
         'CLIENT',
         'ADMIN',
@@ -57,5 +57,5 @@ export class RegisterDto {
         'COMPTABLE',
         'MANAGER',
     ])
-    role: 'CLIENT' | 'ADMIN' | 'TECHNICIEN' | 'COMMERCIAL' | 'SUPPORT' | 'COMPTABLE' | 'MANAGER';
+    role?: 'CLIENT' | 'ADMIN' | 'TECHNICIEN' | 'COMMERCIAL' | 'SUPPORT' | 'COMPTABLE' | 'MANAGER';
 }

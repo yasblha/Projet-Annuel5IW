@@ -41,7 +41,7 @@ export interface RegisterRequest {
   email: string
   motDePasse: string
   telephone?: string
-  role: UserRole
+  role?: UserRole
   tenantId?: string
 }
 
