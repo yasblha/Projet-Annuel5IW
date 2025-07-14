@@ -102,7 +102,9 @@ services:
       - rabbitmq
 
   frontend-vue:
-    build: ./frontend
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
     container_name: frontend-vue
     volumes:
       - frontend-vue_node_modules:/app/node_modules

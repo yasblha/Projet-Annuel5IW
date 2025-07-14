@@ -13,9 +13,11 @@ spec:
       labels:
         app: frontend
     spec:
+      imagePullSecrets:
+        - name: docr-secret
       containers:
       - name: frontend
-        image: docker.io/yassblh/frontend:latest
+        image: registry.digitalocean.com/aquaerp-registry/frontend:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080

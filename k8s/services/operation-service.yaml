@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: operation-service
-        image: docker.io/yassblh/operation-service:latest
+        image: registry.digitalocean.com/aquaerp-registry/operation-service:latest
         ports:
         - containerPort: 3006
         env:

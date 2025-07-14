@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: mailer-service
-        image: docker.io/yassblh/mailer-service:latest
+        image: registry.digitalocean.com/aquaerp-registry/mailer-service:latest
         ports:
         - containerPort: 3005
         env:

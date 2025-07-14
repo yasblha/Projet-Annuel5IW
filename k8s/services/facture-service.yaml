@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: facture-service
-        image: docker.io/yassblh/facture-service:latest
+        image: registry.digitalocean.com/aquaerp-registry/facture-service:latest
         ports:
         - containerPort: 3003
         env:

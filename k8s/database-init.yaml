@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: database-init
-          image: registry.digitalocean.com/factu-reg/auth-service:latest
+          image: registry.digitalocean.com/aquaerp-registry/auth-service:latest
           command: ["npm", "run", "db:migrate"]
           envFrom:
             - secretRef:
@@ -23,4 +23,4 @@ spec:
             - name: NODE_ENV
               value: "production"
       restartPolicy: Never
-  backoffLimit: 3 
+  backoffLimit: 3

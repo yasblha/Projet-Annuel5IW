@@ -16,6 +16,7 @@ jobs:
       services: ${{ steps.filter.outputs.services }}
       frontend: ${{ steps.filter.outputs.frontend }}
       k8s: ${{ steps.filter.outputs.k8s }}
+      changed_services: ${{ steps.detect-changed.outputs.changed_services }}
     
     steps:
       - name: Checkout code
@@ -51,11 +52,49 @@ jobs:
             services:
               - 'services/**'
       
+      - name: Detect changed services
+        id: detect-changed
+        run: |
+          CHANGED_SERVICES=[]
+          
+          # Check which services changed
+          if [[ "${{ steps.filter.outputs.auth-service }}" == "true" ]]; then
+            CHANGED_SERVICES=$(echo $CHANGED_SERVICES | jq '. += ["auth-service"]')
+          fi
+          if [[ "${{ steps.filter.outputs.api-gateway }}" == "true" ]]; then
+            CHANGED_SERVICES=$(echo $CHANGED_SERVICES | jq '. += ["api-gateway"]')
+          fi
+          if [[ "${{ steps.filter.outputs.contrat-service }}" == "true" ]]; then
+            CHANGED_SERVICES=$(echo $CHANGED_SERVICES | jq '. += ["contrat-service"]')
+          fi
+          if [[ "${{ steps.filter.outputs.facture-service }}" == "true" ]]; then
+            CHANGED_SERVICES=$(echo $CHANGED_SERVICES | jq '. += ["facture-service"]')
+          fi
+          if [[ "${{ steps.filter.outputs.intervention-service }}" == "true" ]]; then
+            CHANGED_SERVICES=$(echo $CHANGED_SERVICES | jq '. += ["intervention-service"]')
+          fi
+          if [[ "${{ steps.filter.outputs.mailer-service }}" == "true" ]]; then
+            CHANGED_SERVICES=$(echo $CHANGED_SERVICES | jq '. += ["mailer-service"]')
+          fi
+          if [[ "${{ steps.filter.outputs.operation-service }}" == "true" ]]; then
+            CHANGED_SERVICES=$(echo $CHANGED_SERVICES | jq '. += ["operation-service"]')
+          fi
+          if [[ "${{ steps.filter.outputs.workflow-service }}" == "true" ]]; then
+            CHANGED_SERVICES=$(echo $CHANGED_SERVICES | jq '. += ["workflow-service"]')
+          fi
+          if [[ "${{ steps.filter.outputs.frontend }}" == "true" ]]; then
+            CHANGED_SERVICES=$(echo $CHANGED_SERVICES | jq '. += ["frontend"]')
+          fi
+          
+          echo "Changed services: $CHANGED_SERVICES"
+          echo "changed_services=$CHANGED_SERVICES" >> $GITHUB_OUTPUT
+      
       - name: Debug changed paths
         run: |
           echo "Changed services: ${{ steps.filter.outputs.services_files }}"
           echo "Frontend changed: ${{ steps.filter.outputs.frontend }}"
           echo "K8s changed: ${{ steps.filter.outputs.k8s }}"
+          echo "Services to rebuild: ${{ steps.detect-changed.outputs.changed_services }}"
 
   build-and-push:
     needs: detect-changes
@@ -65,37 +104,44 @@ jobs:
     strategy:
       matrix:
         service: [
-          {name: 'auth-service', path: 'services/auth-service', changed: '${{ contains(needs.detect-changes.outputs.services_files, ''services/auth-service/'') }}'},
-          {name: 'api-gateway', path: 'services/api-gateway', changed: '${{ contains(needs.detect-changes.outputs.services_files, ''services/api-gateway/'') }}'},
-          {name: 'contrat-service', path: 'services/contrat-service', changed: '${{ contains(needs.detect-changes.outputs.services_files, ''services/contrat-service/'') }}'},
-          {name: 'facture-service', path: 'services/facture-service', changed: '${{ contains(needs.detect-changes.outputs.services_files, ''services/facture-service/'') }}'},
-          {name: 'intervention-service', path: 'services/intervention-service', changed: '${{ contains(needs.detect-changes.outputs.services_files, ''services/intervention-service/'') }}'},
-          {name: 'mailer-service', path: 'services/mailer-service', changed: '${{ contains(needs.detect-changes.outputs.services_files, ''services/mailer-service/'') }}'},
-          {name: 'operation-service', path: 'services/operation-service', changed: '${{ contains(needs.detect-changes.outputs.services_files, ''services/operation-service/'') }}'},
-          {name: 'workflow-service', path: 'services/workflow-service', changed: '${{ contains(needs.detect-changes.outputs.services_files, ''services/workflow-service/'') }}'},
-          {name: 'frontend', path: 'frontend', changed: '${{ needs.detect-changes.outputs.frontend == ''true'' }}'}
+          'auth-service',
+          'api-gateway',
+          'contrat-service',
+          'facture-service',
+          'intervention-service',
+          'mailer-service',
+          'operation-service',
+          'workflow-service',
+          'frontend'
         ]
     
     env:
-      REGISTRY: registry.digitalocean.com/factu-reg
+      REGISTRY: registry.digitalocean.com/aquaerp-registry
       IMAGE_TAG: ${{ github.sha }}
     
     steps:
-      - name: Skip if service not changed
-        if: ${{ matrix.service.changed != 'true' }}
-        run: echo "Skipping ${{ matrix.service.name }} - no changes detected"
-        continue-on-error: true
+      - name: Check if service changed
+        id: check-service
+        run: |
+          CHANGED_SERVICES='${{ needs.detect-changes.outputs.changed_services }}'
+          if [[ $CHANGED_SERVICES == *"${{ matrix.service }}"* ]]; then
+            echo "Service ${{ matrix.service }} changed, will build and push"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "Service ${{ matrix.service }} not changed, skipping"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
       
       - name: Checkout code
-        if: ${{ matrix.service.changed == 'true' }}
+        if: steps.check-service.outputs.changed == 'true'
         uses: actions/checkout@v3
       
       - name: Set up Docker Buildx
-        if: ${{ matrix.service.changed == 'true' }}
+        if: steps.check-service.outputs.changed == 'true'
         uses: docker/setup-buildx-action@v3
       
       - name: Log in to DigitalOcean Container Registry
-        if: ${{ matrix.service.changed == 'true' }}
+        if: steps.check-service.outputs.changed == 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -103,19 +149,28 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       
       - name: Build and push service image
-        if: ${{ matrix.service.changed == 'true' }}
+        if: steps.check-service.outputs.changed == 'true'
         run: |
-          echo "Building ${{ matrix.service.name }}..."
+          echo "Building ${{ matrix.service }}..."
+          
+          # Déterminer le chemin du Dockerfile
+          if [[ "${{ matrix.service }}" == "frontend" ]]; then
+            DOCKERFILE_PATH="frontend/Dockerfile"
+          else
+            DOCKERFILE_PATH="services/${{ matrix.service }}/Dockerfile"
+          fi
+          
+          # Build et push de l'image
           docker build --platform linux/amd64 \
-            -t $REGISTRY/${{ matrix.service.name }}:$IMAGE_TAG \
-            -t $REGISTRY/${{ matrix.service.name }}:latest \
-            -f ${{ matrix.service.path }}/Dockerfile .
+            -t $REGISTRY/${{ matrix.service }}:$IMAGE_TAG \
+            -t $REGISTRY/${{ matrix.service }}:latest \
+            -f $DOCKERFILE_PATH .
           
-          echo "Pushing ${{ matrix.service.name }}..."
-          docker push $REGISTRY/${{ matrix.service.name }}:$IMAGE_TAG
-          docker push $REGISTRY/${{ matrix.service.name }}:latest
+          echo "Pushing ${{ matrix.service }}..."
+          docker push $REGISTRY/${{ matrix.service }}:$IMAGE_TAG
+          docker push $REGISTRY/${{ matrix.service }}:latest
           
-          echo "${{ matrix.service.name }} build and push completed successfully"
+          echo "${{ matrix.service }} build and push completed successfully"
 
   deploy:
     needs: [detect-changes, build-and-push]
@@ -134,60 +189,28 @@ jobs:
       - name: Save kubeconfig
         run: doctl kubernetes cluster kubeconfig save factu
       
-      - name: Apply k8s configurations
+      - name: Update Kubernetes manifests to use the correct registry
+        run: |
+          echo "Updating Kubernetes manifests to use the correct registry"
+          find k8s -type f -name "*.yaml" -exec sed -i 's|docker.io/yassblh|registry.digitalocean.com/aquaerp-registry|g' {} \;
+      
+      - name: Apply k8s configurations if changed
         if: ${{ needs.detect-changes.outputs.k8s == 'true' }}
         run: |
-          echo "Applying all Kubernetes configurations"
-          kubectl apply -f k8s/
+          echo "Applying Kubernetes configurations"
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/secrets.yaml
+          kubectl apply -f k8s/services/
+          kubectl apply -f k8s/postgresql/
+          kubectl apply -f k8s/frontend.yaml
+          kubectl apply -f k8s/ingress.yaml
       
-      - name: Restart changed deployments only
+      - name: Restart only changed deployments
         if: ${{ needs.detect-changes.outputs.services == 'true' || needs.detect-changes.outputs.frontend == 'true' }}
         run: |
-          # Get the list of changed files
-          CHANGED_FILES="${{ needs.detect-changes.outputs.services_files }}"
+          CHANGED_SERVICES='${{ needs.detect-changes.outputs.changed_services }}'
           
-          # Check and restart each service if it was changed
-          if [[ "$CHANGED_FILES" == *"services/auth-service/"* ]]; then
-            echo "Restarting auth-service"
-            kubectl rollout restart deployment/auth-service -n aquaerp
-          fi
-          
-          if [[ "$CHANGED_FILES" == *"services/api-gateway/"* ]]; then
-            echo "Restarting api-gateway"
-            kubectl rollout restart deployment/api-gateway -n aquaerp
-          fi
-          
-          if [[ "$CHANGED_FILES" == *"services/contrat-service/"* ]]; then
-            echo "Restarting contrat-service"
-            kubectl rollout restart deployment/contrat-service -n aquaerp
-          fi
-          
-          if [[ "$CHANGED_FILES" == *"services/facture-service/"* ]]; then
-            echo "Restarting facture-service"
-            kubectl rollout restart deployment/facture-service -n aquaerp
-          fi
-          
-          if [[ "$CHANGED_FILES" == *"services/intervention-service/"* ]]; then
-            echo "Restarting intervention-service"
-            kubectl rollout restart deployment/intervention-service -n aquaerp
-          fi
-          
-          if [[ "$CHANGED_FILES" == *"services/mailer-service/"* ]]; then
-            echo "Restarting mailer-service"
-            kubectl rollout restart deployment/mailer-service -n aquaerp
-          fi
-          
-          if [[ "$CHANGED_FILES" == *"services/operation-service/"* ]]; then
-            echo "Restarting operation-service"
-            kubectl rollout restart deployment/operation-service -n aquaerp
-          fi
-          
-          if [[ "$CHANGED_FILES" == *"services/workflow-service/"* ]]; then
-            echo "Restarting workflow-service"
-            kubectl rollout restart deployment/workflow-service -n aquaerp
-          fi
-          
-          if [[ "${{ needs.detect-changes.outputs.frontend }}" == "true" ]]; then
-            echo "Restarting frontend"
-            kubectl rollout restart deployment/frontend -n aquaerp
-          fi
+          for SERVICE in $(echo $CHANGED_SERVICES | jq -r '.[]'); do
+            echo "Restarting $SERVICE deployment"
+            kubectl rollout restart deployment/$SERVICE -n aquaerp
+          done

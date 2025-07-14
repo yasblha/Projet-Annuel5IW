@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: workflow-service
-        image: docker.io/yassblh/workflow-service:latest
+        image: registry.digitalocean.com/aquaerp-registry/workflow-service:latest
         ports:
         - containerPort: 3007
         env:

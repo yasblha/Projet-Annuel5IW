@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: contrat-service
-        image: docker.io/yassblh/contrat-service:latest
+        image: registry.digitalocean.com/aquaerp-registry/contrat-service:latest
         ports:
         - containerPort: 3002
         env:

@@ -10,7 +10,17 @@ async function bootstrap() {
   
   // Création de l'application HTTP
   const app = await NestFactory.create(AppModule);
-  app.enableCors({ origin: true, credentials: true });
+  app.enableCors({
+    origin: [
+      'https://app.aquaerp.cloud',
+      'http://localhost:8080',
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ],
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type,Authorization',
+  });
 
   // Configuration Swagger
   const config = new DocumentBuilder()

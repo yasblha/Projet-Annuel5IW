@@ -25,9 +25,15 @@ async function bootstrap() {
   
   // Configuration CORS
   app.enableCors({
-    origin: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    origin: [
+      'https://app.aquaerp.cloud',
+      'http://localhost:8080',
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ],
     credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type,Authorization',
   });
   
   // Configuration de la validation globale
