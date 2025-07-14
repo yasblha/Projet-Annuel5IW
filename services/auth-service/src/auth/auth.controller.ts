@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UseGuards, Patch, Request } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, Patch, Request, ForbiddenException } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from '@application/dtos/auth/register.dto';
@@ -403,6 +403,9 @@ export class AuthController {
 
     @Post('debug-status')
     debugStatus(@Body() body: { email: string }) {
+        if (process.env.NODE_ENV === 'production') {
+            throw new ForbiddenException('Route disabled in production');
+        }
         return this.UsersService.debugUserStatus(body.email);
     }
 
