@@ -18,5 +18,10 @@ yarn-error.log*
 ./services/facture-service/node_modules
 ./services/operation-service/node_modules
 ./services/mailer-service/node_modules
+./services/intervention-service/node_modules
+./services/workflow-service/node_modules
+./services/api-gateway/node_modules
+./services/contract-service-v2/node_modules
+./services/auth-service-v2/node_modules
 
 ./node_modules
