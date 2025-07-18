@@ -55,20 +55,13 @@ services:
   auth-service:
     build:
       context: .
-      dockerfile: ./services/auth-service/Dockerfile
+      dockerfile: ./services/auth-service-v2/Dockerfile
     container_name: auth-service
     ports:
       - "3001:3001"
     volumes:
-      - ./services/auth-service:/app/services/auth-service
-      - ./Database:/app/Database
-      - ./tsconfig.base.json:/app/tsconfig.base.json
-      - ./tsconfig.json:/app/tsconfig.json
-      - ./package.json:/app/package.json
-      - auth_node_modules:/app/services/auth-service/node_modules
-      #- services/auth-service/node_modules:/app/services/auth-service/node_modules
-      #- ./services/auth-service/node_modules:/app/services/auth-service/node_modules
-      #- auth_node_modules:/app/services/auth-service/node_modules
+      - ./services/auth-service-v2:/app
+      - /app/node_modules
     environment:
       - DB_HOST=postgres
       - DB_NAME=main
@@ -76,9 +69,11 @@ services:
       - DB_PASS=postgres
       - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
       - AUTH_SERVICE_HOST=0.0.0.0
-      - AUTH_SERVICE_PORT=3001
+      - AUTH_SERVICE_PORT=3002
       - MAILER_SERVICE_HOST=mailer-service
       - MAILER_SERVICE_PORT=3000
+      - JWT_SECRET=super-secret-key-v2
+      - FRONTEND_URL=http://localhost:8080
     depends_on:
       - postgres
       - rabbitmq
@@ -134,30 +129,30 @@ services:
     depends_on:
       - postgres
 
-  contrat-service:
+  contract-service:
     build:
-      context: .
-      dockerfile: ./services/contrat-service/Dockerfile
-    container_name: contrat-service
+      context: ./services/contract-service-v2
+      dockerfile: ./Dockerfile
+    container_name: contract-service
     ports:
-      - "3003:3000"
+      - "3003:3003"
     volumes:
-      - ./services/contrat-service/src:/app/services/contrat-service/src
-      - ./Database:/app/Database
+      - ./services/contract-service-v2:/app
+      - /app/node_modules
     environment:
-      - DB_HOST=postgres
-      - DB_NAME=main
-      - DB_USER=postgres
-      - DB_PASS=postgres
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=main
+      - JWT_SECRET=super-secret-key-v2
       - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
-      - AUTH_SERVICE_HOST=0.0.0.0
-      - AUTH_SERVICE_PORT=3001
-      - MAILER_SERVICE_HOST=mailer-service
-      - MAILER_SERVICE_PORT=3000
+      - NODE_ENV=development
+      - FRONTEND_URL=http://localhost:8080
     depends_on:
       - postgres
       - rabbitmq
-      - mailer-service
+      - auth-service
 
   intervention-service:
     build:
@@ -273,12 +268,13 @@ volumes:
   shared_pgdata:
   rabbitmq_data:
   auth_node_modules:
+  auth_service_v2_node_modules:
   api-gateway_node_modules:
   agency-service_node_modules:
-  contrat-service_node_modules:
   intervention-service_node_modules:
   facture-service_node_modules:
   operation-service_node_modules:
   workflow-service_node_modules:
   frontend-vue_node_modules:
   mailer_node_modules:
+  contract_service_v2_node_modules:

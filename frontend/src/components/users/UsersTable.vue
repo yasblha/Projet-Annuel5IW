@@ -32,12 +32,12 @@
               <div class="flex items-center">
                 <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
                   <span class="text-white text-sm font-medium">
-                    {{ user.prenom.charAt(0) }}{{ user.nom.charAt(0) }}
+                    {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
                   </span>
                 </div>
                 <div class="ml-4">
                   <div class="text-sm font-medium text-gray-900">
-                    {{ user.prenom }} {{ user.nom }}
+                    {{ user.firstName }} {{ user.lastName }}
                   </div>
                   <div class="text-sm text-gray-500">{{ user.email }}</div>
                   <div v-if="user.telephone" class="text-sm text-gray-400">
@@ -62,10 +62,10 @@
             <td class="px-6 py-4 whitespace-nowrap">
               <span 
                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                :class="getStatusClass(user.statut)"
+                :class="getStatusClass(user.status)"
               >
-                <i :class="getStatusIcon(user.statut)" class="mr-1"></i>
-                {{ getStatusLabel(user.statut) }}
+                <i :class="getStatusIcon(user.status)" class="mr-1"></i>
+                {{ getStatusLabel(user.status) }}
               </span>
             </td>
 
@@ -76,8 +76,8 @@
 
             <!-- Dernière connexion -->
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              <span v-if="user.dateDerniereConnexion">
-                {{ formatDate(user.dateDerniereConnexion) }}
+              <span v-if="user.lastLoginDate">
+                {{ formatDate(user.lastLoginDate) }}
               </span>
               <span v-else class="text-gray-400">
                 Jamais connecté
@@ -107,7 +107,7 @@
 
                 <!-- Renvoyer invitation -->
                 <button
-                  v-if="user.statut === 'INACTIF'"
+                  v-if="user.status === 'INACTIF'"
                   @click="handleResendInvitation(user)"
                   :disabled="resendingInvitation === user.id"
                   class="text-orange-600 hover:text-orange-900 p-1 disabled:opacity-50"
@@ -115,6 +115,17 @@
                 >
                   <i v-if="resendingInvitation === user.id" class="fas fa-spinner fa-spin"></i>
                   <i v-else class="fas fa-envelope"></i>
+                </button>
+
+                <!-- Supprimer -->
+                <button
+                  @click="handleDeleteUser(user)"
+                  :disabled="deletingUser === user.id"
+                  class="text-red-600 hover:text-red-900 p-1 disabled:opacity-50"
+                  title="Supprimer l'utilisateur"
+                >
+                  <i v-if="deletingUser === user.id" class="fas fa-spinner fa-spin"></i>
+                  <i v-else class="fas fa-trash-alt"></i>
                 </button>
 
                 <!-- Changer statut -->
@@ -137,22 +148,13 @@
                       :key="status.value"
                       @click="handleStatusChange(user, status.value)"
                       class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      :class="{ 'bg-blue-50 text-blue-700': user.statut === status.value }"
+                      :class="{ 'bg-blue-50 text-blue-700': user.status === status.value }"
                     >
                       <i :class="status.icon" class="mr-2"></i>
                       {{ status.label }}
                     </button>
                   </div>
                 </div>
-
-                <!-- Supprimer -->
-                <button
-                  @click="handleDeleteUser(user)"
-                  class="text-red-600 hover:text-red-900 p-1"
-                  title="Supprimer"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
               </div>
             </td>
           </tr>
@@ -206,6 +208,7 @@ const emit = defineEmits<Emits>()
 const userStore = useUserStore()
 const openStatusMenu = ref<number | null>(null)
 const resendingInvitation = ref<number | null>(null)
+const deletingUser = ref<number | null>(null)
 const showDetailModal = ref(false)
 const selectedUser = ref<User | null>(null)
 
@@ -297,12 +300,15 @@ const handleStatusChange = async (user: User, newStatus: string) => {
 }
 
 const handleDeleteUser = async (user: User) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.prenom} ${user.nom} ?`)) {
+  if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.firstName} ${user.lastName} ?`)) {
     try {
+      deletingUser.value = user.id
       await userStore.deleteUser(user.id)
       emit('user-deleted', user)
     } catch (error) {
       console.error('Erreur lors de la suppression:', error)
+    } finally {
+      deletingUser.value = null
     }
   }
 }

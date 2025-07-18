@@ -10,7 +10,7 @@
     "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "../..",
+    "rootDir": "./src",
     "incremental": true,
     "skipLibCheck": true,
     "baseUrl": "./src",
@@ -22,7 +22,7 @@
     }
   },
   "include": [
-    "src",
+    "src/**/*",
     "../../../Database"
   ],
   "exclude": [

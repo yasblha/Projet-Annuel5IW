@@ -21,27 +21,27 @@
                 <div>
                   <label class="block text-sm font-medium text-gray-700">Prénom</label>
                   <Input
-                    v-model="profileForm.prenom"
+                    v-model="profileForm.firstName"
                     type="text"
                     required
                     autocomplete="off"
                     class="mt-1"
                   />
-                  <div v-if="profileValidationErrors.prenom" class="text-red-600 text-sm mt-1">
-                    {{ profileValidationErrors.prenom }}
+                  <div v-if="profileValidationErrors.firstName" class="text-red-600 text-sm mt-1">
+                    {{ profileValidationErrors.firstName }}
                   </div>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700">Nom</label>
                   <Input
-                    v-model="profileForm.nom"
+                    v-model="profileForm.lastName"
                     type="text"
                     required
                     autocomplete="off"
                     class="mt-1"
                   />
-                  <div v-if="profileValidationErrors.nom" class="text-red-600 text-sm mt-1">
-                    {{ profileValidationErrors.nom }}
+                  <div v-if="profileValidationErrors.lastName" class="text-red-600 text-sm mt-1">
+                    {{ profileValidationErrors.lastName }}
                   </div>
                 </div>
               </div>
@@ -203,8 +203,8 @@ const authStore = useAuthStore()
 const userStore = useUserStore()
 
 const profileForm = ref({
-  prenom: '',
-  nom: '',
+  firstName: '',
+  lastName: '',
   email: '',
   telephone: ''
 })
@@ -227,8 +227,8 @@ defineExpose({ profileValidationErrors })
 
 // Schéma Zod pour la validation du profil
 const profileSchema = z.object({
-  prenom: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
-  nom: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
+  firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
+  lastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   email: z.string().email('Email invalide'),
   telephone: z.string().optional().or(z.literal('')),
 })
@@ -238,8 +238,8 @@ onMounted(async () => {
     await userStore.fetchUserById(Number(authStore.user.id))
     if (userStore.currentUser) {
       profileForm.value = {
-        prenom: userStore.currentUser.prenom,
-        nom: userStore.currentUser.nom,
+        firstName: userStore.currentUser.prenom,
+        lastName: userStore.currentUser.nom,
         email: userStore.currentUser.email,
         telephone: userStore.currentUser.telephone || ''
       }
@@ -268,8 +268,8 @@ const updateProfile = async () => {
   try {
     // PATCH /auth/profile
     await authStore.updateProfile({
-      prenom: profileForm.value.prenom,
-      nom: profileForm.value.nom,
+      firstName: profileForm.value.firstName,
+      lastName: profileForm.value.lastName,
       telephone: profileForm.value.telephone
     })
     // Mettre à jour le store d'authentification
@@ -277,8 +277,8 @@ const updateProfile = async () => {
       authStore.user = {
         id: userStore.currentUser.id.toString(),
         email: userStore.currentUser.email,
-        nom: userStore.currentUser.nom,
-        prenom: userStore.currentUser.prenom,
+        lastName: userStore.currentUser.nom,
+        firstName: userStore.currentUser.prenom,
         role: userStore.currentUser.role,
         telephone: userStore.currentUser.telephone,
         statut: userStore.currentUser.statut,

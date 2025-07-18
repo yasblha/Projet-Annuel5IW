@@ -76,10 +76,14 @@ const form = ref({
 const error = ref('')
 const successMessage = ref('')
 const isLoading = ref(false)
+const token = ref('')
 
 onMounted(() => {
-  // Vérifier que le token est présent dans l'URL
-  if (!route.params.token) {
+  // Récupérer le token soit depuis les paramètres de route (pour /confirm/:token)
+  // soit depuis les paramètres de requête (pour /activate?token=...)
+  token.value = route.params.token as string || route.query.token as string || ''
+  
+  if (!token.value) {
     error.value = 'Token d\'activation manquant'
   }
 })
@@ -99,16 +103,27 @@ const handleActivate = async () => {
     return
   }
   
-  isLoading.value = true
+  // Vérifier que le token est présent
+  if (!token.value) {
+    error.value = 'Token d\'activation manquant'
+    return
+  }
   
   try {
-    await authStore.activateEmail(route.params.token as string, form.value.password)
-    successMessage.value = 'Compte activé avec succès ! Redirection...'
+    isLoading.value = true
+    
+    // Appel à l'API pour activer le compte
+    await authStore.activateEmail(token.value, form.value.password)
+    
+    successMessage.value = 'Votre compte a été activé avec succès!'
+    
+    // Redirection vers la page de connexion après 2 secondes
     setTimeout(() => {
       router.push('/login')
     }, 2000)
-  } catch (err: any) {
-    error.value = err.message || 'Erreur lors de l\'activation'
+  } catch (err) {
+    console.error('Erreur lors de l\'activation:', err)
+    error.value = err instanceof Error ? err.message : 'Une erreur est survenue lors de l\'activation du compte'
   } finally {
     isLoading.value = false
   }

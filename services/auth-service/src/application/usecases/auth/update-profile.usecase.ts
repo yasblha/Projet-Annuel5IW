@@ -1,12 +1,13 @@
 import {User} from "@domain/entité/user";
 import { UserRepository} from '@Database/repositories/user.repository';
+import { UserRole } from '@domain/enums/user-role.enum';
 
 type UpdateProfileDto = {
   nom?: string;
   prenom?: string;
   email?: string;
   telephone?: string | null;
-  role?: 'ADMIN' | 'CLIENT' | 'TECHNICIEN' | 'COMMERCIAL' | 'SUPPORT' | 'COMPTABLE' | 'MANAGER';
+  role?: UserRole;
   tenantId?: string;
   statut?: 'EN_ATTENTE_VALIDATION' | 'ACTIF' | 'SUSPENDU' | 'BLACKLISTE' | 'ARCHIVE' | 'SUPPRIME';
   isLocked?: boolean;

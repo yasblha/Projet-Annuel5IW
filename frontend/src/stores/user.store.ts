@@ -29,19 +29,19 @@ export const useUserStore = defineStore('user', () => {
   })
 
   const getUsersByStatus = computed(() => {
-    return (status: UserStatus) => users.value.filter(user => user.statut === status)
+    return (status: UserStatus) => users.value.filter(user => user.status === status)
   })
 
   const getActiveUsers = computed(() => {
-    return users.value.filter(user => user.statut === 'ACTIF')
+    return users.value.filter(user => user.status === 'ACTIF')
   })
 
   const getInactiveUsers = computed(() => {
-    return users.value.filter(user => user.statut === 'INACTIF')
+    return users.value.filter(user => user.status === 'INACTIF')
   })
 
   const getSuspendedUsers = computed(() => {
-    return users.value.filter(user => user.statut === 'SUSPENDU')
+    return users.value.filter(user => user.status === 'SUSPENDU')
   })
 
   // Actions
@@ -89,13 +89,15 @@ export const useUserStore = defineStore('user', () => {
       
       const response = await userService.createUser(userData)
       
-      if (response.success) {
-        // Recharger la liste des utilisateurs
-        await fetchUsers()
-        return response
-      } else {
-        throw new Error(response.message)
+      // Si la réponse contient success explicitement à false, c'est une erreur
+      if (response.success === false) {
+        throw new Error(response.message || 'Erreur inconnue')
       }
+      
+      // Si on a un message et pas d'erreur explicite, c'est un succès
+      // Recharger la liste des utilisateurs
+      await fetchUsers()
+      return response
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Erreur lors de la création de l\'utilisateur'
       console.error('Erreur createUser:', err)

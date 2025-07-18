@@ -5,41 +5,36 @@ export interface Client {
   email: string;
   telephone?: string;
   type: 'PARTICULIER' | 'ENTREPRISE';
-  statut: 'PROSPECT' | 'ACTIF' | 'SUSPENDU' | 'INACTIF' | 'RESILIE' | 'ARCHIVE';
-  statutContractuel: 'SANS_CONTRAT' | 'EN_NEGOCIATION' | 'EN_ATTENTE_SIGNATURE' | 'CONTRAT_ACTIF' | 'CONTRAT_SUSPENDU' | 'CONTRAT_RESILIE' | 'CONTRAT_EXPIRE';
-  statutPaiement: 'A_JOUR' | 'RETARD_LEGER' | 'RETARD_MODERE' | 'RETARD_IMPORTANT' | 'IMPAYE' | 'EN_PROCEDURE' | 'LITIGE';
-  statutTechnique: 'OPERATIONNEL' | 'MAINTENANCE' | 'DEFAILLANT' | 'COUPURE' | 'INSTALLATION' | 'DEMENAGEMENT';
-  statutAbonnement: 'SANS_ABONNEMENT' | 'ABONNEMENT_ACTIF' | 'ABONNEMENT_SUSPENDU' | 'ABONNEMENT_EXPIRE' | 'EN_CREATION';
-  statutFacturation: 'FACTURATION_NORMALE' | 'FACTURATION_SUSPENDUE' | 'FACTURATION_ESTIMEE' | 'FACTURATION_ANNULEE';
-  montantImpaye?: number;
-  dateDernierPaiement?: string;
-  dateDerniereFacture?: string;
-  nombreFacturesImpayees?: number;
+  statut: 'ACTIF' | 'INACTIF' | 'SUSPENDU';
+  rib?: string;
+  modePaiement?: 'PRELEVEMENT' | 'VIREMENT' | 'CHEQUE' | 'CARTE' | 'ESPECES' | 'AUTRE';
   tenantId?: string;
-  proprietaireEntrepriseId?: string;
   dateCreation: string;
   dateMaj: string;
+  adresse?: ClientAdresse;
+  entreprise?: ClientEntreprise;
 }
 
 export interface ClientAdresse {
-  id: string;
-  clientId: string;
-  type: string;
+  id?: string;
+  clientId?: string;
+  type: 'PRINCIPALE' | 'FACTURATION' | 'LIVRAISON';
   ligne1: string;
   ligne2?: string;
   codePostal: string;
   ville: string;
   pays: string;
+  // Propriétés pour la compatibilité avec l'ancien format
+  rue?: string;
 }
 
 export interface ClientEntreprise {
-  id: string;
+  id?: string;
   nom: string;
   siret?: string;
-  adresse?: string;
+  adresse?: any;
   contactEmail?: string;
   contactTelephone?: string;
-  dateCreation: string;
 }
 
 export interface CreateClientRequest {
@@ -48,19 +43,24 @@ export interface CreateClientRequest {
   email: string;
   telephone?: string;
   type: 'PARTICULIER' | 'ENTREPRISE';
-  statut?: 'PROSPECT' | 'ACTIF' | 'SUSPENDU' | 'INACTIF' | 'RESILIE' | 'ARCHIVE';
+  statut?: 'ACTIF' | 'INACTIF' | 'SUSPENDU';
+  rib?: string;
+  modePaiement?: 'PRELEVEMENT' | 'VIREMENT' | 'CHEQUE' | 'CARTE' | 'ESPECES' | 'AUTRE';
   tenantId?: string;
   adresse?: AdresseParams;
   entreprise?: EntrepriseParams;
 }
 
 export interface AdresseParams {
-  type: string;
-  ligne1: string;
+  type: 'PRINCIPALE' | 'FACTURATION' | 'LIVRAISON';
+  ligne1?: string;
   ligne2?: string;
   codePostal: string;
   ville: string;
   pays: string;
+  // Propriétés pour la compatibilité avec l'ancien format
+  rue?: string;
+  clientId?: string;
 }
 
 export interface EntrepriseParams {
@@ -85,4 +85,4 @@ export interface ListClientsResponse {
   page: number;
   limit: number;
   totalPages: number;
-} 
+}

@@ -25,12 +25,12 @@
             />
           </div>
           <div>
-            <label for="prenom" class="block text-sm font-medium text-gray-700">
+            <label for="firstName" class="block text-sm font-medium text-gray-700">
               Prénom
             </label>
             <Input
-              id="prenom"
-              v-model="form.prenom"
+              id="firstName"
+              v-model="form.firstName"
               type="text"
               placeholder="Prénom de l'utilisateur"
               required
@@ -38,12 +38,12 @@
             />
           </div>
           <div>
-            <label for="nom" class="block text-sm font-medium text-gray-700">
+            <label for="lastName" class="block text-sm font-medium text-gray-700">
               Nom
             </label>
             <Input
-              id="nom"
-              v-model="form.nom"
+              id="lastName"
+              v-model="form.lastName"
               type="text"
               placeholder="Nom de l'utilisateur"
               required
@@ -95,8 +95,8 @@ const authStore = useAuthStore()
 
 const form = ref({
   email: '',
-  prenom: '',
-  nom: '',
+  firstName: '',
+  lastName: '',
   role: 'CLIENT'
 })
 

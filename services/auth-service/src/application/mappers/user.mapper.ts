@@ -1,6 +1,7 @@
 import { RegisterDto } from '@application/dtos/auth/register.dto';
 import { LoginDto } from '@application/dtos/auth/login.dto';
 import { User } from '@domain/entité/user';
+import { UserRole } from '@domain/enums/user-role.enum';
 
 export function mapDtoToUser(dto: RegisterDto): User {
     // Utiliser motDePasse ou password selon ce qui est fourni
@@ -19,7 +20,7 @@ export function mapDtoToUser(dto: RegisterDto): User {
         null,
         dto.tenantId,
         dto.telephone ?? null,
-        dto.role ?? 'CLIENT',
+        (dto.role as UserRole) ?? UserRole.CLIENT,
         'EN_ATTENTE_VALIDATION',
         null,
         new Date(),

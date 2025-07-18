@@ -24,6 +24,7 @@
     "date-fns": "^4.1.0",
     "file-saver": "^2.0.5",
     "lucide-vue-next": "^0.294.0",
+    "marked": "^16.0.0",
     "pdfmake": "^0.2.20",
     "pinia": "^2.1.7",
     "radix-vue": "^1.2.4",

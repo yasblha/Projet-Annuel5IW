@@ -1,9 +1,14 @@
 import axios from 'axios'
+import router from '@/router'
+import { useAuthStore } from '@/stores/auth.store.ts'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  timeout: 10000,
-  withCredentials: true
+  timeout: 30000,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json'
+  }
 })
 
 // Intercepteur pour ajouter automatiquement le token aux requêtes
@@ -17,6 +22,29 @@ api.interceptors.request.use(config => {
   if (token) {
     const tokenPreview = token.substring(0, 20) + '...'
     console.log(`Token trouvé (${token.length} caractères):`, tokenPreview)
+    
+    try {
+      // Vérifier si le token est un JWT valide
+      const tokenParts = token.split('.')
+      if (tokenParts.length !== 3) {
+        console.warn('⚠️ Format de token invalide (pas un JWT standard)')
+      } else {
+        // Décoder le payload pour vérifier les informations
+        const payload = JSON.parse(atob(tokenParts[1]))
+        console.log('Token payload:', {
+          sub: payload.sub,
+          exp: payload.exp ? new Date(payload.exp * 1000).toISOString() : 'non défini',
+          iat: payload.iat ? new Date(payload.iat * 1000).toISOString() : 'non défini'
+        })
+        
+        // Vérifier si le token est expiré
+        if (payload.exp && Date.now() >= payload.exp * 1000) {
+          console.warn('⚠️ Token expiré! Date d\'expiration:', new Date(payload.exp * 1000).toISOString())
+        }
+      }
+    } catch (e) {
+      console.error('Erreur lors de l\'analyse du token JWT:', e)
+    }
     
     // S'assurer que les headers existent
     if (!config.headers) {
@@ -36,6 +64,12 @@ api.interceptors.request.use(config => {
     console.log('Clés disponibles dans localStorage:', allKeys)
   }
   
+  // Forcer Content-Type pour POST, PUT, PATCH
+  if (['post', 'put', 'patch'].includes((config.method || '').toLowerCase())) {
+    config.headers = config.headers || {};
+    config.headers['Content-Type'] = 'application/json';
+  }
+
   // Afficher les headers pour vérifier
   console.log('En-têtes de requête:', config.headers)
   
@@ -45,66 +79,222 @@ api.interceptors.request.use(config => {
   return Promise.reject(error)
 })
 
-// Intercepteur pour gérer les erreurs de réponse
+// Intercepteur de réponse pour gérer les erreurs
 api.interceptors.response.use(
-  response => {
-    console.log('Réponse reçue pour:', response.config.url, 'Status:', response.status)
-    return response
+  (response) => {
+    return response;
   },
-  error => {
-    // Log détaillé des erreurs pour faciliter le débogage
-    console.error('Erreur API interceptée:', {
-      status: error.response?.status,
-      url: error.config?.url,
-      method: error.config?.method,
-      headers: error.config?.headers,
-      data: error.response?.data
-    })
-
-    // Ne pas rediriger automatiquement pour les erreurs CORS
-    if (error.message && error.message.includes('Network Error')) {
-      console.error('Erreur réseau possible - problème CORS:', error)
-      return Promise.reject(error)
+  async (error) => {
+    // Récupérer la requête originale pour pouvoir la réessayer
+    const originalRequest = error.config;
+    
+    // Éviter les boucles infinies de tentatives
+    if (originalRequest._retry) {
+      console.log('Requête déjà réessayée, pas de nouvelle tentative');
+      return Promise.reject(error);
     }
-
-    if (error.response?.status === 401) {
-      console.warn('Erreur 401 détectée - problème d\'authentification')
-
-      const token = localStorage.getItem('auth_token')
-      let tokenExpired = true
-
-      if (token) {
-        console.log('Token actuel qui a échoué:', token.substring(0, 20) + '...')
+    
+    // Gérer les erreurs 401 (non autorisé)
+    if (error.response && error.response.status === 401) {
+      console.log('Erreur 401 détectée, tentative de rafraîchissement du token');
+      
+      // Marquer la requête comme ayant été réessayée
+      originalRequest._retry = true;
+      
+      try {
+        // Utiliser le store Pinia pour rafraîchir le token
+        const authStore = useAuthStore();
+        const result = await authStore.refreshToken();
         
-        try {
-          const tokenParts = token.split('.')
-          if (tokenParts.length === 3) {
-            const payload = JSON.parse(atob(tokenParts[1]))
-            const expDate = new Date(payload.exp * 1000)
-            tokenExpired = expDate.getTime() < Date.now()
-            console.log('Date d\'expiration du token:', expDate)
-            console.log('Token expiré ?', tokenExpired)
-          }
-        } catch (e) {
-          console.error('Erreur lors du décodage du token:', e)
+        if (result && result.token) {
+          console.log('Token rafraîchi avec succès, nouvelle tentative de la requête originale');
+          
+          // Mettre à jour le header d'autorisation avec le nouveau token
+          originalRequest.headers['Authorization'] = `Bearer ${result.token}`;
+          
+          // Attendre un court instant pour s'assurer que le token est bien propagé
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Réessayer la requête originale avec le nouveau token
+          return api(originalRequest);
+        } else {
+          console.error('Échec du rafraîchissement du token');
+          authStore.logout();
+          return Promise.reject(error);
         }
-      }
-
-      // Déconnecter uniquement si le token est réellement expiré
-      if (tokenExpired) {
-        console.log('Token expiré - suppression et redirection vers login')
-        if (window.location.pathname !== '/login') {
-          localStorage.removeItem('auth_token')
-          localStorage.removeItem('auth_user')
-          window.location.href = '/login'
-        }
-      } else {
-        // Le token est encore valide : ne pas déconnecter, simplement rejeter l'erreur
-        console.warn('401 reçu mais token encore valide - aucune déconnexion')
+      } catch (refreshError) {
+        console.error('Erreur lors du rafraîchissement du token:', refreshError);
+        
+        // En cas d'échec du rafraîchissement, déconnecter l'utilisateur
+        const authStore = useAuthStore();
+        authStore.logout();
+        
+        return Promise.reject(error);
       }
     }
-    return Promise.reject(error)
+    
+    // Gérer les erreurs 500 (erreur serveur)
+    if (error.response && error.response.status === 500) {
+      console.log('Erreur 500 détectée:', error.response.data);
+      
+      // Vérifier si c'est une requête clients/v2 qui échoue
+      if (originalRequest.url && originalRequest.url.includes('/clients/v2')) {
+        console.log('Erreur 500 sur endpoint clients/v2');
+        
+        // Vérifier si la requête a déjà été réessayée
+        if (originalRequest._retry500) {
+          console.log('Requête déjà réessayée après erreur 500, pas de nouvelle tentative');
+          return Promise.reject(error);
+        }
+        
+        // Marquer la requête comme ayant été réessayée après une erreur 500
+        originalRequest._retry500 = true;
+        
+        // Vérifier le token actuel
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+          try {
+            const tokenParts = token.split('.');
+            if (tokenParts.length === 3) {
+              const payload = JSON.parse(atob(tokenParts[1]));
+              console.log('Token payload lors de l\'erreur 500:', payload);
+              
+              // Vérifier si le token est expiré
+              let isExpired = false;
+              if (payload.exp) {
+                let expDate;
+                
+                // Si exp est un timestamp (nombre), le convertir en Date
+                if (typeof payload.exp === 'number') {
+                  expDate = new Date(payload.exp * 1000); // Convertir secondes en millisecondes
+                } 
+                // Si exp est une chaîne ISO, la parser directement
+                else if (typeof payload.exp === 'string') {
+                  expDate = new Date(payload.exp);
+                }
+                
+                const now = new Date();
+                console.log(`Date d'expiration du token: ${expDate}, Date actuelle: ${now}`);
+                
+                if (expDate && expDate < now) {
+                  isExpired = true;
+                  console.log('Token expiré détecté lors d\'une erreur 500');
+                }
+              }
+              
+              // Si le token est incomplet ou expiré, tenter un rafraîchissement
+              if (isExpired || !payload.role || !payload.agencyId || !payload.email) {
+                console.log('Token incomplet ou expiré détecté, tentative de rafraîchissement');
+                
+                try {
+                  // Utiliser le store Pinia pour rafraîchir le token
+                  const authStore = useAuthStore();
+                  const result = await authStore.refreshToken();
+                  
+                  if (result && result.token) {
+                    console.log('Token rafraîchi après erreur 500, nouvelle tentative de la requête originale');
+                    
+                    // Mettre à jour le header d'autorisation avec le nouveau token
+                    originalRequest.headers['Authorization'] = `Bearer ${result.token}`;
+                    
+                    // Attendre un court instant pour s'assurer que le token est bien propagé
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Réessayer la requête originale avec le nouveau token
+                    return api(originalRequest);
+                  }
+                } catch (refreshError) {
+                  console.error('Erreur lors du rafraîchissement du token:', refreshError);
+                }
+              }
+            }
+          } catch (e) {
+            console.error('Erreur lors de l\'analyse du token:', e);
+          }
+        }
+      }
+      
+      // Vérifier si c'est une requête contrats/v2 qui échoue
+      if (originalRequest.url && originalRequest.url.includes('/contrats/v2')) {
+        console.log('Erreur 500 sur endpoint contrats/v2');
+        
+        // Vérifier si la requête a déjà été réessayée
+        if (originalRequest._retry500) {
+          console.log('Requête déjà réessayée après erreur 500, pas de nouvelle tentative');
+          return Promise.reject(error);
+        }
+        
+        // Marquer la requête comme ayant été réessayée après une erreur 500
+        originalRequest._retry500 = true;
+        
+        // Vérifier le token actuel
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+          try {
+            const tokenParts = token.split('.');
+            if (tokenParts.length === 3) {
+              const payload = JSON.parse(atob(tokenParts[1]));
+              console.log('Token payload lors de l\'erreur 500 sur contrats/v2:', payload);
+              
+              // Vérifier si le token est expiré
+              let isExpired = false;
+              if (payload.exp) {
+                let expDate;
+                
+                // Si exp est un timestamp (nombre), le convertir en Date
+                if (typeof payload.exp === 'number') {
+                  expDate = new Date(payload.exp * 1000); // Convertir secondes en millisecondes
+                } 
+                // Si exp est une chaîne ISO, la parser directement
+                else if (typeof payload.exp === 'string') {
+                  expDate = new Date(payload.exp);
+                }
+                
+                const now = new Date();
+                console.log(`Date d'expiration du token: ${expDate}, Date actuelle: ${now}`);
+                
+                if (expDate && expDate < now) {
+                  isExpired = true;
+                  console.log('Token expiré détecté lors d\'une erreur 500');
+                }
+              }
+              
+              // Si le token est incomplet ou expiré, tenter un rafraîchissement
+              if (isExpired || !payload.role || !payload.agencyId || !payload.email) {
+                console.log('Token incomplet ou expiré détecté, tentative de rafraîchissement');
+                
+                try {
+                  // Utiliser le store Pinia pour rafraîchir le token
+                  const authStore = useAuthStore();
+                  const result = await authStore.refreshToken();
+                  
+                  if (result && result.token) {
+                    console.log('Token rafraîchi après erreur 500, nouvelle tentative de la requête originale');
+                    
+                    // Mettre à jour le header d'autorisation avec le nouveau token
+                    originalRequest.headers['Authorization'] = `Bearer ${result.token}`;
+                    
+                    // Attendre un court instant pour s'assurer que le token est bien propagé
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Réessayer la requête originale avec le nouveau token
+                    return api(originalRequest);
+                  }
+                } catch (refreshError) {
+                  console.error('Erreur lors du rafraîchissement du token:', refreshError);
+                }
+              }
+            }
+          } catch (e) {
+            console.error('Erreur lors de l\'analyse du token JWT:', e);
+          }
+        }
+      }
+    }
+    
+    // Pour toutes les autres erreurs, rejeter la promesse
+    return Promise.reject(error);
   }
-)
+);
 
 export default api

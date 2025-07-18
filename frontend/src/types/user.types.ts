@@ -1,25 +1,27 @@
 export interface User {
   id: number
-  nom: string
-  prenom: string
   email: string
-  telephone?: string
+  firstName: string
+  lastName: string
   role: UserRole
-  statut: UserStatus
+  telephone?: string
+  agencyId?: string
+  status: UserStatus
+  createdAt: string
+  updatedAt: string
+  passwordExpired?: boolean
   dateCreation: string
   dateDerniereConnexion?: string
   activationToken?: string
   resetPasswordToken?: string
-  createdAt: string
-  updatedAt: string
 }
 
 export type UserRole = 'ADMIN' | 'CLIENT' | 'TECHNICIEN'
 export type UserStatus = 'ACTIF' | 'INACTIF' | 'SUSPENDU'
 
 export interface CreateUserRequest {
-  nom: string
-  prenom: string
+  firstName: string
+  lastName: string
   email: string
   telephone?: string
   role: UserRole
@@ -40,18 +42,18 @@ export interface UsersListResponse {
 
 export interface UserFilters {
   role?: UserRole
-  statut?: UserStatus
+  status?: UserStatus
   search?: string
   page?: number
   limit?: number
 }
 
 export interface UpdateUserRequest {
-  nom?: string
-  prenom?: string
+  firstName?: string
+  lastName?: string
   telephone?: string
   role?: UserRole
-  statut?: UserStatus
+  status?: UserStatus
 }
 
 export interface UserPermissions {
@@ -60,4 +62,4 @@ export interface UserPermissions {
   canDeleteUsers: boolean
   canViewUsers: boolean
   canAssignRoles: boolean
-} 
+}

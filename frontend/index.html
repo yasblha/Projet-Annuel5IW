@@ -5,9 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Billing System</title>
+    <!-- FontAwesome depuis CDN pour éviter les problèmes CORS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Sécurité -->
     <!-- CSP élargie pour autoriser les API publiques gouv.fr utilisées (adresse & géo) -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' http://localhost:8080 ws://localhost:8080 http://localhost:3000 https://api.aquaerp.cloud https://api-adresse.data.gouv.fr https://geo.api.gouv.fr https://geocodage.geo.gouv.fr;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' http://localhost:8080 ws://localhost:8080 http://localhost:3000 https://api.aquaerp.cloud https://api-adresse.data.gouv.fr https://geo.api.gouv.fr https://geocodage.geo.gouv.fr;">
     <meta http-equiv="Cache-Control" content="no-store" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />

@@ -18,5 +18,9 @@ export enum UserRole {
   
   // Rôles en lecture seule
   AUDITEUR = 'AUDITEUR',
-  CONSULTANT = 'CONSULTANT'
+  CONSULTANT = 'CONSULTANT',
+
+  // Compatibilité avec les rôles existants
+  CLIENT = 'CLIENT',
+  SUPPORT = 'SUPPORT'
 }

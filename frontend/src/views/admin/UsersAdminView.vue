@@ -44,16 +44,16 @@ const search = ref('')
 const showCreateModal = ref(false)
 
 const totalUsers = computed(() => users.value.length)
-const activeUsers = computed(() => users.value.filter(u => (u.statut as string) === 'ACTIF').length)
-const pendingUsers = computed(() => users.value.filter(u => (u.statut as string) === 'EN_ATTENTE_VALIDATION').length)
-const inactiveUsers = computed(() => users.value.filter(u => (u.statut as string) === 'INACTIF').length)
+const activeUsers = computed(() => users.value.filter(u => u.status === 'ACTIF').length)
+const pendingUsers = computed(() => users.value.filter(u => u.status === 'EN_ATTENTE_VALIDATION').length)
+const inactiveUsers = computed(() => users.value.filter(u => u.status === 'INACTIF').length)
 
 const filteredUsers = computed(() => {
   if (!search.value) return users.value
   const s = search.value.toLowerCase()
   return users.value.filter(u =>
-    u.nom.toLowerCase().includes(s) ||
-    u.prenom.toLowerCase().includes(s) ||
+    u.lastName.toLowerCase().includes(s) ||
+    u.firstName.toLowerCase().includes(s) ||
     u.email.toLowerCase().includes(s)
   )
 })

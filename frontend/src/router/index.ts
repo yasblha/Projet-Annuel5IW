@@ -34,9 +34,18 @@ import PrivacyView from '@/views/legal/PrivacyView.vue';
 import ContactView from '@/views/legal/ContactView.vue';
 import { setupAuthGuards } from './guards';
 
-// Importation statique des composants factures pour éviter les erreurs d'importation dynamique
+// Import des composants factures pour éviter les erreurs d'importation dynamique
 import FactureListView from '@/views/factures/FactureListView.vue'
 import FactureDetailView from '@/views/factures/FactureDetailView.vue'
+
+// Import des vues de contrats v2
+import ContractsListViewV2 from '@/views/contracts/v2/ContractsListView.vue';
+import ContractDetailsViewV2 from '@/views/contracts/v2/ContractDetailsView.vue';
+import CreateContractViewV2 from '@/views/contracts/v2/CreateContractView.vue';
+import TemplatesViewV2 from '@/views/contracts/v2/TemplatesView.vue';
+
+// Import des vues de debug
+import ContractV2DebugView from '@/views/debug/ContractV2DebugView.vue';
 
 const router = createRouter({
   history: createWebHistory('/'),
@@ -85,6 +94,11 @@ const router = createRouter({
     {
       path: '/activate',
       name: 'activate',
+      component: ActivateView
+    },
+    {
+      path: '/confirm/:token',
+      name: 'confirm',
       component: ActivateView
     },
     {
@@ -205,6 +219,13 @@ const router = createRouter({
           }
         },
         { 
+          path: 'clients/:id', 
+          component: ClientDetailView,
+          meta: {
+            permission: { module: 'clients', action: 'view' }
+          }
+        },
+        { 
           path: 'clients/:id/details', 
           component: ClientDetailsView,
           meta: {
@@ -219,18 +240,59 @@ const router = createRouter({
           }
         },
         { 
-          path: 'clients/:id', 
-          component: ClientDetailView,
-          meta: {
-            permission: { module: 'clients', action: 'view' }
-          }
-        },
-        { 
           path: 'contrats/:id', 
           component: ContractDetailsView,
           name: 'dashboard-contract-detail',
           meta: {
             permission: { module: 'contracts', action: 'view' }
+          }
+        },
+        { 
+          path: 'contrats/v2',
+          component: ContractsListViewV2,
+          name: 'dashboard-contracts-v2-list',
+          meta: {
+            permission: { module: 'contracts', action: 'view' }
+          },
+          beforeEnter(to, from, next) {
+            const authStore = useAuthStore();
+            authStore.hasPermission('contracts', 'view') ? next() : next('/access-denied');
+          }
+        },
+        { 
+          path: 'contrats/v2/create',
+          component: CreateContractViewV2,
+          name: 'dashboard-contracts-v2-create',
+          meta: {
+            permission: { module: 'contracts', action: 'create' }
+          },
+          beforeEnter(to, from, next) {
+            const authStore = useAuthStore();
+            authStore.hasPermission('contracts', 'create') ? next() : next('/access-denied');
+          }
+        },
+        { 
+          path: 'contrats/v2/templates',
+          component: TemplatesViewV2,
+          name: 'dashboard-contracts-v2-templates',
+          meta: {
+            permission: { module: 'contracts', action: 'create' }
+          },
+          beforeEnter(to, from, next) {
+            const authStore = useAuthStore();
+            authStore.hasPermission('contracts', 'create') ? next() : next('/access-denied');
+          }
+        },
+        { 
+          path: 'contrats/v2/:id',
+          component: ContractDetailsViewV2,
+          name: 'dashboard-contracts-v2-detail',
+          meta: {
+            permission: { module: 'contracts', action: 'view' }
+          },
+          beforeEnter(to, from, next) {
+            const authStore = useAuthStore();
+            authStore.hasPermission('contracts', 'view') ? next() : next('/access-denied');
           }
         },
         { 
@@ -246,19 +308,27 @@ const router = createRouter({
           component: CompteurDetailView,
           name: 'dashboard-compteur-detail',
           meta: {
-            // Aucune permission spécifique requise
-          }
-        },
-        { 
-          path: 'compteurs/:id/edit', 
-          component: () => import('@/views/dashboard/CompteurEditView.vue'),
-          name: 'dashboard-compteur-edit',
-          meta: {
-            // Aucune permission spécifique requise
+            permission: { module: 'meters', action: 'view' }
           }
         },
         {
-          path: 'interventions',
+          path: 'paiements',
+          name: 'dashboard-paiements',
+          component: () => import('@/views/dashboard/PaymentsView.vue'),
+          meta: {
+            permission: { module: 'payments', action: 'view' }
+          }
+        },
+        {
+          path: 'aide',
+          name: 'dashboard-aide',
+          component: () => import('@/views/dashboard/HelpView.vue'),
+          meta: {
+            permission: { module: 'help', action: 'view' }
+          }
+        },
+        { 
+          path: 'interventions', 
           component: () => import('@/views/dashboard/InterventionsView.vue'),
           meta: {
             permission: { module: 'interventions', action: 'view' }
@@ -382,6 +452,63 @@ const router = createRouter({
       ]
     },
     {
+      path: '/contracts/v2',
+      children: [
+        {
+          path: '',
+          component: ContractsListViewV2,
+          name: 'contracts-v2-list',
+          meta: {
+            requiresAuth: true,
+            permission: { module: 'contracts', action: 'view' }
+          },
+          beforeEnter: (to, from, next) => {
+            // Rediriger vers la route dans le layout dashboard
+            next({ path: '/dashboard/contrats/v2' });
+          }
+        },
+        {
+          path: 'create',
+          component: CreateContractViewV2,
+          name: 'contracts-v2-create',
+          meta: {
+            requiresAuth: true,
+            permission: { module: 'contracts', action: 'create' }
+          },
+          beforeEnter: (to, from, next) => {
+            // Rediriger vers la route dans le layout dashboard
+            next({ path: '/dashboard/contrats/v2/create' });
+          }
+        },
+        {
+          path: 'templates',
+          component: TemplatesViewV2,
+          name: 'contracts-v2-templates',
+          meta: {
+            requiresAuth: true,
+            permission: { module: 'contracts', action: 'create' }
+          },
+          beforeEnter: (to, from, next) => {
+            // Rediriger vers la route dans le layout dashboard
+            next({ path: '/dashboard/contrats/v2/templates' });
+          }
+        },
+        {
+          path: ':id',
+          component: ContractDetailsViewV2,
+          name: 'contracts-v2-detail',
+          meta: {
+            requiresAuth: true,
+            permission: { module: 'contracts', action: 'view' }
+          },
+          beforeEnter: (to, from, next) => {
+            // Rediriger vers la route dans le layout dashboard
+            next({ path: `/dashboard/contrats/v2/${to.params.id}` });
+          }
+        }
+      ]
+    },
+    {
       path: '/users',
       name: 'users',
       component: UsersView,
@@ -397,7 +524,27 @@ const router = createRouter({
       meta: {
         requiresAuth: true
       }
-    }
+    },
+    // Routes de debug - accessibles uniquement aux administrateurs
+    {
+      path: '/debug',
+      component: DashboardLayout,
+      meta: {
+        requiresAuth: true,
+        permission: { module: 'admin', action: 'view' }
+      },
+      children: [
+        {
+          path: 'contract-v2',
+          component: ContractV2DebugView,
+          name: 'debug-contract-v2',
+          meta: {
+            requiresAuth: true,
+            permission: { module: 'admin', action: 'view' }
+          }
+        }
+      ]
+    },
   ]
 })
 

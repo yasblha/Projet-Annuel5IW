@@ -3,6 +3,7 @@ import { User } from '@domain/entité/user';
 import { PasswordService } from '@application/services/password.service';
 import { RegisterErrors } from '@domain/errors/register.errors';
 import { PasswordValidator } from '@application/validators/password.validator';
+import { UserRole } from '@domain/enums/user-role.enum';
 import { randomBytes } from 'crypto';
 
 export class RegisterInterfaceUsecase {
@@ -55,7 +56,7 @@ export class RegisterInterfaceUsecase {
 
         // Déterminer le rôle en fonction du nombre d'utilisateurs existants
         const userCount = await this.userRepository.count();
-        const finalRole = user.role ?? (userCount === 0 ? 'ADMIN' : 'CLIENT');
+        const finalRole = user.role ?? (userCount === 0 ? UserRole.ADMIN : UserRole.CLIENT);
 
         console.log(`🔐 Génération token d'activation: ${activationToken}`);
         console.log(`⏰ Expiration: ${activationTokenExpiration}`);

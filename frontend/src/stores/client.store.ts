@@ -110,13 +110,31 @@ export const useClientStore = defineStore('client', () => {
     
     try {
       await clientService.delete(id);
-      clients.value = clients.value.filter(c => c.id !== id);
+      const index = clients.value.findIndex(c => c.id === id);
+      if (index !== -1) {
+        clients.value.splice(index, 1);
+      }
       if (currentClient.value?.id === id) {
         currentClient.value = null;
       }
     } catch (err: any) {
       error.value = err.message || 'Erreur lors de la suppression du client';
       throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const searchClients = async (query: string) => {
+    loading.value = true;
+    error.value = null;
+    
+    try {
+      const response = await clientService.list({ search: query, limit: 10 });
+      return response.clients;
+    } catch (err: any) {
+      error.value = err.message || 'Erreur lors de la recherche des clients';
+      return [];
     } finally {
       loading.value = false;
     }
@@ -151,6 +169,7 @@ export const useClientStore = defineStore('client', () => {
     getClientById,
     updateClient,
     deleteClient,
+    searchClients,
     clearError,
     clearCurrentClient
   };

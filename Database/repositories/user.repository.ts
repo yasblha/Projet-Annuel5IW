@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import { models } from '../sequelize';
+import { UserRole } from '../models/enums/userRole.enum';
 
 type UserInstance = typeof models.Utilisateur;
 
@@ -10,7 +11,7 @@ export interface CreateUserParams {
     hashMotDePasse: string;
     telephone: string;
     tenantId: string;
-    role: 'ADMIN' | 'CLIENT' | 'TECHNICIEN' | 'COMMERCIAL' | 'SUPPORT' | 'COMPTABLE' | 'MANAGER';
+    role: UserRole;
     statut: 'EN_ATTENTE_VALIDATION' | 'ACTIF' | 'SUSPENDU' | 'BLACKLISTE' | 'ARCHIVE' | 'SUPPRIME';
     activationToken?: string;
     activationTokenExpiration?: Date;
@@ -28,7 +29,7 @@ export interface UpdateProfileParams {
         prenom: string;
         email: string;
         telephone: string | null;
-        role: 'ADMIN' | 'CLIENT' | 'TECHNICIEN' | 'COMMERCIAL' | 'SUPPORT' | 'COMPTABLE' | 'MANAGER';
+        role: UserRole;
         tenantId: string;
         statut: 'EN_ATTENTE_VALIDATION' | 'ACTIF' | 'SUSPENDU' | 'BLACKLISTE' | 'ARCHIVE' | 'SUPPRIME';
         isLocked: boolean;
@@ -59,7 +60,7 @@ export class UserRepository {
         nom: string;
         prenom: string;
         email: string;
-        role: "ADMIN" | "CLIENT" | "TECHNICIEN" | "COMMERCIAL" | "SUPPORT" | "COMPTABLE" | "MANAGER";
+        role: UserRole;
         telephone: string | null;
         hashMotDePasse: string;
         tenantId: string;
@@ -82,13 +83,13 @@ export class UserRepository {
         return this.repo.findOne({ where: { email: { [Op.iLike]: email } } });
     }
 
-    async findByPhone(telephone: string | null): Promise<UserInstance | null> {
-        return this.repo.findOne({ where: { telephone } });
-    }
-
-    /** Retourne le nombre total d'utilisateurs */
+    /** Compte le nombre total d'utilisateurs */
     async count(): Promise<number> {
         return this.repo.count();
+    }
+
+    async findByPhone(telephone: string | null): Promise<UserInstance | null> {
+        return this.repo.findOne({ where: { telephone } });
     }
 
     /** Recherche un utilisateur par son personnel info */

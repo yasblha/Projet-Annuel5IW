@@ -17,12 +17,12 @@
         <form @submit.prevent="handleRegister" class="space-y-6">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label for="prenom" class="block text-sm font-medium text-gray-700">
+              <label for="firstName" class="block text-sm font-medium text-gray-700">
                 Prénom
               </label>
               <Input
-                id="prenom"
-                v-model="form.prenom"
+                id="firstName"
+                v-model="form.firstName"
                 type="text"
                 placeholder="Votre prénom"
                 required
@@ -30,12 +30,12 @@
               />
             </div>
             <div>
-              <label for="nom" class="block text-sm font-medium text-gray-700">
+              <label for="lastName" class="block text-sm font-medium text-gray-700">
                 Nom
               </label>
               <Input
-                id="nom"
-                v-model="form.nom"
+                id="lastName"
+                v-model="form.lastName"
                 type="text"
                 placeholder="Votre nom"
                 required
@@ -72,12 +72,12 @@
           </div>
 
           <div>
-            <label for="motDePasse" class="block text-sm font-medium text-gray-700">
+            <label for="password" class="block text-sm font-medium text-gray-700">
               Mot de passe
             </label>
             <Input
-              id="motDePasse"
-              v-model="form.motDePasse"
+              id="password"
+              v-model="form.password"
               type="password"
               placeholder="Votre mot de passe"
               required
@@ -88,6 +88,19 @@
             </p>
           </div>
 
+          <div>
+            <label for="agencyName" class="block text-sm font-medium text-gray-700">
+              Nom de votre entreprise
+            </label>
+            <Input
+              id="agencyName"
+              v-model="form.agencyName"
+              type="text"
+              placeholder="Nom de votre entreprise"
+              required
+              class="mt-1"
+            />
+          </div>
 
           <div v-if="authStore.error" class="text-red-600 text-sm text-center">
             {{ authStore.error }}
@@ -115,21 +128,38 @@ import Input from '@/components/ui/input/Input.vue'
 import Button from '@/components/ui/button/Button.vue'
 import { useAuthStore } from '@/stores/auth.store'
 import type { RegisterRequest } from '@/types/auth.types'
+import type { UserRole } from '@/types/user.types'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
 const form = ref<RegisterRequest>({
-  nom: '',
-  prenom: '',
+  firstName: '',
+  lastName: '',
   email: '',
-  motDePasse: '',
-  telephone: ''
+  password: '',
+  telephone: '',
+  agencyName: ''
 })
 
 const handleRegister = async () => {
   try {
-    await authStore.register(form.value)
+    // Ajouter automatiquement le rôle ADMIN au formulaire d'inscription
+    const registerData = {
+      firstName: form.value.firstName,
+      lastName: form.value.lastName,
+      email: form.value.email,
+      password: form.value.password, // <-- clé correcte attendue par le backend
+      telephone: form.value.telephone,
+      agencyName: form.value.agencyName,
+      role: 'ADMIN' as UserRole  // Cast explicite pour satisfaire le type RegisterRequest
+    }
+    
+    console.log('Données d\'inscription:', registerData)
+    
+    // Appel au store avec les données complètes
+    await authStore.register(registerData)
+    
     // Redirection vers la page de connexion après inscription réussie
     if (!authStore.error) {
       router.push('/login')

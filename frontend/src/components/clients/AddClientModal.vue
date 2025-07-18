@@ -19,8 +19,6 @@
           <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
             <i class="fas fa-user text-blue-600"></i> Informations utilisateur
           </h3>
-          <!-- Champ rôle caché, hors de la grille pour éviter tout doublon -->
-          <input type="hidden" v-model="form.role" />
           <div class="flex flex-col md:grid md:grid-cols-2 gap-4">
             <div>
               <label class="block font-medium mb-1">Nom <span class="text-red-500">*</span></label>
@@ -50,63 +48,6 @@
         </div>
         <div class="border-b border-gray-200 pb-4 mb-4">
           <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
-            <i class="fas fa-chart-line text-purple-600"></i> Statuts métier
-          </h3>
-          <div class="flex flex-col md:grid md:grid-cols-2 gap-4">
-            <div>
-              <label class="block font-medium mb-1">Statut contractuel</label>
-              <select v-model="form.statutContractuel" class="form-select">
-                <option value="SANS_CONTRAT">Sans contrat</option>
-                <option value="EN_NEGOCIATION">En négociation</option>
-                <option value="CONTRAT_ACTIF">Contrat actif</option>
-                <option value="CONTRAT_EXPIRE">Contrat expiré</option>
-                <option value="CONTRAT_RESILIE">Contrat résilié</option>
-              </select>
-            </div>
-            <div>
-              <label class="block font-medium mb-1">Statut de paiement</label>
-              <select v-model="form.statutPaiement" class="form-select">
-                <option value="A_JOUR">À jour</option>
-                <option value="EN_RETARD">En retard</option>
-                <option value="IMPAYE">Impayé</option>
-                <option value="EN_PROCEDURE">En procédure</option>
-                <option value="SUSPENDU">Suspendu</option>
-              </select>
-            </div>
-            <div>
-              <label class="block font-medium mb-1">Statut technique</label>
-              <select v-model="form.statutTechnique" class="form-select">
-                <option value="ACTIF">Actif</option>
-                <option value="EN_PANNE">En panne</option>
-                <option value="MAINTENANCE">En maintenance</option>
-                <option value="COUPURE">Coupure</option>
-                <option value="INACTIF">Inactif</option>
-              </select>
-            </div>
-            <div>
-              <label class="block font-medium mb-1">Statut d'abonnement</label>
-              <select v-model="form.statutAbonnement" class="form-select">
-                <option value="SANS_ABONNEMENT">Sans abonnement</option>
-                <option value="DEMANDE_EN_COURS">Demande en cours</option>
-                <option value="ABONNE_ACTIF">Abonné actif</option>
-                <option value="ABONNEMENT_SUSPENDU">Abonnement suspendu</option>
-                <option value="ABONNEMENT_RESILIE">Abonnement résilié</option>
-              </select>
-            </div>
-            <div>
-              <label class="block font-medium mb-1">Statut de facturation</label>
-              <select v-model="form.statutFacturation" class="form-select">
-                <option value="NORMAL">Normal</option>
-                <option value="ESTIMEE">Estimée</option>
-                <option value="EN_RETARD">En retard</option>
-                <option value="SUSPENDUE">Suspendue</option>
-                <option value="ANOMALIE">Anomalie</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="border-b border-gray-200 pb-4 mb-4">
-          <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
             <i class="fas fa-map-marker-alt text-green-600"></i> Adresse principale
           </h3>
           <div class="flex flex-col md:grid md:grid-cols-2 gap-4">
@@ -125,45 +66,6 @@
             <div>
               <label class="block font-medium mb-1">Ville <span class="text-red-500">*</span></label>
               <input v-model="form.adresse.ville" type="text" class="form-input" required />
-            </div>
-            <div>
-              <label class="block font-medium mb-1">Pays</label>
-              <input v-model="form.adresse.pays" type="text" class="form-input" />
-            </div>
-            <div>
-              <label class="block font-medium mb-1">Type d'adresse <span class="text-red-500">*</span></label>
-              <select v-model="form.adresse.type" class="form-select" required>
-                <option value="PRINCIPALE">Principale</option>
-                <option value="FACTURATION">Facturation</option>
-                <option value="LIVRAISON">Livraison</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div v-if="type === 'ENTREPRISE'" class="mb-4">
-          <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
-            <i class="fas fa-building text-yellow-600"></i> Entreprise
-          </h3>
-          <div class="flex flex-col md:grid md:grid-cols-2 gap-4">
-            <div>
-              <label class="block font-medium mb-1">Nom de l'entreprise <span class="text-red-500">*</span></label>
-              <input v-model="form.entreprise.nom" type="text" class="form-input" required />
-            </div>
-            <div>
-              <label class="block font-medium mb-1">SIRET</label>
-              <input v-model="form.entreprise.siret" type="text" class="form-input" />
-            </div>
-            <div>
-              <label class="block font-medium mb-1">Email entreprise</label>
-              <input v-model="form.entreprise.contactEmail" type="email" class="form-input" />
-            </div>
-            <div>
-              <label class="block font-medium mb-1">Téléphone entreprise</label>
-              <input v-model="form.entreprise.contactTelephone" type="text" class="form-input" />
-            </div>
-            <div>
-              <label class="block font-medium mb-1">Adresse entreprise</label>
-              <input v-model="form.entreprise.adresse.ligne1" type="text" class="form-input" />
             </div>
           </div>
         </div>
@@ -187,58 +89,44 @@ const form = ref({
   prenom: '',
   email: '',
   telephone: '',
-  role: 'CLIENT',
   statut: 'ACTIF',
-  statutContractuel: 'SANS_CONTRAT',
-  statutPaiement: 'A_JOUR',
-  statutTechnique: 'ACTIF',
-  statutAbonnement: 'SANS_ABONNEMENT',
-  statutFacturation: 'NORMAL',
   adresse: {
-    type: 'PRINCIPALE',
     ligne1: '',
     ligne2: '',
     codePostal: '',
     ville: '',
     pays: 'FR'
-  },
-  entreprise: {
-    nom: '',
-    siret: '',
-    contactEmail: '',
-    contactTelephone: '',
-    adresse: {
-      ligne1: '',
-      codePostal: '',
-      ville: '',
-      pays: 'FR'
-    }
   }
 })
 
-watch(type, (val) => {
-  if (val === 'PARTICULIER') {
-    form.value.entreprise = {
-      nom: '', siret: '', contactEmail: '', contactTelephone: '', adresse: { ligne1: '', codePostal: '', ville: '', pays: 'FR' }
-    }
-  }
+watch(type, () => {
+  // Rien à faire ici, nous gérons le type séparément
 })
 
 const clientStore = useClientStore()
 
 async function onSubmit() {
   // Validation simple côté client
-  if (!form.value.nom || !form.value.prenom || !form.value.email || !form.value.adresse.ligne1 || !form.value.adresse.codePostal || !form.value.adresse.ville) {
+  if (!form.value.nom || !form.value.prenom || !form.value.email) {
     alert('Veuillez remplir tous les champs obligatoires.')
     return
   }
-  // Construction du payload sans propriété entreprise si particulier
-  let payload: any = { ...form.value, type: type.value }
-  if (type.value === 'PARTICULIER') {
-    // On retire la propriété entreprise du payload sans utiliser delete
-    const { entreprise, ...rest } = payload
-    payload = rest
+  
+  // Construction du payload simplifié pour correspondre au backend
+  const payload = {
+    nom: form.value.nom,
+    prenom: form.value.prenom,
+    email: form.value.email,
+    telephone: form.value.telephone || '',
+    type: type.value,
+    statut: form.value.statut,
+    // Conversion de l'adresse au format attendu par le backend
+    adresseLigne1: form.value.adresse.ligne1,
+    adresseLigne2: form.value.adresse.ligne2 || '',
+    codePostal: form.value.adresse.codePostal,
+    ville: form.value.adresse.ville
   }
+  
   try {
     const newClient = await clientStore.createClient(payload)
     emit('created', newClient)
@@ -273,4 +161,4 @@ async function onSubmit() {
   box-shadow: 0 0 0 2px #2563eb33;
   background: #fff;
 }
-</style> 
+</style>

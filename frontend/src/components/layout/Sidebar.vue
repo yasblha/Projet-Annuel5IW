@@ -47,14 +47,22 @@
           <i class="fas fa-users"></i>
           <span>Clients</span>
         </router-link>
-        <!-- Lien Détails clients masqué -->
         <router-link 
           v-if="hasPermission('contracts', 'view')"
           to="/dashboard/contrats" 
           class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
-          :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/dashboard/contrats') }">
+          :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/dashboard/contrats') || $route.path.startsWith('/contracts/v2') }">
           <i class="fas fa-file-contract"></i>
           <span>Contrats</span>
+          <span v-if="$route.path.startsWith('/contracts/v2')" class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Nouveau</span>
+        </router-link>
+        <router-link 
+          v-if="hasPermission('contracts', 'create')"
+          to="/dashboard/contrats/v2/templates" 
+          class="flex items-center gap-3 px-4 py-2 ml-6 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
+          :class="{ 'bg-blue-100 text-blue-700 font-bold': $route.path.startsWith('/dashboard/contrats/v2/templates') }">
+          <i class="fas fa-file-alt"></i>
+          <span>Templates</span>
         </router-link>
       </div>
       <div>
@@ -67,7 +75,6 @@
           <i class="fas fa-tools"></i>
           <span>Interventions</span>
         </router-link>
-        <!-- Lien Maintenance masqué -->
         <router-link 
           to="/dashboard/compteurs" 
           class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 font-medium hover:bg-blue-50 transition" 
@@ -93,7 +100,6 @@
           <span>Paiements</span>
         </router-link>
       </div>
-      <!-- Section Paramètres masquée -->
       <div v-if="hasPermission('admin', 'view')">
         <h3 class="text-xs font-semibold uppercase text-gray-500 mb-2 pl-2 tracking-wider">Administration</h3>
         <router-link 

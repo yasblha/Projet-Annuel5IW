@@ -3,7 +3,6 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import './style.css'
-import '@fortawesome/fontawesome-free/css/all.css'
 import { setupAuthGuards } from './router/guards'
 import { setupPermissionDirective } from './directives/has-permission'
 

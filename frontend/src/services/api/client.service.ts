@@ -4,7 +4,7 @@ export const clientApi = {
   // Recherche de clients
   search: async (query: string) => {
     try {
-      const response = await apiClient.get('/clients/search', {
+      const response = await apiClient.get('/clients/v2/search', {
         params: { q: query }
       })
       return response
@@ -17,7 +17,7 @@ export const clientApi = {
   // Récupérer un client par ID
   getById: async (id: string) => {
     try {
-      const response = await apiClient.get(`/clients/${id}`)
+      const response = await apiClient.get(`/clients/v2/${id}`)
       return response
     } catch (error) {
       console.error('Erreur récupération client:', error)
@@ -38,10 +38,11 @@ export const clientApi = {
           siret: Math.random() > 0.5 ? '12345678901234' : null,
           dateCreation: '2023-03-10',
           adresse: {
-            rue: '15 rue des Lilas',
+            ligne1: '15 rue des Lilas',
             codePostal: '75012',
             ville: 'Paris',
-            pays: 'France'
+            pays: 'France',
+            type: 'PRINCIPALE'
           }
         }
       }
@@ -51,7 +52,18 @@ export const clientApi = {
   // Créer un nouveau client
   create: async (clientData: any) => {
     try {
-      const response = await apiClient.post('/clients', clientData)
+      // Adapter le format d'adresse si nécessaire
+      const payload = { ...clientData };
+      if (payload.adresse && payload.adresse.rue) {
+        payload.adresse = {
+          ...payload.adresse,
+          ligne1: payload.adresse.rue,
+          type: payload.adresse.type || 'PRINCIPALE'
+        };
+        delete payload.adresse.rue;
+      }
+      
+      const response = await apiClient.post('/clients/v2', payload)
       return response
     } catch (error) {
       console.error('Erreur création client:', error)
@@ -62,7 +74,18 @@ export const clientApi = {
   // Mettre à jour un client
   update: async (id: string, clientData: any) => {
     try {
-      const response = await apiClient.put(`/clients/${id}`, clientData)
+      // Adapter le format d'adresse si nécessaire
+      const payload = { ...clientData, id };
+      if (payload.adresse && payload.adresse.rue) {
+        payload.adresse = {
+          ...payload.adresse,
+          ligne1: payload.adresse.rue,
+          type: payload.adresse.type || 'PRINCIPALE'
+        };
+        delete payload.adresse.rue;
+      }
+      
+      const response = await apiClient.put(`/clients/v2/${id}`, payload)
       return response
     } catch (error) {
       console.error('Erreur mise à jour client:', error)
@@ -73,7 +96,7 @@ export const clientApi = {
   // Supprimer un client
   delete: async (id: string) => {
     try {
-      const response = await apiClient.delete(`/clients/${id}`)
+      const response = await apiClient.delete(`/clients/v2/${id}`)
       return response
     } catch (error) {
       console.error('Erreur suppression client:', error)
@@ -84,11 +107,11 @@ export const clientApi = {
   // Lister tous les clients
   getAll: async (params?: any) => {
     try {
-      const response = await apiClient.get('/clients', { params })
+      const response = await apiClient.get('/clients/v2', { params })
       return response
     } catch (error) {
       console.error('Erreur récupération clients:', error)
       throw error
     }
   }
-} 
+}

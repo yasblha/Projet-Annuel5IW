@@ -71,17 +71,6 @@ $ mau deploy
 
 With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
-## Variables d'environnement nécessaires (production)
-
-À définir dans un Secret Kubernetes ou un fichier .env (jamais en dur dans le code) :
-
-- SMTP_HOST : hôte SMTP (ex: smtp.gmail.com)
-- SMTP_PORT : port SMTP (ex: 587)
-- SMTP_SECURE : true/false (true pour SSL/TLS, false pour STARTTLS)
-- SMTP_USER : identifiant SMTP
-- SMTP_PASS : mot de passe SMTP
-- SMTP_FROM : adresse d'expéditeur par défaut (ex: "Water App" <noreply@aquaerp.cloud>)
-
 ## Resources
 
 Check out a few resources that may come in handy when working with NestJS:

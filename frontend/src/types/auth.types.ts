@@ -2,14 +2,15 @@
 export interface User {
   id: string
   email: string
-  nom: string
-  prenom: string
+  firstName: string
+  lastName: string
   role: UserRole
   telephone?: string
-  tenantId?: string
-  statut?: UserStatus
+  agencyId?: string
+  status?: UserStatus
   createdAt?: string
   updatedAt?: string
+  passwordExpired?: boolean
 }
 
 export type UserRole = 
@@ -36,13 +37,13 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
-  nom: string
-  prenom: string
+  firstName: string
+  lastName: string
   email: string
-  motDePasse: string
+  password: string
   telephone?: string
   role?: UserRole
-  tenantId?: string
+  agencyName: string
 }
 
 export interface ConfirmInvitationRequest {
@@ -64,18 +65,14 @@ export interface InviteUserRequest {
 
 // Types pour les réponses d'authentification
 export interface AuthResponse {
-  success: boolean
-  data: {
-    access_token: string
-    user: User
-  }
+  user: User
+  token: string
   message?: string
-  error?: string
 }
 
 export interface RegisterResponse {
-  success: boolean
-  data: User
+  user: User
+  token: string
   message?: string
 }
 
@@ -103,4 +100,4 @@ export interface AuthGetters {
   isClient: boolean
   isTechnicien: boolean
   userFullName: string
-} 
+}

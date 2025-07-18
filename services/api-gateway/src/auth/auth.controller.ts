@@ -11,7 +11,7 @@ import { ResetPasswordDto } from '../application/dtos/auth/reset-password.dto';
 @Controller('auth')
 export class AuthController {
   constructor(
-    @Inject('AUTH_SERVICE') private readonly authService: ClientProxy,
+    @Inject('AUTH_SERVICE_V2') private readonly authService: ClientProxy,
   ) {}
 
   @Post('register')

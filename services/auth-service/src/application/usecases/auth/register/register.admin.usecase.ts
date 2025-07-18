@@ -3,6 +3,7 @@ import { User } from '@domain/entité/user';
 import { PasswordService } from '@application/services/password.service';
 import { RegisterErrors } from '@domain/errors/register.errors';
 import { PasswordValidator } from '@application/validators/password.validator';
+import { UserRole } from '@domain/enums/user-role.enum';
 
 export class AdminRegisterUseCase {
     constructor(
@@ -12,7 +13,7 @@ export class AdminRegisterUseCase {
     ) {}
 
     public async execute(admin: User, newUser: User): Promise<User> {
-        if (admin.role !== 'ADMIN') {
+        if (admin.role !== UserRole.ADMIN) {
             throw RegisterErrors.UnauthorizedAction('Seul un administrateur peut créer de nouveaux utilisateurs.');
         }
 

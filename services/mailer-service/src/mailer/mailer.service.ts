@@ -8,12 +8,27 @@ export class MailerService {
   constructor(private readonly mailerService: NestMailerService) {}
 
   @EventPattern('user.registered')
-  async handleUserRegistered(data: { email: string; firstname: string; token: string }) {
+  async handleUserRegistered(data: { email: string; firstname: string; token: string; frontendUrl?: string }) {
     console.log(`📧 Réception événement user.registered pour ${data.email}`);
     
     try {
-      await this.sendConfirmationLink({ to: data.email, firstname: data.firstname, token: data.token });
-      console.log(`✅ Email d'activation envoyé à ${data.email}`);
+      // Si le token est vide, envoyer un email de bienvenue plutôt qu'un lien d'activation
+      if (!data.token) {
+        await this.sendWelcomeEmail({ 
+          to: data.email, 
+          name: data.firstname,
+          frontendUrl: data.frontendUrl || process.env.FRONTEND_URL || 'http://localhost:8080'
+        });
+        console.log(`✅ Email de bienvenue envoyé à ${data.email}`);
+      } else {
+        await this.sendConfirmationLink({ 
+          to: data.email, 
+          firstname: data.firstname, 
+          token: data.token,
+          frontendUrl: data.frontendUrl || process.env.FRONTEND_URL || 'http://localhost:8080'
+        });
+        console.log(`✅ Email d'activation envoyé à ${data.email}`);
+      }
     } catch (error) {
       console.error(`❌ Erreur envoi email à ${data.email}:`, error);
     }
@@ -33,16 +48,22 @@ export class MailerService {
 
   @EventPattern('user.invite')
   async handleUserInvite(data: { to: string; firstname: string; token: string }) {
-    await this.sendConfirmationLink({ to: data.to, firstname: data.firstname, token: data.token });
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
+    await this.sendConfirmationLink({ 
+      to: data.to, 
+      firstname: data.firstname, 
+      token: data.token,
+      frontendUrl 
+    });
   }
 
   //Email de bienvenue
-  async sendWelcomeEmail({ to, name }: SendMailDto): Promise<void> {
+  async sendWelcomeEmail({ to, name, frontendUrl }: { to: string; name: string; frontendUrl: string }): Promise<void> {
     await this.mailerService.sendMail({
       to,
       subject: 'Bienvenue sur notre plateforme 💧',
       template: 'welcome',
-      context: { name },
+      context: { name, frontendUrl },
     });
   }
 
@@ -59,14 +80,14 @@ export class MailerService {
   }
 
   // Étape 2 - Demande de confirmation avec lien
-  async sendConfirmationLink({ to, firstname, token }: { to: string; firstname: string; token: string }): Promise<void> {
+  async sendConfirmationLink({ to, firstname, token, frontendUrl }: { to: string; firstname: string; token: string; frontendUrl: string }): Promise<void> {
     await this.mailerService.sendMail({
       to,
       subject: 'Confirmation de votre inscription 🔐',
       template: 'registration-link',
               context: {
           user: { firstname },
-          confirmationLink: `http://localhost:8080/confirm/${token}`,
+          confirmationLink: `${frontendUrl}/confirm/${token}`,
         },
     });
   }

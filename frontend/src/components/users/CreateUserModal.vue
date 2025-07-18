@@ -23,36 +23,36 @@
         <form @submit.prevent="handleSubmit" class="p-6 space-y-4">
           <!-- Nom -->
           <div>
-            <label for="nom" class="block text-sm font-medium text-gray-700 mb-1">
+            <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">
               Nom *
             </label>
             <input
-              id="nom"
-              v-model="form.nom"
+              id="lastName"
+              v-model="form.lastName"
               type="text"
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              :class="{ 'border-red-500': errors.nom }"
+              :class="{ 'border-red-500': errors.lastName }"
               placeholder="Nom de famille"
             />
-            <p v-if="errors.nom" class="mt-1 text-sm text-red-600">{{ errors.nom }}</p>
+            <p v-if="errors.lastName" class="mt-1 text-sm text-red-600">{{ errors.lastName }}</p>
           </div>
 
           <!-- Prénom -->
           <div>
-            <label for="prenom" class="block text-sm font-medium text-gray-700 mb-1">
+            <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">
               Prénom *
             </label>
             <input
-              id="prenom"
-              v-model="form.prenom"
+              id="firstName"
+              v-model="form.firstName"
               type="text"
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              :class="{ 'border-red-500': errors.prenom }"
+              :class="{ 'border-red-500': errors.firstName }"
               placeholder="Prénom"
             />
-            <p v-if="errors.prenom" class="mt-1 text-sm text-red-600">{{ errors.prenom }}</p>
+            <p v-if="errors.firstName" class="mt-1 text-sm text-red-600">{{ errors.firstName }}</p>
           </div>
 
           <!-- Email -->
@@ -169,8 +169,8 @@ const userStore = useUserStore()
 
 // Form data
 const form = reactive<CreateUserRequest>({
-  nom: '',
-  prenom: '',
+  lastName: '',
+  firstName: '',
   email: '',
   telephone: '',
   role: '' as UserRole
@@ -178,8 +178,8 @@ const form = reactive<CreateUserRequest>({
 
 // Form validation
 const errors = reactive({
-  nom: '',
-  prenom: '',
+  lastName: '',
+  firstName: '',
   email: ''
 })
 
@@ -189,17 +189,17 @@ const error = ref('')
 // Validation functions
 const validateForm = () => {
   let isValid = true
-  errors.nom = ''
-  errors.prenom = ''
+  errors.lastName = ''
+  errors.firstName = ''
   errors.email = ''
 
-  if (!form.nom.trim()) {
-    errors.nom = 'Le nom est requis'
+  if (!form.lastName.trim()) {
+    errors.lastName = 'Le nom est requis'
     isValid = false
   }
 
-  if (!form.prenom.trim()) {
-    errors.prenom = 'Le prénom est requis'
+  if (!form.firstName.trim()) {
+    errors.firstName = 'Le prénom est requis'
     isValid = false
   }
 
@@ -228,18 +228,17 @@ const handleSubmit = async () => {
     error.value = ''
 
     const response = await userStore.createUser({
-      nom: form.nom.trim(),
-      prenom: form.prenom.trim(),
+      lastName: form.lastName.trim(),
+      firstName: form.firstName.trim(),
       email: form.email.trim().toLowerCase(),
       telephone: form.telephone?.trim() || undefined,
       role: form.role
     })
 
-    if (response.success) {
-      emit('user-created', response.user)
-      closeModal()
-      resetForm()
-    }
+    // Considérer comme un succès si nous avons une réponse (avec ou sans propriété success)
+    emit('user-created', response.user)
+    closeModal()
+    resetForm()
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Erreur lors de la création de l\'utilisateur'
   } finally {
@@ -254,8 +253,8 @@ const closeModal = () => {
 
 // Reset form
 const resetForm = () => {
-  form.nom = ''
-  form.prenom = ''
+  form.lastName = ''
+  form.firstName = ''
   form.email = ''
   form.telephone = ''
   form.role = '' as UserRole
